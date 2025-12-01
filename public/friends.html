@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Friends</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <style>
+    body { background: linear-gradient(180deg,#071126 0%, #071b2a 100%); color: #e6eef8; margin: 0; padding: 0; font-family: Inter, system-ui; }
+    
+    .nav-toggle {
+      position: fixed !important;
+      top: 20px !important;
+      left: 20px !important;
+      z-index: 200 !important;
+      background: #8b5cf6 !important;
+      color: #fff !important;
+      border: none !important;
+      width: 48px !important;
+      height: 48px !important;
+      border-radius: 50% !important;
+      cursor: pointer !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 1.5em !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+      transition: all 0.3s ease !important;
+    }
+    .nav-toggle:hover { background: #7c3aed !important; transform: scale(1.05) !important; }
+    
+    .side-nav {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      height: 100vh !important;
+      width: 180px !important;
+      background: #10172a !important;
+      display: flex !important;
+      flex-direction: column !important;
+      padding-top: 80px !important;
+      z-index: 100 !important;
+      box-shadow: 2px 0 16px rgba(0,0,0,0.07) !important;
+      transform: translateX(0) !important;
+      transition: transform 0.3s ease !important;
+    }
+    .side-nav.hidden { transform: translateX(-180px) !important; }
+    .side-nav .nav-btn, .side-nav a.btn { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: none; border: none; color: #e0e7ef; text-decoration: none; font-size: 1em; border-radius: 0 20px 20px 0; transition: background 0.15s; cursor: pointer; margin-bottom: 2px; }
+    .side-nav .nav-btn:hover, .side-nav a.btn:hover { background: #23263a; color: #fff; }
+    .side-nav .nav-btn.active, .side-nav a.btn.active { background: #4f46e5; color: #fff; }
+    
+    .main-content { margin-left: 200px; padding: 40px; max-width: 1000px; transition: margin-left 0.3s ease; }
+    .main-content.expanded { margin-left: 20px; }
+    .card { background: #181c2a; border-radius: 14px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
+    .user-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .user-card { background: #23263a; padding: 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 48px; height: 48px; border-radius: 50%; background: #8b5cf6; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .btn { background: #8b5cf6; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9em; }
+    .btn:hover { background: #7c3aed; }
+    
+    @media (max-width: 700px) {
+      .side-nav { width: 250px; }
+      .side-nav.hidden { transform: translateX(-250px) !important; }
+      .main-content { margin-left: 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="nav-toggle" id="navToggle">☰</button>
+
+  <nav class="side-nav" id="sideNav">
+    <button onclick="history.back()" class="nav-btn">⬅️ Back</button>
+    <a href="chat.html" class="btn secondary nav-btn">💬 Chat</a>
+    <a href="friends.html" class="btn secondary nav-btn active">👥 Friends</a>
+    <a href="groups.html" class="btn secondary nav-btn">🔗 Groups</a>
+    <a href="notifications.html" class="btn secondary nav-btn">🔔 Notifications</a>
+    <a href="profile.html" class="btn secondary nav-btn">👤 Profile</a>
+    <a href="settings.html" class="btn secondary nav-btn">⚙️ Settings</a>
+  </nav>
+
+  <div class="main-content" id="mainContent">
+    <h1>👥 Friends</h1>
+    <div class="card">
+      <h2>My Friends (<span id="friendsCount">0</span>)</h2>
+      <div class="user-list" id="friendsList"></div>
+    </div>
+    <div class="card">
+      <h2>All Users (<span id="usersCount">0</span>)</h2>
+      <div class="user-list" id="usersList"></div>
+    </div>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/users.js"></script>
+  <script>
+    // IMPORTANT: Run navigation toggle FIRST
+    (function initNavToggle() {
+      console.log('Initializing navigation toggle for friends page');
+      
+      const navToggle = document.getElementById('navToggle');
+      const sideNav = document.getElementById('sideNav');
+      const mainContent = document.getElementById('mainContent');
+      
+      if (!navToggle || !sideNav || !mainContent) {
+        console.error('Navigation elements not found');
+        return;
+      }
+      
+      navToggle.addEventListener('click', function() {
+        console.log('Friends navigation toggle clicked');
+        sideNav.classList.toggle('hidden');
+        mainContent.classList.toggle('expanded');
+        navToggle.textContent = sideNav.classList.contains('hidden') ? '☰' : '✕';
+      });
+      
+      console.log('Navigation toggle initialized successfully');
+    })();
+    
+    const currentUser = DB.load(KEYS.CURRENT_USER);
+    if (!currentUser) window.location.href = 'login.html';
+
+    const users = DB.load(KEYS.USERS, []);
+    const friendsList = document.getElementById('friendsList');
+    const usersList = document.getElementById('usersList');
+    
+    // Render friends
+    const friends = users.filter(u => currentUser.friends && currentUser.friends.includes(u.id));
+    document.getElementById('friendsCount').textContent = friends.length;
+    friends.forEach(user => {
+      const div = document.createElement('div');
+      div.className = 'user-card';
+      div.innerHTML = `
+        <div class="avatar">${user.name.substring(0, 2).toUpperCase()}</div>
+        <div style="flex:1">
+          <strong>${user.name}</strong>
+          <div style="font-size:0.9em;color:#a3aed6">${user.about || 'No bio'}</div>
+        </div>
+        <button class="btn" onclick="location.href='chat.html?user=${user.id}'">💬 Chat</button>
+      `;
+      friendsList.appendChild(div);
+    });
+
+    // Render all users
+    const otherUsers = users.filter(u => u.id !== currentUser.id);
+    document.getElementById('usersCount').textContent = otherUsers.length;
+    otherUsers.forEach(user => {
+      const isFriend = currentUser.friends && currentUser.friends.includes(user.id);
+      const div = document.createElement('div');
+      div.className = 'user-card';
+      div.innerHTML = `
+        <div class="avatar">${user.name.substring(0, 2).toUpperCase()}</div>
+        <div style="flex:1">
+          <strong>${user.name}</strong>
+          <div style="font-size:0.9em;color:#a3aed6">${user.about || 'No bio'}</div>
+        </div>
+        ${isFriend ? 
+          `<button class="btn" onclick="location.href='chat.html?user=${user.id}'">💬 Chat</button>` :
+          `<button class="btn" onclick="sendRequest('${user.id}')">➕ Add Friend</button>`
+        }
+      `;
+      usersList.appendChild(div);
+    });
+
+    function sendRequest(userId) {
+      const result = Users.sendFriendRequest(currentUser.id, userId);
+      alert(result.msg);
+      if (result.ok) location.reload();
+    }
+  </script>
+</body>
+</html>

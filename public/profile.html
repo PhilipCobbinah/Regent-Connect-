@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Profile</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/profile.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <style>
+    /* Reset and base styles */
+    body {
+      background: linear-gradient(180deg,#071126 0%, #071b2a 100%);
+      color: #e6eef8;
+      margin: 0;
+      padding: 0;
+      font-family: Inter, system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+    
+    /* Navigation Toggle - FIXED */
+    .nav-toggle {
+      position: fixed !important;
+      top: 20px !important;
+      left: 20px !important;
+      z-index: 300 !important;
+      background: #8b5cf6 !important;
+      color: #fff !important;
+      border: none !important;
+      width: 48px !important;
+      height: 48px !important;
+      border-radius: 50% !important;
+      cursor: pointer !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 1.5em !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+      transition: all 0.3s ease !important;
+    }
+    .nav-toggle:hover {
+      background: #7c3aed !important;
+      transform: scale(1.05) !important;
+    }
+    
+    .side-nav {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      height: 100vh !important;
+      width: 180px !important;
+      background: #10172a !important;
+      display: flex !important;
+      flex-direction: column !important;
+      padding-top: 80px !important;
+      z-index: 200 !important;
+      box-shadow: 2px 0 16px rgba(0,0,0,0.07) !important;
+      transform: translateX(0) !important;
+      transition: transform 0.3s ease !important;
+      overflow-y: auto !important;
+    }
+    .side-nav.hidden {
+      transform: translateX(-180px) !important;
+    }
+    .side-nav .nav-btn, .side-nav a.btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: none;
+      border: none;
+      color: #e0e7ef;
+      text-decoration: none;
+      font-size: 1em;
+      border-radius: 0 20px 20px 0;
+      transition: background 0.15s;
+      cursor: pointer;
+      margin-bottom: 2px;
+    }
+    .side-nav .nav-btn:hover, .side-nav a.btn:hover {
+      background: #23263a;
+      color: #fff;
+    }
+    .side-nav .nav-btn.active, .side-nav a.btn.active {
+      background: #4f46e5;
+      color: #fff;
+    }
+    
+    .layout {
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 100vh !important;
+      margin-left: 180px !important;
+      transition: margin-left 0.3s ease !important;
+    }
+    .layout.expanded {
+      margin-left: 0 !important;
+    }
+    .main-content {
+      max-width: 700px;
+      margin: 32px auto 0 auto;
+      padding: 24px 16px 32px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    /* Card and section fixes - COMPLETE STYLES */
+    .card {
+      background: #181c2a;
+      border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      padding: 24px 20px;
+      margin-bottom: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .profile-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+    .avatar-large {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 8px;
+      background: #23263a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .profile-details form label {
+      display: block;
+      margin-bottom: 14px;
+      font-weight: 500;
+      color: #e0e7ef;
+    }
+    .profile-details input,
+    .profile-details textarea {
+      width: 100%;
+      margin-top: 6px;
+      margin-bottom: 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #353b50;
+      background: #10172a;
+      color: #e0e7ef;
+      font-size: 1em;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+    .profile-details button,
+    .btn.primary {
+      margin-top: 10px;
+      width: 100%;
+      background: #8b5cf6;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn.primary:hover {
+      background: #7c3aed;
+    }
+    .profile-picture-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background: #181c2a;
+      border-radius: 14px;
+      padding: 24px 20px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .profile-picture-section img {
+      margin-bottom: 8px;
+      max-width: 120px;
+      flex-shrink: 0;
+    }
+    .profile-picture-section form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 300px;
+    }
+    .profile-picture-section button {
+      background: #8b5cf6;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+    }
+    .profile-picture-section input[type="file"] {
+      width: 100%;
+      font-size: 0.9em;
+    }
+    .profile-stats .stats-grid {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      text-align: center;
+      min-width: 80px;
+    }
+    .stat-value {
+      font-size: 1.6em;
+      font-weight: bold;
+      color: #8b5cf6;
+    }
+    .stat-label {
+      color: #a3aed6;
+      font-size: 1em;
+      margin-top: 2px;
+    }
+    .muted {
+      color: #a3aed6;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+      color: #8b5cf6;
+      word-wrap: break-word;
+    }
+    
+    /* Tablet breakpoint */
+    @media (max-width: 900px) {
+      .layout {
+        margin-left: 0 !important;
+      }
+      .main-content {
+        max-width: 95vw;
+        padding: 80px 3vw 32px 3vw;
+        margin: 0 auto;
+      }
+      .nav-toggle {
+        left: 10px !important;
+        top: 10px !important;
+      }
+      h1 {
+        font-size: 1.5rem !important;
+      }
+    }
+    
+    /* Mobile breakpoint */
+    @media (max-width: 700px) {
+      .side-nav {
+        width: 250px !important;
+        padding-top: 80px;
+      }
+      .side-nav.hidden {
+        transform: translateX(-250px) !important;
+      }
+      .layout {
+        margin-left: 0 !important;
+      }
+      .main-content {
+        max-width: 100vw;
+        padding: 70px 10px 20px 10px;
+        gap: 20px;
+      }
+      .card {
+        padding: 16px;
+        border-radius: 12px;
+      }
+      .avatar-large {
+        width: 100px;
+        height: 100px;
+      }
+      .profile-picture-section img {
+        max-width: 100px;
+      }
+      .profile-stats .stats-grid {
+        gap: 16px;
+      }
+      .stat-item {
+        min-width: 70px;
+      }
+      .stat-value {
+        font-size: 1.3em;
+      }
+      h1 {
+        font-size: 1.3rem !important;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+      h3 {
+        font-size: 1.1rem;
+      }
+    }
+    
+    /* Extra small screens */
+    @media (max-width: 400px) {
+      .main-content {
+        padding: 70px 5px 20px 5px;
+        gap: 15px;
+      }
+      .card {
+        padding: 12px;
+      }
+      .avatar-large {
+        width: 80px;
+        height: 80px;
+      }
+      .profile-picture-section img {
+        max-width: 80px;
+      }
+      .nav-toggle {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.2em !important;
+      }
+      .profile-stats .stats-grid {
+        gap: 12px;
+      }
+      .stat-item {
+        min-width: 60px;
+      }
+      .stat-value {
+        font-size: 1.1em;
+      }
+      .stat-label {
+        font-size: 0.85em;
+      }
+      h1 {
+        font-size: 1.1rem !important;
+      }
+      h2 {
+        font-size: 1rem;
+      }
+      h3 {
+        font-size: 0.95rem;
+      }
+      .profile-details input,
+      .profile-details textarea {
+        padding: 8px;
+        font-size: 0.9em;
+      }
+      .btn.primary {
+        padding: 10px 16px;
+        font-size: 0.9em;
+      }
+    }
+    
+    /* Animation keyframes */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    @keyframes successPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+  </style>
+</head>
+<body class="profile-page">
+  <!-- Navigation Toggle Button -->
+  <button class="nav-toggle" id="navToggle">☰</button>
+
+  <nav class="side-nav" id="sideNav">
+    <button onclick="history.back()" class="nav-btn btn secondary" style="font-size:1.1em;">⬅️ Back</button>
+    <a href="chat.html" class="btn secondary nav-btn">💬 Chat</a>
+    <a href="friends.html" class="btn secondary nav-btn">👥 Friends</a>
+    <a href="groups.html" class="btn secondary nav-btn">🔗 Groups</a>
+    <a href="notifications.html" class="btn secondary nav-btn">🔔 Notifications</a>
+    <a href="profile.html" class="btn secondary nav-btn active">👤 Profile</a>
+    <a href="settings.html" class="btn secondary nav-btn">⚙️ Settings</a>
+  </nav>
+  <!--
+  <div id="appHeader" class="app-header">
+    <img src="assets/icons/logo-regent.png" alt="Regent Connect Logo" style="height:40px;vertical-align:middle;margin-right:10px;">
+    <span style="font-size:1.5em;font-weight:700;vertical-align:middle;">Regent Connect</span>
+  </div>
+  -->
+  <div class="layout" id="layoutContainer">
+    <main class="main-content">
+      <!-- Add Regent Connect logo and title at the top of main content -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:24px;">
+        <img src="assets/icons/logo-regent.png" alt="Regent Connect Logo" style="height:64px;width:64px;">
+        <h1 style="margin:0;line-height:1;font-size:2rem;">Regent Connect</h1>
+      </div>
+      
+      <p style="text-align:center;font-size:1.2rem;margin-bottom:20px;color:#a3aed6;">Chat. Learn. Connect.</p>
+      <p style="text-align:center;margin-bottom:32px;color:#e0e7ef;">The all-in-one platform for campus communication, collaboration, and community building.</p>
+      
+      <section class="profile-header card">
+        <!-- Use logo as avatar instead of RC initials -->
+        <div class="avatar-large" id="profileAvatar" style="background:none;">
+          <img src="assets/icons/logo-regent.png" alt="Regent Connect Logo" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+        </div>
+        <h2 id="profileName">User</h2>
+        <p class="muted" id="profileIdentifier">user@example.com</p>
+      </section>
+
+      <section class="profile-details card">
+        <h3>Profile Information</h3>
+        <form id="profileForm">
+          <label>Full Name
+            <input type="text" id="editName" required>
+          </label>
+          <label>Phone/Email
+            <input type="text" id="editIdentifier" required>
+          </label>
+          <label>Bio
+            <textarea id="editBio" rows="4"></textarea>
+          </label>
+          <button type="submit" class="btn primary">Save Changes</button>
+        </form>
+      </section>
+
+      <section class="profile-picture-section">
+        <h3>Profile Picture</h3>
+        <img id="profile-img-preview" src="assets/icons/default-profile.png" alt="Profile Picture" style="width:120px;height:120px;border-radius:50%;object-fit:cover;">
+        <form id="profile-pic-form" enctype="multipart/form-data" method="POST" action="upload_profile_pic.php">
+            <input type="file" id="profile-pic-input" name="profile_picture" accept="image/*" style="margin-top:10px;">
+            <button type="submit">Upload/Update</button>
+        </form>
+      </section>
+
+      <section class="profile-stats card">
+        <h3>Statistics</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value" id="friendsCount">0</div>
+            <div class="stat-label">Friends</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="groupsCount">0</div>
+            <div class="stat-label">Groups</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="messagesCount">0</div>
+            <div class="stat-label">Messages</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/profile.js"></script>
+  <script>
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Navigation toggle - matches settings.html EXACTLY
+      const navToggle = document.getElementById('navToggle');
+      const sideNav = document.getElementById('sideNav');
+      const layoutContainer = document.getElementById('layoutContainer');
+      
+      if (navToggle && sideNav && layoutContainer) {
+        navToggle.addEventListener('click', function() {
+          console.log('Toggle clicked'); // Debug log
+          sideNav.classList.toggle('hidden');
+          layoutContainer.classList.toggle('expanded');
+          navToggle.textContent = sideNav.classList.contains('hidden') ? '☰' : '✕';
+        });
+      } else {
+        console.error('Navigation elements not found:', {navToggle, sideNav, layoutContainer});
+      }
+
+      // Profile functionality
+      if (window.app && app.loadComponents) app.loadComponents();
+      if (window.profile && profile.init) profile.init();
+
+      // load current user and avatar
+      const currentUser = DB.load(KEYS.CURRENT_USER);
+      if (currentUser) {
+        loadAndApplyAvatar(currentUser.id);
+      }
+
+      // wire file input to read & save avatar
+      const picInput = document.getElementById('profile-pic-input');
+      const imgPreview = document.getElementById('profile-img-preview');
+      const avatarContainer = document.getElementById('profileAvatar');
+
+      if (picInput) {
+        picInput.addEventListener('change', async function (e) {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          
+          console.log('File selected:', file.name, file.type); // Debug
+          
+          // only images
+          if (!file.type.startsWith('image/')) {
+            alert('Please upload an image file.');
+            return;
+          }
+
+          try {
+            const dataUrl = await fileToDataUrl(file);
+            console.log('Image converted to dataURL, length:', dataUrl.length); // Debug
+            
+            // apply immediately to preview
+            if (imgPreview) {
+              imgPreview.src = dataUrl;
+              console.log('Preview updated');
+            }
+            
+            // apply to profile header avatar
+            if (avatarContainer) {
+              let img = avatarContainer.querySelector('img');
+              if (!img) {
+                img = document.createElement('img');
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.borderRadius = '50%';
+                img.style.objectFit = 'cover';
+                avatarContainer.innerHTML = ''; // Clear existing content
+                avatarContainer.appendChild(img);
+              }
+              img.src = dataUrl;
+              console.log('Header avatar updated');
+            }
+            
+            // persist to localStorage and database
+            if (currentUser && currentUser.id) {
+              localStorage.setItem('avatar_' + currentUser.id, dataUrl);
+              currentUser.avatar = dataUrl;
+              DB.save(KEYS.CURRENT_USER, currentUser);
+              
+              console.log('Saved to localStorage and CURRENT_USER');
+              
+              // Also update users list if present
+              const users = DB.load(KEYS.USERS, []);
+              const uidx = users.findIndex(u => u.id === currentUser.id);
+              if (uidx !== -1) {
+                users[uidx].avatar = dataUrl;
+                DB.save(KEYS.USERS, users);
+                console.log('Updated USERS list');
+              }
+              
+              // Show success message
+              setTimeout(() => {
+                alert('✅ Profile picture updated successfully!');
+              }, 100);
+            }
+          } catch (error) {
+            console.error('Error processing image:', error);
+            alert('Error uploading image. Please try again.');
+          }
+        });
+      }
+
+      // prevent actual form POST (optional) and keep client-side behavior
+      const picForm = document.getElementById('profile-pic-form');
+      if (picForm) {
+        picForm.addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          // Trigger file input click if no file selected
+          const picInput = document.getElementById('profile-pic-input');
+          if (picInput && !picInput.files.length) {
+            alert('Please select an image first.');
+          }
+        });
+      }
+    });
+
+    // helper: file -> dataURL
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // helper: load avatar from storage and apply to DOM
+    function loadAndApplyAvatar(userId) {
+      console.log('Loading avatar for user:', userId); // Debug
+      
+      const stored = localStorage.getItem('avatar_' + userId);
+      if (stored) {
+        console.log('Found stored avatar, length:', stored.length); // Debug
+        
+        const imgPreview = document.getElementById('profile-img-preview');
+        if (imgPreview) {
+          imgPreview.src = stored;
+          console.log('Set preview image');
+        }
+        
+        const avatarContainer = document.getElementById('profileAvatar');
+        if (avatarContainer) {
+          let img = avatarContainer.querySelector('img');
+          if (!img) {
+            img = document.createElement('img');
+            avatarContainer.innerHTML = ''; // Clear logo
+            avatarContainer.appendChild(img);
+          }
+          img.src = stored;
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.borderRadius = '50%';
+          img.style.objectFit = 'cover';
+          console.log('Set header avatar');
+        }
+      } else {
+        console.log('No stored avatar found'); // Debug
+        // if no stored avatar but currentUser has avatar in DB, use it
+        const currentUser = DB.load(KEYS.CURRENT_USER);
+        if (currentUser && currentUser.avatar) {
+          console.log('Found avatar in DB');
+          localStorage.setItem('avatar_' + currentUser.id, currentUser.avatar);
+          loadAndApplyAvatar(currentUser.id);
+        }
+      }
+    }
+
+    // RegentAI Knowledge Base - Enhanced with more variations and external search
+    window.RegentAI_KB = [
+      {
+        keywords: ['philip', 'cobbinah', 'philip cobbinah'],
+        a: `Philip Cobbinah is a highly accomplished student, innovator, and student leader at Regent University College of Science and Technology in Ghana. He co-developed "Roboserve", served as Vice SRC President, Enactus Team Lead, and Hult Prize Team Lead. He represented Ghana at the Enactus World Cup 2025 and is known for blending global entrepreneurship with local knowledge. As of November 2025, he is an IT professional interning at Npontu Technologies Limited.`
+      },
+      {
+        keywords: ['samuel', 'ayeh-bampoe', 'samuel ayeh-bampoe', 'mr. samuel', 'ayeh bampoe'],
+        a: `Mr. Samuel Ayeh-Bampoe is the Deputy Registrar for Human Resources and Administration at Regent University Ghana. He is involved in university management, staff experience, and student mentorship. He mentors innovation teams, is active in marketing, and is the National President of Green Land Nkyirimma Organization (GLaNO).`
+      },
+      {
+        keywords: ['aseda', 'ayeh-bampoe', 'aseda ayeh-bampoe', 'aseda kofi', 'kofi ayeh-bampoe', 'aseda kofi ayeh-bampoe'],
+        a: `Aseda Kofi Ayeh-Bampoe is an outstanding student innovator at Regent University Ghana, pursuing a Bachelor of Engineering in Computer Engineering. He led a team that won second place at Ghana Digital & Innovation Week for a solar tracking system, was a Hult Prize National runner-up, and co-developed projects like Roboserve, ODUMGYA, and a Smart Irrigation System. He is the son of Mr. Samuel Ayeh-Bampoe.`
+      },
+      {
+        keywords: ['president', 'nana yaw', 'boadi appiah', 'nana yaw boadi appiah', 'acting president'],
+        a: `As of November 2025, the Acting President of Regent University College of Science and Technology, Ghana, is Nana Yaw Boadi Appiah. The founding president and current Chancellor is Rev. Prof. Emmanuel Kingsley Larbi.`
+      },
+      {
+        keywords: ['founder', 'emmanuel', 'kingsley larbi', 'emmanuel kingsley larbi', 'founded regent'],
+        a: `Regent University College of Science and Technology, Ghana, was founded by Rev. Professor Emmanuel Kingsley Larbi. The university was registered in September 2003, accredited in 2004, and began lectures in January 2005.`
+      },
+      {
+        keywords: ['graduation', '2025', 'graduation ceremony', 'december', '13th december'],
+        a: `Regent University College of Science and Technology, Ghana, will hold its 2025 graduation ceremony on 13th December 2025.`
+      },
+      {
+        keywords: ['location', 'where is regent', 'regent located', 'address', 'campus location'],
+        a: `Regent University College of Science and Technology is located in Accra, Ghana. The main campus is situated in the Greater Accra Region, providing easy access for students across the country.`
+      },
+      {
+        keywords: ['website', 'link', 'url', 'regent website', 'official website', 'homepage', 'web page'],
+        a: `The official website of Regent University College of Science and Technology is <a href="https://regent.edu.gh" target="_blank" style="color:#8b5cf6;font-weight:600;">regent.edu.gh</a>. You can visit it for more information about admissions, programs, campus life, and more! 🌐`
+      },
+      {
+        keywords: ['courses', 'programs', 'study', 'degree', 'what courses', 'what programs', 'majors', 'disciplines'],
+        a: `🎓 Regent University College of Science and Technology offers various programs including:\n\n<strong>Engineering & Technology:</strong>\n• Computer Engineering\n• Electrical & Electronics Engineering\n• Mechanical Engineering\n• Information Technology\n\n<strong>Business & Management:</strong>\n• Business Administration\n• Accounting\n• Marketing\n• Human Resource Management\n\n<strong>Sciences:</strong>\n• Computer Science\n• Applied Mathematics\n• Data Science\n\nFor the complete list of programs, admission requirements, and course details, please visit <a href="https://regent.edu.gh" target="_blank" style="color:#8b5cf6;font-weight:600;">regent.edu.gh</a> 📚`
+      },
+      {
+        keywords: ['roboserve', 'robot'],
+        a: `Roboserve is an innovative robot co-developed by Philip Cobbinah and Aseda Ayeh-Bampoe. It's a smart robot waiter capable of mixing coffee, dispensing tissues and hand sanitizers, and charging phones.`
+      },
+      {
+        keywords: ['enactus', 'world cup', 'bangkok'],
+        a: `Philip Cobbinah represented Ghana and Regent University at the Enactus World Cup in Bangkok in 2025, where he shared his "Enactus Hybrid Model" for entrepreneurship education.`
+      },
+      {
+        keywords: ['hult prize'],
+        a: `Both Philip Cobbinah and Aseda Ayeh-Bampoe were involved in Hult Prize competitions. Aseda's team came in as first runner-up in the Hult Prize National Competition with their Smart Alert System project.`
+      },
+      {
+        keywords: ['contact', 'email', 'phone', 'call', 'reach'],
+        a: `You can contact Regent University College of Science and Technology through their official website at <a href="https://regent.edu.gh" target="_blank" style="color:#8b5cf6;">regent.edu.gh</a>. For specific inquiries, please visit their contact page or admissions office.`
+      }
+    ];
+
+    // Enhanced fallback with external search capability
+    async function getFallbackAiReply(msg) {
+      if (window.RegentAI_KB) {
+        const lowerMsg = msg.toLowerCase();
+        
+        // Check for any matching keyword in the knowledge base
+        for (const entry of RegentAI_KB) {
+          const hasMatch = entry.keywords.some(keyword => {
+            const keywordLower = keyword.toLowerCase();
+            return lowerMsg.includes(keywordLower);
+          });
+          
+          if (hasMatch) {
+            return entry.a;
+          }
+        }
+      }
+      
+      const m = msg.toLowerCase();
+      
+      // Enhanced interactive and friendly responses
+      if(m.includes('how are you')||m.includes('how r u')||m.includes('how do you do')) {
+        return "😊 I'm doing great, thank you for asking! Even though I'm not human, I'm here and ready to help you. How are you doing today?";
+      }
+      if(m.includes('fine')||m.includes('good')||m.includes('great')||m.includes('well')||m.includes('ok')||m.includes('okay')) {
+        return "😊 That's wonderful to hear! How can I assist you today? Feel free to ask me about Regent University, campus life, or anything else!";
+      }
+      if(m.includes('not good')||m.includes('bad')||m.includes('sad')||m.includes('not well')) {
+        return "😔 I'm sorry to hear that. I'm here if you need someone to talk to or if I can help with anything. What's on your mind?";
+      }
+      if(m.includes('hi')||m.includes('hello')||m.includes('hey')) {
+        return "👋 Hi there! How are you doing today? I'm RegentAI, your friendly campus assistant. Ask me anything!";
+      }
+      if(m.includes('who are you')||m.includes('what are you')) {
+        return "🤖 I'm RegentAI, your virtual assistant for Regent University! I'm here to help you with information about campus, people, events, and more. I can also search external sources if needed. How can I help you today?";
+      }
+      if(m.includes('thank')||m.includes('thanks')) {
+        return "😊 You're very welcome! Happy to help. Is there anything else you'd like to know?";
+      }
+      if(m.includes('bye')||m.includes('goodbye')||m.includes('see you')) {
+        return "👋 Goodbye! Take care and have a wonderful day. Feel free to come back anytime you need help!";
+      }
+      if(m.includes('project')) return "🚀 Try building a web chat app using LocalStorage! It's a great learning project.";
+      if(m.includes('club')) return "🎓 There are many clubs at Regent: Robotics, Coding, Debate, and more! Which one interests you?";
+      if(m.includes('exam')||m.includes('study')) return "📚 Study tip: Make a schedule, take regular breaks, and don't forget to stay hydrated! You've got this! 💪";
+      
+      // Return default message to trigger external search
+      return "🤖 I'm here to help with campus, study, or tech questions! Ask me about Regent University, people, events, or anything else you'd like to know.";
+    }
+
+    // Function to search external sources
+    async function searchExternalSources(query) {
+      const lowerQuery = query.toLowerCase();
+      
+      // Special handling for website/link requests
+      if (lowerQuery.includes('website') || lowerQuery.includes('link') || lowerQuery.includes('url')) {
+        return `🌐 The official website of Regent University College of Science and Technology is <a href="https://regent.edu.gh" target="_blank" style="color:#8b5cf6;font-weight:600;">regent.edu.gh</a>\n\nYou can visit it to find information about:\n• Admissions and Programs\n• Campus Life and Facilities\n• News and Events\n• Contact Information`;
+      }
+
+      try {
+        // Try Wikipedia API
+        const wikiResponse = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+        if (wikiResponse.ok) {
+          const data = await wikiResponse.json();
+          if (data.extract) {
+            return `📚 Here's what I found from Wikipedia:\n\n${data.extract}\n\n<a href="${data.content_urls.desktop.page}" target="_blank" style="color:#8b5cf6;">Read more on Wikipedia</a>`;
+          }
+        }
+      } catch (error) {
+        console.log('Wikipedia search failed:', error);
+      }
+
+      try {
+        // Try DuckDuckGo Instant Answer API as fallback
+        const ddgResponse = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
+        if (ddgResponse.ok) {
+          const data = await ddgResponse.json();
+          if (data.AbstractText) {
+            return `🔍 Here's what I found:\n\n${data.AbstractText}\n\n${data.AbstractURL ? `<a href="${data.AbstractURL}" target="_blank" style="color:#8b5cf6;">Learn more</a>` : ''}`;
+          }
+        }
+      } catch (error) {
+        console.log('DuckDuckGo search failed:', error);
+      }
+
+      // If all external searches fail, provide helpful response
+      return `🤔 I don't have specific information about "${query}" in my knowledge base at the moment. However, I can help you with:\n\n• Questions about Regent University (<a href="https://regent.edu.gh" target="_blank" style="color:#8b5cf6;">visit website</a>)\n• Information about campus life\n• Details about students and staff\n• Study tips and advice\n\nTry asking me something else, or rephrase your question!`;
+    }
+  </script>
+</body>
+</html>

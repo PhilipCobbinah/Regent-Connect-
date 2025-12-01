@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Friends</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    .friends-page { height: 100vh; overflow: hidden; }
+    .app-header { background: linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .app-header .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg,var(--accent),#06b6d4); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 20px; }
+    
+    .layout { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 64px); }
+    .app-sidebar { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-right: 1px solid rgba(255,255,255,0.04); padding: 16px; overflow-y: auto; }
+    
+    .friends-main { padding: 24px; overflow-y: auto; max-width: 900px; }
+    .card { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-radius: 12px; padding: 20px; box-shadow: 0 6px 20px rgba(2,6,23,0.6); margin-bottom: 20px; }
+    
+    .search-card form { display: flex; gap: 12px; }
+    .search-card input { flex: 1; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: #fff; font-size: 15px; }
+    .search-card input:focus { outline: none; border-color: var(--accent); }
+    
+    .card h3 { margin: 0 0 16px 0; font-size: 18px; display: flex; align-items: center; justify-content: space-between; }
+    .badge { background: var(--accent); color: white; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    
+    .list { list-style: none; padding: 0; margin: 0; }
+    .person-item { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 10px; background: rgba(255,255,255,0.02); margin-bottom: 12px; transition: all .2s; }
+    .person-item:hover { background: rgba(255,255,255,0.04); transform: translateX(4px); }
+    
+    .person-avatar { width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg,#eab308,#ef4444); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; flex-shrink: 0; }
+    .person-info { flex: 1; min-width: 0; }
+    .person-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+    .person-meta { font-size: 13px; color: var(--muted); }
+    .person-status { font-size: 12px; color: var(--success); margin-top: 4px; }
+    
+    .person-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn { padding: 10px 16px; border-radius: 10px; border: none; background: var(--accent); color: white; cursor: pointer; transition: all .2s; font-size: 13px; font-weight: 600; }
+    .btn:hover { background: #4338ca; transform: translateY(-1px); }
+    .btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.06); }
+    .btn.secondary:hover { background: rgba(255,255,255,0.02); }
+    .btn.success { background: var(--success); }
+    .btn.success:hover { background: #059669; }
+    .btn.danger { background: #ef4444; }
+    .btn.danger:hover { background: #dc2626; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+    .stat-card { padding: 20px; background: rgba(255,255,255,0.02); border-radius: 10px; text-align: center; }
+    .stat-value { font-size: 32px; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 13px; color: var(--muted); margin-top: 8px; }
+    
+    .quick-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .filter-btn { padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: var(--muted); cursor: pointer; transition: all .2s; font-size: 13px; }
+    .filter-btn:hover { background: rgba(255,255,255,0.04); }
+    .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    
+    @media(max-width:900px){ .layout { grid-template-columns: 1fr; } .app-sidebar { display: none; } }
+  </style>
+</head>
+<body class="friends-page">
+  <div class="app-header">
+    <div class="brand">
+      <div class="logo">👥</div>
+      <h1 style="margin:0;font-size:18px">Friends & Contacts</h1>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn secondary" onclick="location.href='dashboard.html'" style="padding:8px 16px">Dashboard</button>
+      <button class="btn secondary" onclick="location.href='chat.html'" style="padding:8px 16px">Chat</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="app-sidebar">
+      <div style="margin-bottom:20px">
+        <h3 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase">STATISTICS</h3>
+        <div class="stats-grid" style="grid-template-columns:1fr">
+          <div class="stat-card">
+            <div class="stat-value" id="totalFriends">0</div>
+            <div class="stat-label">Total Friends</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalRequests">0</div>
+            <div class="stat-label">Pending Requests</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalUsers">0</div>
+            <div class="stat-label">All Users</div>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <h3 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase">QUICK ACTIONS</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn" style="width:100%" onclick="document.getElementById('friendSearchInput').focus()">🔍 Find People</button>
+          <button class="btn secondary" style="width:100%" onclick="location.href='groups.html'">👥 View Groups</button>
+          <button class="btn secondary" style="width:100%" onclick="location.href='profile.html'">👤 My Profile</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="friends-main">
+      <div class="search-card card">
+        <form id="friendSearchForm">
+          <input id="friendSearchInput" placeholder="🔍 Search by name, phone, or about..." autocomplete="off">
+          <button type="submit" class="btn">Search</button>
+        </form>
+      </div>
+
+      <section class="card">
+        <h3>
+          <span>📊 Quick Filters</span>
+        </h3>
+        <div class="quick-filters">
+          <button class="filter-btn active" data-filter="all">All Users</button>
+          <button class="filter-btn" data-filter="friends">Friends Only</button>
+          <button class="filter-btn" data-filter="notFriends">Not Friends</button>
+          <button class="filter-btn" data-filter="online">Online</button>
+        </div>
+      </section>
+
+      <section class="card" id="requestsSection">
+        <h3>
+          <span>📬 Friend Requests</span>
+          <span class="badge" id="requestsCount">0</span>
+        </h3>
+        <ul id="requestsList" class="list"></ul>
+      </section>
+
+      <section class="card">
+        <h3>
+          <span>👥 People</span>
+          <span class="badge" id="peopleCount">0</span>
+        </h3>
+        <ul id="peopleList" class="list"></ul>
+      </section>
+    </main>
+  </div>
+
+  <script>
+  /* Database helpers */
+  const DB = {
+    load(key, defaultVal){try{const v=localStorage.getItem(key);return v?JSON.parse(v):defaultVal}catch(e){return defaultVal}},
+    save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+  }
+  const KEY = {USERS:'rc_users',CUR:'rc_currentUser',REQS:'rc_reqs',MSGS:'rc_msgs'}
+  
+  let currentUser = DB.load(KEY.CUR,null);
+  let users = DB.load(KEY.USERS,[]);
+  let reqs = DB.load(KEY.REQS,[]);
+  let msgs = DB.load(KEY.MSGS,[]);
+  let currentFilter = 'all';
+  let searchQuery = '';
+  
+  if(!currentUser){ window.location.href = 'login.html'; }
+  
+  function saveAll(){DB.save(KEY.USERS,users);DB.save(KEY.REQS,reqs)}
+  
+  /* Render statistics */
+  function renderStats(){
+    const friends = currentUser.friends ? currentUser.friends.length : 0;
+    const requests = reqs.filter(r=>r.to===currentUser.id).length;
+    document.getElementById('totalFriends').textContent = friends;
+    document.getElementById('totalRequests').textContent = requests;
+    document.getElementById('totalUsers').textContent = users.length;
+  }
+  
+  /* Render requests */
+  function renderRequests(){
+    const container = document.getElementById('requestsList');
+    const myReqs = reqs.filter(r=>r.to===currentUser.id);
+    document.getElementById('requestsCount').textContent = myReqs.length;
+    container.innerHTML = '';
+    
+    if(myReqs.length === 0){
+      document.getElementById('requestsSection').style.display = 'none';
+      return;
+    }
+    
+    document.getElementById('requestsSection').style.display = 'block';
+    myReqs.forEach(r => {
+      const user = users.find(u=>u.id===r.from);
+      if(!user) return;
+      
+      const li = document.createElement('li');
+      li.className = 'person-item';
+      li.innerHTML = `
+        <div class="person-avatar" style="background:${user.avatarColor || '#6ee7b7'}">${user.name.slice(0,2).toUpperCase()}</div>
+        <div class="person-info">
+          <div class="person-name">${user.name}</div>
+          <div class="person-meta">${user.about || user.phone || '—'}</div>
+        </div>
+        <div class="person-actions">
+          <button class="btn success" onclick="acceptRequest('${r.from}')">✓ Accept</button>
+          <button class="btn danger" onclick="rejectRequest('${r.from}')">✕ Reject</button>
+        </div>
+      `;
+      container.appendChild(li);
+    });
+  }
+  
+  /* Render people list */
+  function renderPeople(){
+    const container = document.getElementById('peopleList');
+    container.innerHTML = '';
+    
+    let filtered = users.filter(u => u.id !== currentUser.id);
+    
+    // Apply search
+    if(searchQuery){
+      filtered = filtered.filter(u => 
+        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (u.phone && u.phone.includes(searchQuery)) ||
+        (u.about && u.about.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+    
+    // Apply filter
+    if(currentFilter === 'friends'){
+      filtered = filtered.filter(u => currentUser.friends && currentUser.friends.includes(u.id));
+    } else if(currentFilter === 'notFriends'){
+      filtered = filtered.filter(u => !currentUser.friends || !currentUser.friends.includes(u.id));
+    } else if(currentFilter === 'online'){
+      // Simulate online status
+      filtered = filtered.filter(u => Math.random() > 0.5);
+    }
+    
+    document.getElementById('peopleCount').textContent = filtered.length;
+    
+    if(filtered.length === 0){
+      container.innerHTML = '<li style="padding:40px;text-align:center;color:var(--muted)">No users found</li>';
+      return;
+    }
+    
+    filtered.forEach(user => {
+      const isFriend = currentUser.friends && currentUser.friends.includes(user.id);
+      const requestSent = reqs.find(r=>r.from===currentUser.id && r.to===user.id);
+      
+      const li = document.createElement('li');
+      li.className = 'person-item';
+      li.innerHTML = `
+        <div class="person-avatar" style="background:${user.avatarColor || '#6ee7b7'}">${user.name.slice(0,2).toUpperCase()}</div>
+        <div class="person-info">
+          <div class="person-name">${user.name} ${user.id==='bot_ai'?'🤖':''} ${isFriend?'<span style="color:var(--success);font-size:12px">• Friend</span>':''}</div>
+          <div class="person-meta">${user.about || user.phone || '—'}</div>
+          ${currentFilter==='online'?'<div class="person-status">🟢 Online</div>':''}
+        </div>
+        <div class="person-actions">
+          <button class="btn secondary" onclick="viewProfile('${user.id}')">View</button>
+          ${isFriend ? 
+            `<button class="btn" onclick="startChat('${user.id}')">💬 Message</button>` :
+            requestSent ?
+            `<button class="btn secondary" disabled>✓ Sent</button>` :
+            `<button class="btn" onclick="sendRequest('${user.id}')">+ Add</button>`
+          }
+        </div>
+      `;
+      container.appendChild(li);
+    });
+  }
+  
+  /* Accept request */
+  window.acceptRequest = function(fromId){
+    const a = users.find(u=>u.id===fromId);
+    const b = users.find(u=>u.id===currentUser.id);
+    if(!a || !b) return;
+    
+    if(!a.friends) a.friends = [];
+    if(!b.friends) b.friends = [];
+    if(!a.friends.includes(b.id)) a.friends.push(b.id);
+    if(!b.friends.includes(a.id)) b.friends.push(a.id);
+    
+    users = users.map(u=>u.id===a.id?a:u.id===b.id?b:u);
+    reqs = reqs.filter(r=>!(r.from===fromId && r.to===currentUser.id));
+    
+    currentUser = b;
+    saveAll(); DB.save(KEY.CUR, currentUser);
+    renderAll();
+    alert('✅ Friend added!');
+  }
+  
+  /* Reject request */
+  window.rejectRequest = function(fromId){
+    reqs = reqs.filter(r=>!(r.from===fromId && r.to===currentUser.id));
+    saveAll();
+    renderAll();
+  }
+  
+  /* Send request */
+  window.sendRequest = function(toId){
+    if(reqs.find(r=>r.from===currentUser.id && r.to===toId)){
+      return alert('Request already sent');
+    }
+    reqs.push({from:currentUser.id, to:toId, time:new Date().toISOString()});
+    saveAll();
+    renderAll();
+    alert('✅ Friend request sent!');
+  }
+  
+  /* View profile */
+  window.viewProfile = function(userId){
+    const user = users.find(u=>u.id===userId);
+    if(!user) return;
+    alert(`👤 ${user.name}\n\n${user.about || 'No bio'}\n\n${user.phone || '—'}`);
+  }
+  
+  /* Start chat */
+  window.startChat = function(userId){
+    window.location.href = `chat.html?userId=${userId}`;
+  }
+  
+  /* Search */
+  document.getElementById('friendSearchForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    searchQuery = document.getElementById('friendSearchInput').value.trim();
+    renderPeople();
+  });
+  
+  document.getElementById('friendSearchInput').addEventListener('input', (e) => {
+    searchQuery = e.target.value.trim();
+    renderPeople();
+  });
+  
+  /* Filters */
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderPeople();
+    });
+  });
+  
+  /* Render all */
+  function renderAll(){
+    renderStats();
+    renderRequests();
+    renderPeople();
+  }
+  
+  /* Initialize */
+  renderAll();
+  
+  console.log('👥 Friends page loaded successfully!');
+  </script>
+</body>
+</html>

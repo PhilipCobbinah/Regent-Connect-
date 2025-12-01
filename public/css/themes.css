@@ -1,0 +1,77 @@
+/* Light theme */
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] body {
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Dark theme (default) */
+[data-theme="dark"] {
+  --bg-primary: #0f1724;
+  --bg-secondary: #0b1220;
+  --text-primary: #e6eef8;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.04);
+  --shadow: 0 6px 20px rgba(2, 6, 23, 0.6);
+}
+
+/* Accent color variations */
+[data-accent="blue"] {
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+}
+
+[data-accent="purple"] {
+  --accent: #8b5cf6;
+  --accent-hover: #7c3aed;
+}
+
+[data-accent="green"] {
+  --accent: #10b981;
+  --accent-hover: #059669;
+}
+
+[data-accent="orange"] {
+  --accent: #f97316;
+  --accent-hover: #ea580c;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  z-index: 100;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  animation: fadeIn 0.3s ease-out;
+}

@@ -1,0 +1,676 @@
+/* ============================================================
+   status.css – Status / Stories feed
+   24-hour disappearing status updates (Instagram/WhatsApp style)
+   ============================================================ */
+
+/* Status Page Layout */
+.status-page {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.status-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.status-main {
+  display: grid;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Status Header */
+.status-header {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.status-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-subtitle {
+  font-size: 15px;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Create Status Section */
+.create-status-section {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.create-status {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.create-status-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #eab308, #ef4444);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 24px;
+  color: white;
+  flex-shrink: 0;
+  position: relative;
+  border: 3px solid rgba(255,255,255,0.1);
+}
+
+.create-status-avatar::after {
+  content: '+';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border: 3px solid var(--surface);
+}
+
+.create-status-input {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+}
+
+.create-status-input input {
+  flex: 1;
+  padding: 14px 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  color: var(--text);
+  font-size: 15px;
+  transition: all 0.2s;
+}
+
+.create-status-input input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.create-status-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.status-type-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-type-btn:hover {
+  background: rgba(255,255,255,0.1);
+  transform: scale(1.1);
+}
+
+/* Status Feed */
+.status-feed-section {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.status-feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.status-feed-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Status List */
+.statuses-list {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 12px 0;
+  list-style: none;
+  margin: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.statuses-list::-webkit-scrollbar {
+  height: 6px;
+}
+
+.statuses-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.statuses-list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+
+.status-item {
+  min-width: 100px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.status-item:hover {
+  transform: translateY(-4px);
+}
+
+.status-thumb-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.status-thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid transparent;
+  background: linear-gradient(135deg, #eab308, #ef4444);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 32px;
+  color: white;
+  position: relative;
+}
+
+.status-thumb img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.status-item.unviewed .status-thumb {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--surface), 0 0 20px rgba(79, 70, 229, 0.4);
+}
+
+.status-item.viewed .status-thumb {
+  border-color: rgba(255,255,255,0.2);
+  opacity: 0.7;
+}
+
+.status-count {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 2px solid var(--surface);
+  min-width: 24px;
+  text-align: center;
+}
+
+.status-user-name {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100px;
+}
+
+.status-time {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* My Status */
+.my-status-section {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.04);
+  margin-bottom: 20px;
+}
+
+.my-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.my-status-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.my-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.my-status-card {
+  background: rgba(255,255,255,0.02);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.04);
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.my-status-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.my-status-preview {
+  width: 100%;
+  height: 150px;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  position: relative;
+}
+
+.my-status-preview img,
+.my-status-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.my-status-text {
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.my-status-meta {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.status-views {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-time-remaining {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.my-status-card:hover .status-delete-btn {
+  opacity: 1;
+}
+
+/* Status Viewer Modal */
+.status-viewer-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+}
+
+.status-viewer-header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(0,0,0,0.8), transparent);
+}
+
+.status-viewer-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-viewer-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #eab308, #ef4444);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: white;
+}
+
+.status-viewer-info {
+  flex: 1;
+}
+
+.status-viewer-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.status-viewer-time {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.status-viewer-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.status-viewer-close:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.status-viewer-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+}
+
+.status-viewer-media {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 16px;
+}
+
+.status-viewer-text {
+  font-size: 24px;
+  line-height: 1.6;
+  max-width: 600px;
+  text-align: center;
+  padding: 40px;
+}
+
+.status-viewer-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  justify-content: space-between;
+  padding: 0 20px;
+  pointer-events: none;
+}
+
+.status-nav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  pointer-events: all;
+}
+
+.status-nav-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.1);
+}
+
+.status-viewer-progress {
+  padding: 0 20px;
+  display: flex;
+  gap: 4px;
+}
+
+.status-progress-bar {
+  flex: 1;
+  height: 3px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.status-progress-fill {
+  height: 100%;
+  background: white;
+  border-radius: 2px;
+  animation: progressFill 5s linear forwards;
+}
+
+@keyframes progressFill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* Empty State */
+.status-empty {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--muted);
+}
+
+.status-empty-icon {
+  font-size: 72px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+.status-empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: var(--text-secondary);
+}
+
+.status-empty-description {
+  font-size: 15px;
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .status-main {
+    gap: 16px;
+  }
+  
+  .create-status {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .create-status-avatar {
+    align-self: center;
+  }
+  
+  .statuses-list {
+    gap: 12px;
+  }
+  
+  .status-thumb {
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
+  }
+  
+  .my-status-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .status-viewer-text {
+    font-size: 20px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .status-page {
+    padding: 12px;
+  }
+  
+  .status-header {
+    padding: 20px;
+  }
+  
+  .status-title {
+    font-size: 24px;
+  }
+  
+  .create-status-section,
+  .status-feed-section,
+  .my-status-section {
+    padding: 16px;
+  }
+  
+  .status-thumb {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+  
+  .status-viewer-header {
+    padding: 16px;
+  }
+}
+
+/* Loading State */
+.status-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.status-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255,255,255,0.1);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Animations */
+.status-added {
+  animation: statusPop 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes statusPop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.status-viewer-modal {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

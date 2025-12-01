@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Settings</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <style>
+    body {
+      background: linear-gradient(180deg,#071126 0%, #071b2a 100%);
+      color: #e6eef8;
+      margin: 0;
+      padding: 0;
+      font-family: Inter, system-ui, sans-serif;
+    }
+    /* Navigation Toggle */
+    .nav-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 200;
+      background: #8b5cf6;
+      color: #fff;
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+    .nav-toggle:hover {
+      background: #7c3aed;
+      transform: scale(1.05);
+    }
+    .side-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 180px;
+      background: #10172a;
+      display: flex;
+      flex-direction: column;
+      padding-top: 80px;
+      z-index: 100;
+      box-shadow: 2px 0 16px rgba(0,0,0,0.07);
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+    .side-nav.hidden {
+      transform: translateX(-180px);
+    }
+    .side-nav .nav-btn, .side-nav a.btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: none;
+      border: none;
+      color: #e0e7ef;
+      text-decoration: none;
+      font-size: 1em;
+      border-radius: 0 20px 20px 0;
+      transition: background 0.15s;
+      cursor: pointer;
+      margin-bottom: 2px;
+    }
+    .side-nav .nav-btn:hover, .side-nav a.btn:hover {
+      background: #23263a;
+      color: #fff;
+    }
+    .side-nav .nav-btn.active, .side-nav a.btn.active {
+      background: #4f46e5;
+      color: #fff;
+    }
+    .main-content {
+      margin-left: 200px;
+      padding: 40px;
+      max-width: 800px;
+      transition: margin-left 0.3s ease;
+    }
+    .main-content.expanded {
+      margin-left: 20px;
+    }
+    .card {
+      background: #181c2a;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    }
+    h2 {
+      margin-top: 0;
+      color: #8b5cf6;
+    }
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid #353b50;
+    }
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+    .toggle {
+      position: relative;
+      width: 50px;
+      height: 28px;
+      background: #353b50;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .toggle.active {
+      background: #8b5cf6;
+    }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.3s;
+    }
+    .toggle.active::after {
+      left: 26px;
+    }
+    .btn {
+      background: #8b5cf6;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: #7c3aed;
+    }
+    @media (max-width: 700px) {
+      .side-nav {
+        width: 250px;
+        padding-top: 80px;
+      }
+      .side-nav.hidden {
+        transform: translateX(-250px);
+      }
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="nav-toggle" id="navToggle">☰</button>
+
+  <nav class="side-nav" id="sideNav">
+    <button onclick="history.back()" class="nav-btn btn secondary" style="font-size:1.1em;">⬅️ Back</button>
+    <a href="chat.html" class="btn secondary nav-btn">💬 Chat</a>
+    <a href="friends.html" class="btn secondary nav-btn">👥 Friends</a>
+    <a href="groups.html" class="btn secondary nav-btn">🔗 Groups</a>
+    <a href="notifications.html" class="btn secondary nav-btn">🔔 Notifications</a>
+    <a href="profile.html" class="btn secondary nav-btn">👤 Profile</a>
+    <a href="settings.html" class="btn secondary nav-btn active">⚙️ Settings</a>
+  </nav>
+
+  <div class="main-content" id="mainContent">
+    <h1>⚙️ Settings</h1>
+
+    <div class="card">
+      <h2>Privacy Settings</h2>
+      
+      <div class="setting-item">
+        <div>
+          <strong>Block Friend Requests</strong>
+          <div style="color:#a3aed6;font-size:0.9em">Don't allow anyone to send you friend requests</div>
+        </div>
+        <div class="toggle" id="toggleFriendRequests"></div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <strong>Require Group Invites</strong>
+          <div style="color:#a3aed6;font-size:0.9em">Only join groups via invite link or request</div>
+        </div>
+        <div class="toggle" id="toggleGroupInvites"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Account</h2>
+      <button class="btn" onclick="location.href='profile.html'">Edit Profile</button>
+    </div>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/users.js"></script>
+  <script>
+    // Navigation toggle
+    const navToggle = document.getElementById('navToggle');
+    const sideNav = document.getElementById('sideNav');
+    const mainContent = document.getElementById('mainContent');
+    
+    navToggle.addEventListener('click', function() {
+      sideNav.classList.toggle('hidden');
+      mainContent.classList.toggle('expanded');
+      navToggle.textContent = sideNav.classList.contains('hidden') ? '☰' : '✕';
+    });
+
+    // Settings functionality
+    const currentUser = DB.load(KEYS.CURRENT_USER);
+    
+    if (!currentUser) {
+      window.location.href = 'login.html';
+    }
+
+    const toggleFriendRequests = document.getElementById('toggleFriendRequests');
+    const toggleGroupInvites = document.getElementById('toggleGroupInvites');
+
+    // Initialize settings object if it doesn't exist
+    if (!currentUser.settings) {
+      currentUser.settings = {
+        blockFriendRequests: false,
+        requireGroupInvite: false
+      };
+      DB.save(KEYS.CURRENT_USER, currentUser);
+    }
+
+    // Load current settings
+    if (currentUser.settings.blockFriendRequests) {
+      toggleFriendRequests.classList.add('active');
+    }
+    if (currentUser.settings.requireGroupInvite) {
+      toggleGroupInvites.classList.add('active');
+    }
+
+    // Toggle friend requests
+    toggleFriendRequests.addEventListener('click', function() {
+      this.classList.toggle('active');
+      const blocked = this.classList.contains('active');
+      
+      // Update settings
+      const result = Users.updateUserSettings(currentUser.id, { blockFriendRequests: blocked });
+      
+      if (result.ok) {
+        // Reload current user
+        const updatedUser = DB.load(KEYS.CURRENT_USER);
+        console.log('Friend requests blocked:', blocked);
+        
+        // Show feedback
+        const feedback = document.createElement('div');
+        feedback.style.cssText = 'position:fixed;top:80px;right:20px;background:#10b981;color:#fff;padding:12px 20px;border-radius:8px;z-index:1000;';
+        feedback.textContent = blocked ? '✓ Friend requests blocked' : '✓ Friend requests enabled';
+        document.body.appendChild(feedback);
+        setTimeout(() => feedback.remove(), 2000);
+      }
+    });
+
+    // Toggle group invites
+    toggleGroupInvites.addEventListener('click', function() {
+      this.classList.toggle('active');
+      const required = this.classList.contains('active');
+      
+      // Update settings
+      const result = Users.updateUserSettings(currentUser.id, { requireGroupInvite: required });
+      
+      if (result.ok) {
+        // Reload current user
+        const updatedUser = DB.load(KEYS.CURRENT_USER);
+        console.log('Group invite required:', required);
+        
+        // Show feedback
+        const feedback = document.createElement('div');
+        feedback.style.cssText = 'position:fixed;top:80px;right:20px;background:#10b981;color:#fff;padding:12px 20px;border-radius:8px;z-index:1000;';
+        feedback.textContent = required ? '✓ Group invites required' : '✓ Can be added to groups directly';
+        document.body.appendChild(feedback);
+        setTimeout(() => feedback.remove(), 2000);
+      }
+    });
+  </script>
+</body>
+</html>

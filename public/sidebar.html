@@ -1,0 +1,334 @@
+<nav class="site-sidebar">
+  <div class="sidebar-user-info" id="sidebarUserInfo">
+    <div class="sidebar-avatar" id="sidebarAvatar">?</div>
+    <div class="sidebar-user-details">
+      <div class="sidebar-username" id="sidebarUsername">Guest</div>
+      <div class="sidebar-status">🟢 Online</div>
+    </div>
+  </div>
+
+  <ul class="sidebar-nav">
+    <li><a href="dashboard.html" class="nav-link" data-page="dashboard">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </a></li>
+    <li><a href="friends.html" class="nav-link" data-page="friends">
+      <span class="nav-icon">👥</span>
+      <span class="nav-label">Friends</span>
+      <span class="nav-badge" id="friendsBadge"></span>
+    </a></li>
+    <li><a href="groups.html" class="nav-link" data-page="groups">
+      <span class="nav-icon">💬</span>
+      <span class="nav-label">Groups</span>
+      <span class="nav-badge" id="groupsBadge"></span>
+    </a></li>
+    <li><a href="chat.html" class="nav-link" data-page="chat">
+      <span class="nav-icon">✉️</span>
+      <span class="nav-label">Chats</span>
+      <span class="nav-badge" id="chatsBadge"></span>
+    </a></li>
+    <li><a href="status.html" class="nav-link" data-page="status">
+      <span class="nav-icon">📸</span>
+      <span class="nav-label">Status</span>
+    </a></li>
+    <li><a href="notifications.html" class="nav-link" data-page="notifications">
+      <span class="nav-icon">🔔</span>
+      <span class="nav-label">Notifications</span>
+      <span class="nav-badge" id="notifsBadge"></span>
+    </a></li>
+    <li><a href="ai.html" class="nav-link" data-page="ai">
+      <span class="nav-icon">🤖</span>
+      <span class="nav-label">RegentAI</span>
+    </a></li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <button id="openRegentAIMini" class="btn-sidebar">
+      <span>🤖</span> Open RegentAI
+    </button>
+    <div class="sidebar-version">
+      <small class="muted">Regent Connect v1.0</small>
+    </div>
+  </div>
+</nav>
+
+<style>
+.site-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-right: 1px solid rgba(255,255,255,0.04);
+}
+
+.sidebar-user-info {
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sidebar-user-info:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.sidebar-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: white;
+}
+
+.sidebar-user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-username {
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-status {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  list-style: none;
+  padding: 16px 8px;
+  margin: 0;
+  overflow-y: auto;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+
+.sidebar-nav li {
+  margin-bottom: 4px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 10px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,0.04);
+  transform: translateX(4px);
+}
+
+.nav-link.active {
+  background: linear-gradient(90deg, rgba(79,70,229,0.2), rgba(79,70,229,0.05));
+  border-left: 3px solid var(--accent);
+  color: var(--accent);
+}
+
+.nav-icon {
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+}
+
+.nav-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nav-badge {
+  background: var(--accent);
+  color: white;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+.nav-badge:empty {
+  display: none;
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+.btn-sidebar {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), #06b6d4);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.btn-sidebar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(79,70,229,0.3);
+}
+
+.sidebar-version {
+  text-align: center;
+  padding-top: 8px;
+}
+
+.sidebar-version .muted {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media(max-width: 768px) {
+  .site-sidebar {
+    width: 100%;
+  }
+  
+  .nav-label {
+    display: none;
+  }
+  
+  .sidebar-nav {
+    display: flex;
+    flex-direction: row;
+    padding: 8px;
+    overflow-x: auto;
+  }
+  
+  .sidebar-nav li {
+    margin-bottom: 0;
+    margin-right: 4px;
+  }
+  
+  .nav-link {
+    padding: 10px;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .sidebar-user-info {
+    padding: 12px;
+  }
+}
+</style>
+
+<script>
+// Update sidebar user info and badges
+(function initSidebar() {
+  try {
+    const KEY = {USERS:'rc_users', CUR:'rc_currentUser', MSGS:'rc_msgs', GROUPS:'rc_groups', REQS:'rc_reqs', NOTIFS:'rc_notifs'};
+    const DB = {
+      load(key, defaultVal){
+        try{
+          const v=localStorage.getItem(key);
+          return v?JSON.parse(v):defaultVal;
+        }catch(e){
+          return defaultVal;
+        }
+      }
+    };
+    
+    const currentUser = DB.load(KEY.CUR, null);
+    
+    if(currentUser) {
+      // Update user info
+      const avatar = document.getElementById('sidebarAvatar');
+      const username = document.getElementById('sidebarUsername');
+      
+      if(avatar && username) {
+        avatar.textContent = currentUser.name.slice(0,2).toUpperCase();
+        avatar.style.background = currentUser.avatarColor || 'linear-gradient(135deg, var(--accent), #06b6d4)';
+        username.textContent = currentUser.name;
+      }
+      
+      // Update badges
+      const friends = currentUser.friends ? currentUser.friends.length : 0;
+      const groups = DB.load(KEY.GROUPS, []).filter(g => g.members && g.members.includes(currentUser.id));
+      const msgs = DB.load(KEY.MSGS, []).filter(m => m.convId.includes(currentUser.id) && m.from !== currentUser.id);
+      const reqs = DB.load(KEY.REQS, []).filter(r => r.to === currentUser.id);
+      const notifs = DB.load(KEY.NOTIFS, []).filter(n => !n.read);
+      
+      const friendsBadge = document.getElementById('friendsBadge');
+      const groupsBadge = document.getElementById('groupsBadge');
+      const chatsBadge = document.getElementById('chatsBadge');
+      const notifsBadge = document.getElementById('notifsBadge');
+      
+      if(friendsBadge && friends > 0) friendsBadge.textContent = friends;
+      if(groupsBadge && groups.length > 0) groupsBadge.textContent = groups.length;
+      if(chatsBadge && msgs.length > 0) chatsBadge.textContent = msgs.length > 99 ? '99+' : msgs.length;
+      if(notifsBadge) {
+        const totalNotifs = reqs.length + notifs.length;
+        if(totalNotifs > 0) notifsBadge.textContent = totalNotifs > 99 ? '99+' : totalNotifs;
+      }
+    }
+    
+    // Highlight active page
+    const currentPage = window.location.pathname.split('/').pop().replace('.html', '');
+    const links = document.querySelectorAll('.nav-link');
+    links.forEach(link => {
+      if(link.dataset.page === currentPage) {
+        link.classList.add('active');
+      }
+    });
+    
+    // User info click
+    const userInfo = document.getElementById('sidebarUserInfo');
+    if(userInfo) {
+      userInfo.addEventListener('click', () => {
+        window.location.href = 'profile.html';
+      });
+    }
+    
+    // RegentAI button
+    const aiBtn = document.getElementById('openRegentAIMini');
+    if(aiBtn) {
+      aiBtn.addEventListener('click', () => {
+        window.location.href = 'ai.html';
+      });
+    }
+    
+  } catch(e) {
+    console.error('Error initializing sidebar:', e);
+  }
+})();
+</script>

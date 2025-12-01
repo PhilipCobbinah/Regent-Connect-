@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Group Chat</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/groups.css">
+  <link rel="stylesheet" href="css/themes.css">
+</head>
+<body class="group-page">
+  <div id="appHeader" class="app-header"></div>
+
+  <div class="layout">
+    <aside id="appSidebar" class="app-sidebar"></aside>
+
+    <main class="chat-main">
+      <div class="chat-top card">
+        <a href="dashboard.html" class="back">← Back</a>
+        <h3 id="groupTitle">Group</h3>
+        <div class="chat-actions">
+          <button id="groupMembersBtn">Members</button>
+          <button id="leaveGroupBtn">Leave</button>
+        </div>
+      </div>
+
+      <section id="groupWindow" class="chat-window card">
+        <div id="groupMessages" class="messages"></div>
+      </section>
+
+      <form id="groupForm" class="chat-composer card">
+        <input type="text" id="groupMessageInput" placeholder="Message the group..." autocomplete="off" required>
+        <button type="submit" class="btn primary">Send</button>
+      </form>
+    </main>
+  </div>
+
+  <!-- RegentAI moderator for groups -->
+  <div id="groupRegentAI" class="regent-ai-widget small">
+    <div class="ai-header">
+      <strong>Group Assistant</strong>
+    </div>
+    <div class="ai-conversation" id="groupAiConversation">
+      <div class="ai-message bot">I can create quick polls, remind members, or summarize chat. Try "create poll".</div>
+    </div>
+    <form id="groupAiForm" class="ai-form">
+      <input id="groupAiInput" placeholder="Ask group assistant..." autocomplete="off">
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/groups.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      if (window.app && app.loadComponents) await app.loadComponents();
+      const groupId = new URLSearchParams(location.search).get('id') || 'group-1';
+      groups.initGroupChat(groupId, 'groupMessages', 'groupForm', 'groupMessageInput');
+    });
+  </script>
+</body>
+</html>

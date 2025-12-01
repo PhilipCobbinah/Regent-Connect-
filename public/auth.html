@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Login / Register</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/auth.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    /* Note: auth.html typically doesn't need navigation, but adding for consistency */
+    body { background: linear-gradient(180deg,#071126 0%, #071b2a 100%); color: #e6eef8; margin: 0; font-family: Inter, system-ui; }
+  </style>
+</head>
+<body class="auth-page">
+  <main class="auth-container">
+    <div class="brand">
+      <!-- Logo and "Regent Connect" at the very top with padding -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:20px;padding-top:40px;">
+        <img src="assets/icons/logo-regent.png" alt="Regent Connect Logo" style="height:64px;width:64px;">
+        <h1 style="margin:0;line-height:1;font-size:2.2rem;">Regent Connect</h1>
+      </div>
+      
+      <!-- Then tagline -->
+      <p class="tagline" style="text-align:center;font-size:1.3rem;margin:12px 0;">Chat. Learn. Connect.</p>
+      
+      <!-- Then description -->
+      <p class="description" style="text-align:center;color:#94a3b8;margin-bottom:32px;">The all-in-one platform for campus communication, collaboration, and community building.</p>
+    </div>
+
+    <!-- Remove duplicate logo/title block -->
+    <!-- <div class="auth-header" style="display:flex;align-items:center;gap:18px;justify-content:center;margin-bottom:24px;">
+      <img src="assets/icons/logo-regent.png" alt="Regent Connect Logo" style="height:56px;width:56px;">
+      <span style="font-size:2em;font-weight:700;">Regent Connect</span>
+    </div> -->
+
+    <section class="auth-cards">
+      <div class="card login-card" id="loginCard">
+        <h2>Welcome back</h2>
+        <form id="loginForm">
+          <label>Email or Number
+            <input type="text" id="loginIdentifier" required>
+          </label>
+          <label>Password
+            <input type="password" id="loginPassword" required>
+          </label>
+          <div class="row between">
+            <label class="checkbox">
+              <input type="checkbox" id="remember"> Remember
+            </label>
+            <a href="#" id="showRegister">Create account</a>
+          </div>
+          <button type="submit" class="btn primary">Sign in</button>
+        </form>
+      </div>
+
+      <div class="card register-card" id="registerCard" hidden>
+        <h2>Create account</h2>
+        <form id="registerForm">
+          <label>Full name
+            <input type="text" id="regName" required>
+          </label>
+          <label>Phone or Email
+            <input type="text" id="regIdentifier" required>
+          </label>
+          <label>Password
+            <input type="password" id="regPassword" required>
+          </label>
+          <label>Bio (optional)
+            <input type="text" id="regBio">
+          </label>
+          <div class="row between">
+            <a href="#" id="showLogin">Back to login</a>
+            <button type="submit" class="btn primary">Register</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <footer class="auth-footer">
+      <small>By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy</a>.</small>
+    </footer>
+  </main>
+
+  <!-- Chatbot quick-access -->
+  <div id="regent-ai-toggle" class="ai-toggle" aria-hidden="true">
+    <button id="openRegentAI" title="Open RegentAI" style="background:linear-gradient(135deg,#8b5cf6,#4f46e5);color:#fff;border:none;padding:12px 24px;border-radius:999px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);position:fixed;bottom:20px;right:20px;z-index:100;">🤖 RegentAI</button>
+  </div>
+
+  <!-- RegentAI Modal -->
+  <div id="regentAiModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+    <div style="background:#181c2a;max-width:400px;width:95vw;border-radius:16px;box-shadow:0 8px 32px #000;padding:0 0 16px 0;display:flex;flex-direction:column;min-height:420px;max-height:90vh;">
+      <div style="display:flex;align-items:center;gap:10px;padding:18px 18px 10px 18px;">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;">🤖</div>
+        <div>
+          <div style="font-weight:600;font-size:18px;color:#e0e7ef;">RegentAI</div>
+          <div style="font-size:13px;color:#a3aed6;">Ask me anything about campus, study, or tech!</div>
+        </div>
+        <button onclick="closeRegentAiModal()" style="margin-left:auto;background:none;border:none;font-size:22px;color:#a3aed6;cursor:pointer;">&times;</button>
+      </div>
+      <div id="regentAiMessages" style="flex:1;overflow-y:auto;padding:0 18px 0 18px;display:flex;flex-direction:column;gap:12px;"></div>
+      <form id="regentAiForm" style="display:flex;gap:8px;padding:12px 18px 0 18px;">
+        <input id="regentAiInput" autocomplete="off" placeholder="Type your question..." style="flex:1;padding:12px 14px;border-radius:8px;border:1px solid #353b50;background:#23263a;color:#fff;font-size:15px;" />
+        <button type="submit" id="regentAiSendBtn" style="background:linear-gradient(135deg,#8b5cf6,#4f46e5);color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s;min-width:70px;">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    .ai-msg-user {align-self:flex-end;background:#4f46e5;color:#fff;padding:10px 14px;border-radius:10px;max-width:80%;font-size:15px;}
+    .ai-msg-ai {align-self:flex-start;background:#23263a;color:#e0e7ef;padding:10px 14px;border-radius:10px;max-width:80%;font-size:15px;}
+    #regentAiSendBtn:disabled {
+      background: linear-gradient(135deg,#6b46c1,#3730a3) !important;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    #regentAiSendBtn.sending {
+      background: linear-gradient(135deg,#f59e0b,#d97706) !important;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    #regentAiSendBtn.success {
+      background: linear-gradient(135deg,#10b981,#059669) !important;
+      animation: successPulse 0.5s ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    @keyframes successPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @media (max-width:600px) {
+      #regentAiModal > div {max-width:98vw;}
+    }
+  </style>
+
+  <script src="./js/auth.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    // Toggle register/login
+    document.getElementById('showRegister').addEventListener('click', (e)=>{
+      e.preventDefault();
+      document.getElementById('loginCard').hidden = true;
+      document.getElementById('registerCard').hidden = false;
+    });
+    document.getElementById('showLogin').addEventListener('click', (e)=>{
+      e.preventDefault();
+      document.getElementById('loginCard').hidden = false;
+      document.getElementById('registerCard').hidden = true;
+    });
+
+    // RegentAI Modal Logic
+    function openRegentAiModal() {
+      document.getElementById('regentAiModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('regentAiInput').focus(), 200);
+    }
+    function closeRegentAiModal() {
+      document.getElementById('regentAiModal').style.display = 'none';
+    }
+
+    // Attach to button
+    document.getElementById('openRegentAI').onclick = openRegentAiModal;
+
+    // RegentAI Knowledge Base - Enhanced with courses information
+    window.RegentAI_KB = [
+      {
+        keywords: ['philip', 'cobbinah', 'philip cobbinah'],
+        a: `Philip Cobbinah is a highly accomplished student, innovator, and student leader at Regent University College of Science and Technology in Ghana. He co-developed "Roboserve", served as Vice SRC President, Enactus Team Lead, and Hult Prize Team Lead. He represented Ghana at the Enactus World Cup 2025 and is known for blending global entrepreneurship with local knowledge. As of November 2025, he is an IT professional interning at Npontu Technologies Limited.`
+      },
+      {
+        keywords: ['samuel', 'ayeh-bampoe', 'samuel ayeh-bampoe', 'mr. samuel', 'ayeh bampoe'],
+        a: `Mr. Samuel Ayeh-Bampoe is the Deputy Registrar for Human Resources and Administration at Regent University Ghana. He is involved in university management, staff experience, and student mentorship. He mentors innovation teams, is active in marketing, and is the National President of Green Land Nkyirimma Organization (GLaNO).`
+      },
+      {
+        keywords: ['aseda', 'ayeh-bampoe', 'aseda ayeh-bampoe', 'aseda kofi', 'kofi ayeh-bampoe', 'aseda kofi ayeh-bampoe'],
+        a: `Aseda Kofi Ayeh-Bampoe is an outstanding student innovator at Regent University Ghana, pursuing a Bachelor of Engineering in Computer Engineering. He led a team that won second place at Ghana Digital & Innovation Week for a solar tracking system, was a Hult Prize National runner-up, and co-developed projects like Roboserve, ODUMGYA, and a Smart Irrigation System. He is the son of Mr. Samuel Ayeh-Bampoe.`
+      },
+      {
+        keywords: ['president', 'nana yaw', 'boadi appiah', 'nana yaw boadi appiah', 'acting president'],
+        a: `As of November 2025, the Acting President of Regent University College of Science and Technology, Ghana, is Nana Yaw Boadi Appiah. The founding president and current Chancellor is Rev. Prof. Emmanuel Kingsley Larbi.`
+      },
+      {
+        keywords: ['founder', 'emmanuel', 'kingsley larbi', 'emmanuel kingsley larbi', 'founded regent'],
+        a: `Regent University College of Science and Technology, Ghana, was founded by Rev. Professor Emmanuel Kingsley Larbi. The university was registered in September 2003, accredited in 2004, and began lectures in January 2005.`
+      },
+      {
+        keywords: ['graduation', '2025', 'graduation ceremony', 'december', '13th december'],
+        a: `Regent University College of Science and Technology, Ghana, will hold its 2025 graduation ceremony on 13th December 2025.`
+      },
+      {
+        keywords: ['location', 'where is regent', 'regent located', 'address', 'campus location'],
+        a: `Regent University College of Science and Technology is located in Accra, Ghana. The main campus is situated in the Greater Accra Region, providing easy access for students across the country.`
+      },
+      {
+        keywords: ['website', 'link', 'url', 'regent website', 'official website', 'homepage', 'web page'],
+        a: `The official website of Regent University College of Science and Technology is <a href="https://regent.edu.gh" target="_blank" style="color:#8b5cf6;font-weight:600;">regent.edu.gh</a>. You can visit it for more information about admissions, programs, campus life, and more! 🌐`
+      },
+      {
+        keywords: ['roboserve', 'robot'],
+        a: `Roboserve is an innovative robot co-developed by Philip Cobbinah and Aseda Ayeh-Bampoe. It's a smart robot waiter capable of mixing coffee, dispensing tissues and hand sanitizers, and charging phones.`
+      },
+      {
+        keywords: ['enactus', 'world cup', 'bangkok'],
+        a: `Philip Cobbinah represented Ghana and Regent University at the Enactus World Cup in Bangkok in 2025, where he shared his "Enactus Hybrid Model" for entrepreneurship education.`
+      },
+      {
+        keywords: ['hult prize'],
+        a: `Both Philip Cobbinah and Aseda Ayeh-Bampoe were involved in Hult Prize competitions. Aseda's team came in as first runner-up in the Hult Prize National Competition with their Smart Alert System project.`
+      },
+      {
+        keywords: ['contact', 'email', 'phone', 'call', 'reach'],
+        a: `You can contact Regent University College of Science and Technology through their official website at <a href="https://regent.edu.gh" target="_blank" style="color:#8b5cf6;">regent.edu.gh</a>. For specific inquiries, please visit their contact page or admissions office.`
+      },
+      {
+        keywords: ['courses', 'programs', 'study', 'degree', 'what courses', 'what programs', 'majors', 'disciplines'],
+        a: `🎓 Regent University College of Science and Technology offers various programs including:\n\n<strong>Engineering & Technology:</strong>\n• Computer Engineering\n• Electrical & Electronics Engineering\n• Mechanical Engineering\n• Information Technology\n\n<strong>Business & Management:</strong>\n• Business Administration\n• Accounting\n• Marketing\n• Human Resource Management\n\n<strong>Sciences:</strong>\n• Computer Science\n• Applied Mathematics\n• Data Science\n\nFor the complete list of programs, admission requirements, and course details, please visit <a href="https://regent.edu.gh" target="_blank" style="color:#8b5cf6;font-weight:600;">regent.edu.gh</a> 📚`
+      }
+    ];
+
+    // Function to search external sources - Enhanced
+    async function searchExternalSources(query) {
+      const lowerQuery = query.toLowerCase();
+      
+      // Special handling for website/link requests
+      if (lowerQuery.includes('website') || lowerQuery.includes('link') || lowerQuery.includes('url')) {
+        return `🌐 The official website of Regent University College of Science and Technology is <a href="https://regent.edu.gh" target="_blank" style="color:#8b5cf6;font-weight:600;">regent.edu.gh</a>\n\nYou can visit it to find information about:\n• Admissions and Programs\n• Campus Life and Facilities\n• News and Events\n• Contact Information`;
+      }
+
+      try {
+        // Try Wikipedia API
+        const wikiResponse = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+        if (wikiResponse.ok) {
+          const data = await wikiResponse.json();
+          if (data.extract) {
+            return `📚 Here's what I found from Wikipedia:\n\n${data.extract}\n\n<a href="${data.content_urls.desktop.page}" target="_blank" style="color:#8b5cf6;">Read more on Wikipedia</a>`;
+          }
+        }
+      } catch (error) {
+        console.log('Wikipedia search failed:', error);
+      }
+
+      try {
+        // Try DuckDuckGo Instant Answer API as fallback
+        const ddgResponse = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
+        if (ddgResponse.ok) {
+          const data = await ddgResponse.json();
+          if (data.AbstractText) {
+            return `🔍 Here's what I found:\n\n${data.AbstractText}\n\n${data.AbstractURL ? `<a href="${data.AbstractURL}" target="_blank" style="color:#8b5cf6;">Learn more</a>` : ''}`;
+          }
+        }
+      } catch (error) {
+        console.log('DuckDuckGo search failed:', error);
+      }
+
+      // If all external searches fail, provide helpful response
+      return `🤔 I don't have specific information about "${query}" in my knowledge base at the moment. However, I can help you with:\n\n• Questions about Regent University (<a href="https://regent.edu.gh" target="_blank" style="color:#8b5cf6;">visit website</a>)\n• Information about campus life\n• Details about students and staff\n• Study tips and advice\n\nTry asking me something else, or rephrase your question!`;
+    }
+
+    // Form submission handler with button state management
+    document.getElementById('regentAiForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const input = document.getElementById('regentAiInput');
+      const sendBtn = document.getElementById('regentAiSendBtn');
+      const msg = input.value.trim();
+      if(!msg) return;
+      
+      // Disable button and show sending state
+      sendBtn.disabled = true;
+      sendBtn.classList.add('sending');
+      sendBtn.textContent = '...';
+      
+      addAiMessage(msg, 'user');
+      input.value = '';
+      addAiMessage('<span style="opacity:.6">RegentAI is typing...</span>', 'ai', true);
+      
+      // Try to get answer from knowledge base first
+      let reply = getFallbackAiReply(msg);
+      
+      // Check if we should trigger external search
+      const shouldSearchExternal = reply === "🤖 I'm here to help with campus, study, or tech questions! Ask me about Regent University, people, events, or anything else you'd like to know.";
+      
+      if (shouldSearchExternal) {
+        reply = await searchExternalSources(msg);
+      }
+      
+      removeAiTyping();
+      addAiMessage(reply, 'ai');
+      
+      // Show success state
+      sendBtn.classList.remove('sending');
+      sendBtn.classList.add('success');
+      sendBtn.textContent = '✓ Sent';
+      
+      // Reset button after 1.5 seconds
+      setTimeout(() => {
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('success');
+        sendBtn.textContent = 'Send';
+      }, 1500);
+    };
+
+    function addAiMessage(text, who, isTyping) {
+      const box = document.getElementById('regentAiMessages');
+      const div = document.createElement('div');
+      div.className = who === 'user' ? 'ai-msg-user' : 'ai-msg-ai';
+      if(isTyping) div.style.opacity = '.7';
+      div.dataset.typing = isTyping ? '1' : '';
+      div.innerHTML = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function removeAiTyping() {
+      const box = document.getElementById('regentAiMessages');
+      const typing = box.querySelector('[data-typing="1"]');
+      if(typing) typing.remove();
+    }
+
+    function getFallbackAiReply(msg) {
+      if (window.RegentAI_KB) {
+        const lowerMsg = msg.toLowerCase();
+        
+        // Check for any matching keyword in the knowledge base
+        for (const entry of RegentAI_KB) {
+          const hasMatch = entry.keywords.some(keyword => {
+            const keywordLower = keyword.toLowerCase();
+            return lowerMsg.includes(keywordLower);
+          });
+          
+          if (hasMatch) {
+            return entry.a;
+          }
+        }
+      }
+      
+      const m = msg.toLowerCase();
+      
+      // Enhanced interactive and friendly responses
+      if(m.includes('how are you')||m.includes('how r u')||m.includes('how do you do')) {
+        return "😊 I'm doing great, thank you for asking! Even though I'm not human, I'm here and ready to help you. How are you doing today?";
+      }
+      if(m.includes('fine')||m.includes('good')||m.includes('great')||m.includes('well')||m.includes('ok')||m.includes('okay')) {
+        return "😊 That's wonderful to hear! How can I assist you today? Feel free to ask me about Regent University, campus life, or anything else!";
+      }
+      if(m.includes('not good')||m.includes('bad')||m.includes('sad')||m.includes('not well')) {
+        return "😔 I'm sorry to hear that. I'm here if you need someone to talk to or if I can help with anything. What's on your mind?";
+      }
+      if(m.includes('hi')||m.includes('hello')||m.includes('hey')) {
+        return "👋 Hi there! How are you doing today? I'm RegentAI, your friendly campus assistant. Ask me anything!";
+      }
+      if(m.includes('who are you')||m.includes('what are you')) {
+        return "🤖 I'm RegentAI, your virtual assistant for Regent University! I'm here to help you with information about campus, people, events, and more. I can also search external sources if needed. How can I help you today?";
+      }
+      if(m.includes('thank')||m.includes('thanks')) {
+        return "😊 You're very welcome! Happy to help. Is there anything else you'd like to know?";
+      }
+      if(m.includes('bye')||m.includes('goodbye')||m.includes('see you')) {
+        return "👋 Goodbye! Take care and have a wonderful day. Feel free to come back anytime you need help!";
+      }
+      if(m.includes('project')) return "🚀 Try building a web chat app using LocalStorage! It's a great learning project.";
+      if(m.includes('club')) return "🎓 There are many clubs at Regent: Robotics, Coding, Debate, and more! Which one interests you?";
+      if(m.includes('exam')||m.includes('study')) return "📚 Study tip: Make a schedule, take regular breaks, and don't forget to stay hydrated! You've got this! 💪";
+      
+      // Return default message to trigger external search
+      return "🤖 I'm here to help with campus, study, or tech questions! Ask me about Regent University, people, events, or anything else you'd like to know.";
+    }
+  </script>
+
+  <!-- RegentAI widget loader -->
+  <script src="./js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Chat</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/themes.css">
+</head>
+<body class="chat-page">
+  <div id="appHeader" class="app-header"></div>
+
+  <div class="layout">
+    <aside id="appSidebar" class="app-sidebar"></aside>
+
+    <main class="chat-main">
+      <div class="chat-top card">
+        <a href="dashboard.html" class="back">← Back</a>
+        <h3 id="chatTitle">Chat</h3>
+        <div class="chat-actions">
+          <button id="openProfile">Profile</button>
+          <button id="startVoice">🎙</button>
+        </div>
+      </div>
+
+      <section id="chatWindow" class="chat-window card">
+        <div id="messages" class="messages"></div>
+      </section>
+
+      <form id="chatForm" class="chat-composer card">
+        <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off" required>
+        <input type="file" id="fileAttach" style="display:none">
+        <button type="submit" class="btn primary">Send</button>
+      </form>
+    </main>
+  </div>
+
+  <!-- Mini RegentAI in chat -->
+  <div id="chatRegentAI" class="chat-regent-ai">
+    <button id="openMiniAI" title="RegentAI Suggestions">RegentAI</button>
+    <div id="miniAIBox" class="mini-ai-box" hidden>
+      <div class="mini-header">
+        <strong>RegentAI</strong>
+        <button id="closeMiniAI">✕</button>
+      </div>
+      <div id="miniSuggestions" class="mini-suggestions">
+        <div class="suggestion" data-msg="Hey — can you send me the notes?">Ask for notes</div>
+        <div class="suggestion" data-msg="Can we meet tomorrow at 3pm?">Suggest a time</div>
+        <div class="suggestion" data-msg="Thanks!">Quick thanks</div>
+      </div>
+      <div class="mini-suggestion-footer">
+        <small>Try a suggestion or ask RegentAI</small>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      if (window.app && app.loadComponents) await app.loadComponents();
+      const params = new URLSearchParams(location.search);
+      const chatId = params.get('id') || 'chat-1';
+      const title = params.get('name') || 'Friend';
+      document.getElementById('chatTitle').textContent = title;
+      await chat.init(chatId, 'messages', 'chatForm', 'messageInput');
+
+      const open = document.getElementById('openMiniAI');
+      const box = document.getElementById('miniAIBox');
+      open.addEventListener('click', ()=> box.hidden = !box.hidden);
+      document.getElementById('closeMiniAI').addEventListener('click', ()=> box.hidden = true);
+      document.querySelectorAll('.suggestion').forEach(s=>{
+        s.addEventListener('click', ()=> {
+          const msg = s.dataset.msg;
+          document.getElementById('messageInput').value = msg;
+          document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

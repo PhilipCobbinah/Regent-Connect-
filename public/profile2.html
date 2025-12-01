@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Profile</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    .profile-page { height: 100vh; overflow: hidden; }
+    .app-header { background: linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .app-header .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg,var(--accent),#06b6d4); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 20px; }
+    
+    .layout { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 64px); }
+    .app-sidebar { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-right: 1px solid rgba(255,255,255,0.04); padding: 16px; overflow-y: auto; }
+    
+    .profile-main { padding: 24px; overflow-y: auto; max-width: 800px; margin: 0 auto; }
+    .card { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-radius: 12px; padding: 24px; box-shadow: 0 6px 20px rgba(2,6,23,0.6); margin-bottom: 20px; }
+    
+    .profile-card { text-align: center; }
+    .avatar-large { width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg,#eab308,#ef4444); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 60px; margin-bottom: 20px; border: 5px solid rgba(255,255,255,0.1); position: relative; }
+    .avatar-large img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .avatar-edit-btn { position: absolute; bottom: 5px; right: 5px; width: 40px; height: 40px; border-radius: 50%; background: var(--accent); border: 3px solid var(--bg); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; }
+    
+    .profile-card h2 { margin: 0 0 8px 0; font-size: 28px; }
+    .profile-bio { color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+    .profile-stats { display: flex; gap: 24px; justify-content: center; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 10px; margin-top: 20px; }
+    .profile-stats > div { text-align: center; }
+    .profile-stats .stat-value { font-size: 24px; font-weight: 700; color: var(--accent); }
+    .profile-stats .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    
+    .profile-edit h3 { margin: 0 0 20px 0; font-size: 20px; }
+    .profile-edit label { display: block; margin-bottom: 16px; font-size: 14px; font-weight: 500; }
+    .profile-edit input, .profile-edit textarea, .profile-edit select { width: 100%; padding: 12px; margin-top: 6px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: #fff; font-size: 14px; }
+    .profile-edit input:focus, .profile-edit textarea:focus, .profile-edit select:focus { outline: none; border-color: var(--accent); }
+    .profile-edit textarea { min-height: 100px; resize: vertical; }
+    
+    .row { display: flex; gap: 12px; justify-content: space-between; margin-top: 20px; }
+    .btn { padding: 12px 24px; border-radius: 10px; border: none; color: white; cursor: pointer; transition: all .2s; font-size: 14px; font-weight: 600; flex: 1; }
+    .btn.primary { background: var(--accent); }
+    .btn.primary:hover { background: #4338ca; }
+    .btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.06); }
+    .btn.secondary:hover { background: rgba(255,255,255,0.02); }
+    .btn.danger { background: #ef4444; }
+    .btn.danger:hover { background: #dc2626; }
+    
+    .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
+    .quick-action { padding: 16px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: all .2s; text-align: center; }
+    .quick-action:hover { background: rgba(255,255,255,0.04); transform: translateY(-2px); }
+    .quick-action .icon { font-size: 32px; margin-bottom: 8px; }
+    .quick-action .label { font-size: 13px; font-weight: 600; }
+    
+    @media(max-width:900px){ .layout { grid-template-columns: 1fr; } .app-sidebar { display: none; } }
+  </style>
+</head>
+<body class="profile-page">
+  <div class="app-header">
+    <div class="brand">
+      <div class="logo">👤</div>
+      <h1 style="margin:0;font-size:18px">My Profile</h1>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn secondary" onclick="location.href='dashboard.html'" style="padding:8px 16px">Dashboard</button>
+      <button class="btn secondary" onclick="location.href='chat.html'" style="padding:8px 16px">Chat</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="app-sidebar">
+      <div style="margin-bottom:20px">
+        <h3 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase">QUICK ACTIONS</h3>
+        <div class="quick-actions">
+          <div class="quick-action" onclick="location.href='status.html'">
+            <div class="icon">📸</div>
+            <div class="label">Status</div>
+          </div>
+          <div class="quick-action" onclick="location.href='groups.html'">
+            <div class="icon">👥</div>
+            <div class="label">Groups</div>
+          </div>
+          <div class="quick-action" onclick="location.href='ai.html'">
+            <div class="icon">🤖</div>
+            <div class="label">AI Assistant</div>
+          </div>
+          <div class="quick-action" onclick="document.getElementById('inpAvatar').click()">
+            <div class="icon">🖼️</div>
+            <div class="label">Change Photo</div>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <h3 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase">PRIVACY</h3>
+        <div style="padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.6">
+          • Control who sees your profile<br>
+          • Manage blocked contacts<br>
+          • Privacy settings<br>
+          • Data & storage
+        </div>
+      </div>
+    </aside>
+
+    <main class="profile-main">
+      <section class="profile-card card">
+        <div class="avatar-large" id="profileAvatarContainer">
+          <span id="profileAvatarText">?</span>
+          <div class="avatar-edit-btn" onclick="document.getElementById('inpAvatar').click()">📷</div>
+        </div>
+        <h2 id="profileName">Your Name</h2>
+        <p id="profileBio" class="profile-bio">Add a bio to tell others about yourself...</p>
+        <div class="profile-stats">
+          <div>
+            <div class="stat-value" id="friendsCount">0</div>
+            <div class="stat-label">Friends</div>
+          </div>
+          <div>
+            <div class="stat-value" id="groupsCount">0</div>
+            <div class="stat-label">Groups</div>
+          </div>
+          <div>
+            <div class="stat-value" id="messagesCount">0</div>
+            <div class="stat-label">Messages</div>
+          </div>
+          <div>
+            <div class="stat-value" id="statusCount">0</div>
+            <div class="stat-label">Status</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="profile-edit card">
+        <h3>✏️ Edit Profile</h3>
+        <form id="profileForm">
+          <label>Full Name
+            <input id="inpName" type="text" placeholder="Enter your full name" required>
+          </label>
+          <label>Phone Number
+            <input id="inpPhone" type="text" placeholder="+233 or email" required>
+          </label>
+          <label>Bio / About
+            <textarea id="inpBio" placeholder="Tell others about yourself..."></textarea>
+          </label>
+          <label>Profile Photo
+            <input id="inpAvatar" type="file" accept="image/*" style="display:none">
+            <div style="padding:12px;border:2px dashed rgba(255,255,255,0.1);border-radius:10px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.02)" onclick="document.getElementById('inpAvatar').click()">
+              📷 Click to upload profile photo
+            </div>
+          </label>
+          <label>Profile Photo Privacy
+            <select id="profilePhotoPrivacy">
+              <option value="everyone">Everyone</option>
+              <option value="contacts">My Contacts Only</option>
+              <option value="nobody">Nobody</option>
+            </select>
+          </label>
+          <label>Last Seen Privacy
+            <select id="lastSeenPrivacy">
+              <option value="everyone">Everyone</option>
+              <option value="contacts">My Contacts</option>
+              <option value="nobody">Nobody</option>
+            </select>
+          </label>
+          <div class="row">
+            <button type="submit" class="btn primary">💾 Save Changes</button>
+            <button id="deleteAccount" class="btn danger" type="button">🗑️ Delete Account</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h3>🔐 Account Security</h3>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
+          <button class="btn secondary" style="width:100%" onclick="alert('Password change coming soon!')">🔑 Change Password</button>
+          <button class="btn secondary" style="width:100%" onclick="alert('2FA coming soon!')">🛡️ Enable Two-Factor Auth</button>
+          <button class="btn secondary" style="width:100%" onclick="alert('Active sessions: 1 (this device)')">📱 Active Sessions</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+  /* Database helpers */
+  const DB = {
+    load(key, defaultVal){try{const v=localStorage.getItem(key);return v?JSON.parse(v):defaultVal}catch(e){return defaultVal}},
+    save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+  }
+  const KEY = {USERS:'rc_users',CUR:'rc_currentUser',MSGS:'rc_msgs',GROUPS:'rc_groups',STATUS:'rc_status'}
+  
+  let currentUser = DB.load(KEY.CUR,null);
+  let users = DB.load(KEY.USERS,[]);
+  let msgs = DB.load(KEY.MSGS,[]);
+  let groups = DB.load(KEY.GROUPS,[]);
+  let statuses = DB.load(KEY.STATUS,[]);
+  
+  if(!currentUser){ window.location.href = 'login.html'; }
+  
+  /* Populate profile display */
+  function populateProfile(){
+    document.getElementById('profileName').textContent = currentUser.name || 'User';
+    document.getElementById('profileBio').textContent = currentUser.about || 'Add a bio to tell others about yourself...';
+    
+    const avatarContainer = document.getElementById('profileAvatarContainer');
+    const avatarText = document.getElementById('profileAvatarText');
+    avatarText.textContent = currentUser.name.slice(0,2).toUpperCase();
+    avatarContainer.style.background = currentUser.avatarColor || '#6ee7b7';
+    
+    // Stats
+    const friendsCount = currentUser.friends ? currentUser.friends.length : 0;
+    const userGroups = groups.filter(g => g.members && g.members.includes(currentUser.id));
+    const userMessages = msgs.filter(m => m.from === currentUser.id);
+    const userStatuses = statuses.filter(s => s.userId === currentUser.id);
+    
+    document.getElementById('friendsCount').textContent = friendsCount;
+    document.getElementById('groupsCount').textContent = userGroups.length;
+    document.getElementById('messagesCount').textContent = userMessages.length;
+    document.getElementById('statusCount').textContent = userStatuses.length;
+  }
+  
+  /* Populate edit form */
+  function populateForm(){
+    document.getElementById('inpName').value = currentUser.name || '';
+    document.getElementById('inpPhone').value = currentUser.phone || '';
+    document.getElementById('inpBio').value = currentUser.about || '';
+    document.getElementById('profilePhotoPrivacy').value = currentUser.photoPrivacy || 'everyone';
+    document.getElementById('lastSeenPrivacy').value = currentUser.lastSeenPrivacy || 'everyone';
+  }
+  
+  /* Handle form submission */
+  document.getElementById('profileForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('inpName').value.trim();
+    const phone = document.getElementById('inpPhone').value.trim();
+    const bio = document.getElementById('inpBio').value.trim();
+    const photoPrivacy = document.getElementById('profilePhotoPrivacy').value;
+    const lastSeenPrivacy = document.getElementById('lastSeenPrivacy').value;
+    
+    if(!name) return alert('Name is required');
+    if(!phone) return alert('Phone/Email is required');
+    
+    // Update current user
+    currentUser.name = name;
+    currentUser.phone = phone;
+    currentUser.about = bio;
+    currentUser.photoPrivacy = photoPrivacy;
+    currentUser.lastSeenPrivacy = lastSeenPrivacy;
+    
+    // Update in users array
+    users = users.map(u => u.id === currentUser.id ? currentUser : u);
+    
+    // Save
+    DB.save(KEY.USERS, users);
+    DB.save(KEY.CUR, currentUser);
+    
+    alert('✅ Profile updated successfully!');
+    populateProfile();
+  });
+  
+  /* Handle avatar upload */
+  document.getElementById('inpAvatar').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    
+    if(!file.type.startsWith('image/')) {
+      return alert('Please select an image file');
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      currentUser.avatarImage = e.target.result;
+      users = users.map(u => u.id === currentUser.id ? currentUser : u);
+      DB.save(KEY.USERS, users);
+      DB.save(KEY.CUR, currentUser);
+      
+      const avatarContainer = document.getElementById('profileAvatarContainer');
+      avatarContainer.innerHTML = `<img src="${e.target.result}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+        <div class="avatar-edit-btn" onclick="document.getElementById('inpAvatar').click()">📷</div>`;
+      
+      alert('✅ Profile photo updated!');
+    };
+    reader.readAsDataURL(file);
+  });
+  
+  /* Delete account */
+  document.getElementById('deleteAccount').addEventListener('click', () => {
+    if(!confirm('⚠️ Are you sure you want to delete your account? This action cannot be undone!')) return;
+    if(!confirm('This will permanently delete all your messages, groups, and data. Continue?')) return;
+    
+    // Remove user from users array
+    users = users.filter(u => u.id !== currentUser.id);
+    
+    // Remove from friends lists
+    users = users.map(u => {
+      if(u.friends && u.friends.includes(currentUser.id)){
+        u.friends = u.friends.filter(f => f !== currentUser.id);
+      }
+      return u;
+    });
+    
+    // Remove from groups
+    groups = groups.map(g => {
+      if(g.members && g.members.includes(currentUser.id)){
+        g.members = g.members.filter(m => m !== currentUser.id);
+      }
+      return g;
+    }).filter(g => g.members.length > 0);
+    
+    // Remove messages
+    msgs = msgs.filter(m => m.from !== currentUser.id);
+    
+    // Remove statuses
+    statuses = statuses.filter(s => s.userId !== currentUser.id);
+    
+    // Save and logout
+    DB.save(KEY.USERS, users);
+    DB.save(KEY.GROUPS, groups);
+    DB.save(KEY.MSGS, msgs);
+    DB.save(KEY.STATUS, statuses);
+    localStorage.removeItem('rc_currentUser');
+    localStorage.removeItem('rc_remember');
+    
+    alert('Account deleted. Goodbye!');
+    window.location.href = 'index.html';
+  });
+  
+  /* Initialize */
+  populateProfile();
+  populateForm();
+  
+  console.log('👤 Profile page loaded successfully!');
+  </script>
+</body>
+</html>

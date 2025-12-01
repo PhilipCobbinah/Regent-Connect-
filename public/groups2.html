@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Group Chat</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    /* Group-specific styles */
+    .group-page { height: 100vh; overflow: hidden; }
+    .app-header { background: linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .app-header .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg,var(--accent),#06b6d4); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; }
+    
+    .layout { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 64px); }
+    .app-sidebar { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-right: 1px solid rgba(255,255,255,0.04); padding: 16px; overflow-y: auto; }
+    
+    .group-list { margin-top: 16px; }
+    .group-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; cursor: pointer; transition: background .2s; margin-bottom: 6px; }
+    .group-item:hover, .group-item.active { background: rgba(255,255,255,0.04); }
+    .group-avatar { width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(135deg,#8b5cf6,#ec4899); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
+    
+    .chat-main { display: flex; flex-direction: column; height: 100%; }
+    .card { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-radius: 12px; padding: 14px; box-shadow: 0 6px 20px rgba(2,6,23,0.6); }
+    .chat-top { display: flex; justify-content: space-between; align-items: center; margin: 16px 16px 12px; padding: 12px; }
+    .chat-meta { display: flex; align-items: center; gap: 12px; flex: 1; }
+    .avatar-sm { width: 36px; height: 36px; border-radius: 10px; }
+    .back { color: var(--accent); text-decoration: none; padding: 8px 12px; border-radius: 8px; transition: background .2s; }
+    .back:hover { background: rgba(255,255,255,0.02); }
+    
+    .chat-window { flex: 1; margin: 0 16px; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; }
+    .messages { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    .message-row { display: flex; align-items: flex-end; gap: 10px; }
+    .message-row.mine { justify-content: flex-end; }
+    .bubble { max-width: 66%; padding: 10px 14px; border-radius: 14px; line-height: 1.4; background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); box-shadow: 0 6px 14px rgba(2,6,23,0.5); position: relative; }
+    .bubble.me { background: linear-gradient(180deg,var(--accent),#3b82f6); color: white; }
+    .bubble:after { content: ""; position: absolute; width: 12px; height: 12px; bottom: 6px; background: inherit; transform: rotate(45deg); }
+    .message-row.mine .bubble:after { right: -6px; }
+    .message-row:not(.mine) .bubble:after { left: -6px; }
+    .meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    
+    .chat-composer { margin: 12px 16px 16px; display: flex; gap: 8px; align-items: center; padding: 12px; }
+    .chat-composer input[type="text"] { flex: 1; padding: 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: inherit; }
+    .chat-composer input:focus { outline: none; border-color: var(--accent); }
+    
+    .btn { padding: 10px 16px; border-radius: 8px; border: none; background: var(--accent); color: white; cursor: pointer; transition: background .2s; font-size: 14px; }
+    .btn:hover { background: #4338ca; }
+    .btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.06); }
+    .btn.secondary:hover { background: rgba(255,255,255,0.02); }
+    .btn.icon { width: 40px; height: 40px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    
+    /* Group AI Widget */
+    .regent-ai-widget { position: fixed; bottom: 20px; right: 20px; width: 320px; background: linear-gradient(180deg,rgba(15,23,36,0.98),rgba(11,18,32,0.98)); border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.06); z-index: 999; }
+    .ai-header { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); font-weight: 600; }
+    .ai-conversation { max-height: 200px; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .ai-message { padding: 10px 12px; border-radius: 10px; font-size: 13px; line-height: 1.4; }
+    .ai-message.bot { background: rgba(255,255,255,0.04); align-self: flex-start; max-width: 80%; }
+    .ai-message.user { background: linear-gradient(180deg,var(--accent),#3b82f6); color: white; align-self: flex-end; max-width: 80%; }
+    .ai-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .ai-form input { flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: #fff; font-size: 13px; }
+    .ai-form button { padding: 8px 12px; background: var(--accent); border: none; color: white; border-radius: 8px; cursor: pointer; font-size: 13px; }
+    
+    /* Members modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(2,6,23,0.8); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .modal { width: 500px; max-width: 90vw; background: linear-gradient(180deg,rgba(15,23,36,0.98),rgba(11,18,32,0.98)); padding: 24px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.06); }
+    .modal h3 { margin: 0 0 16px 0; font-size: 20px; }
+    .member-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; margin-bottom: 8px; }
+    .member-item:hover { background: rgba(255,255,255,0.02); }
+    .member-role { margin-left: auto; font-size: 12px; color: var(--muted); }
+    
+    @media(max-width:900px){ .layout { grid-template-columns: 1fr; } .app-sidebar { display: none; } }
+  </style>
+</head>
+<body class="group-page">
+  <div class="app-header">
+    <div class="brand">
+      <div class="logo">RC</div>
+      <h1 style="margin:0;font-size:18px">Regent Connect</h1>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn secondary" onclick="location.href='dashboard.html'">Dashboard</button>
+      <button class="btn secondary" onclick="location.href='chat.html'">Chat</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="app-sidebar">
+      <h3 style="font-size:14px;color:var(--muted);margin-bottom:12px">YOUR GROUPS</h3>
+      <div class="group-list" id="groupsList"></div>
+      <button class="btn" style="width:100%;margin-top:16px" id="btnCreateGroup">+ Create Group</button>
+    </aside>
+
+    <main class="chat-main">
+      <div class="chat-top card">
+        <a href="dashboard.html" class="back">← Back</a>
+        <div class="chat-meta">
+          <div class="group-avatar" id="groupAvatar">?</div>
+          <div>
+            <h3 id="groupTitle" style="margin:0;font-size:16px">Select a group</h3>
+            <div id="groupSubtitle" class="muted" style="font-size:12px">0 members</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px" class="chat-actions">
+          <button class="btn secondary" id="groupMembersBtn">Members</button>
+          <button class="btn secondary" id="leaveGroupBtn">Leave</button>
+          <button class="btn secondary" id="groupCallBtn">📞 Call</button>
+        </div>
+      </div>
+
+      <section id="groupWindow" class="chat-window card">
+        <div id="groupMessages" class="messages"></div>
+      </section>
+
+      <form id="groupForm" class="chat-composer card">
+        <button type="button" id="groupAttachBtn" class="btn icon secondary">📎</button>
+        <input type="file" id="groupFileAttach" style="display:none" accept="image/*,video/*,.pdf">
+        <input type="text" id="groupMessageInput" placeholder="Message the group..." autocomplete="off">
+        <button type="submit" class="btn primary">Send</button>
+      </form>
+    </main>
+  </div>
+
+  <div id="groupRegentAI" class="regent-ai-widget">
+    <div class="ai-header">🤖 Group Assistant</div>
+    <div class="ai-conversation" id="aiConversation">
+      <div class="ai-message bot">I can create polls, pin messages, or summarize chat. Try "create poll".</div>
+    </div>
+    <form id="groupAiForm" class="ai-form">
+      <input id="groupAiInput" placeholder="Ask assistant..." autocomplete="off">
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <div id="modalRoot"></div>
+
+  <script>
+  /* Database helpers */
+  const DB = {
+    load(key, defaultVal){try{const v=localStorage.getItem(key);return v?JSON.parse(v):defaultVal}catch(e){return defaultVal}},
+    save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+  }
+  const KEY = {USERS:'rc_users',CUR:'rc_currentUser',REQS:'rc_reqs',MSGS:'rc_msgs',GROUPS:'rc_groups'}
+  
+  function uid(prefix='u'){return prefix+Math.random().toString(36).slice(2,9)}
+  function timeNow(){return new Date().toISOString()}
+  function escapeHtml(s){return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
+  
+  let currentUser = DB.load(KEY.CUR,null);
+  let users = DB.load(KEY.USERS,[]);
+  let groups = DB.load(KEY.GROUPS,[]);
+  let msgs = DB.load(KEY.MSGS,[]);
+  let activeGroup = null;
+  
+  if(!currentUser){ window.location.href = 'login.html'; }
+  
+  function saveAll(){DB.save(KEY.GROUPS,groups);DB.save(KEY.MSGS,msgs)}
+  
+  function renderGroupsList(){
+    const container = document.getElementById('groupsList');
+    container.innerHTML = '';
+    if(groups.length === 0){
+      container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No groups yet</div>';
+      return;
+    }
+    groups.forEach(g => {
+      const div = document.createElement('div');
+      div.className = 'group-item' + (activeGroup && activeGroup.id === g.id ? ' active' : '');
+      div.innerHTML = `<div class="group-avatar">${g.name.slice(0,2).toUpperCase()}</div>
+        <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px">${g.name}</div>
+        <div style="font-size:12px;color:var(--muted)">${g.members.length} members</div></div>`;
+      div.onclick = () => openGroup(g.id);
+      container.appendChild(div);
+    });
+  }
+  
+  function openGroup(groupId){
+    const g = groups.find(x => x.id === groupId);
+    if(!g) return;
+    activeGroup = g;
+    document.getElementById('groupTitle').textContent = g.name;
+    document.getElementById('groupSubtitle').textContent = `${g.members.length} members`;
+    document.getElementById('groupAvatar').textContent = g.name.slice(0,2).toUpperCase();
+    renderGroupMessages();
+    renderGroupsList();
+  }
+  
+  function renderGroupMessages(){
+    const container = document.getElementById('groupMessages');
+    container.innerHTML = '';
+    if(!activeGroup) return;
+    
+    const convId = `group_${activeGroup.id}`;
+    const groupMsgs = msgs.filter(m => m.convId === convId).sort((a,b) => new Date(a.time) - new Date(b.time));
+    
+    if(groupMsgs.length === 0){
+      const empty = document.createElement('div');
+      empty.style.cssText = 'text-align:center;padding:40px;color:var(--muted)';
+      empty.textContent = '👋 Start the group conversation!';
+      container.appendChild(empty);
+      return;
+    }
+    
+    groupMsgs.forEach(m => {
+      const user = users.find(u => u.id === m.from) || {name:'Unknown'};
+      const isMine = m.from === currentUser.id;
+      const div = document.createElement('div');
+      div.className = 'message-row' + (isMine ? ' mine' : '');
+      div.innerHTML = `<div class="bubble${isMine?' me':''}">
+        ${!isMine ? `<div style="font-weight:600;font-size:12px;margin-bottom:4px;color:${isMine?'#fff':'var(--accent)'}">${user.name}</div>` : ''}
+        <div>${escapeHtml(m.text)}</div>
+        <div class="meta">${new Date(m.time).toLocaleTimeString()}</div>
+      </div>`;
+      container.appendChild(div);
+    });
+    
+    container.scrollTop = container.scrollHeight;
+  }
+  
+  document.getElementById('groupForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if(!activeGroup) return alert('Select a group');
+    const input = document.getElementById('groupMessageInput');
+    const text = input.value.trim();
+    if(!text) return;
+    
+    const m = {id:uid('m'), convId:`group_${activeGroup.id}`, from:currentUser.id, text, time:timeNow()};
+    msgs.push(m);
+    saveAll();
+    input.value = '';
+    renderGroupMessages();
+  });
+  
+  document.getElementById('btnCreateGroup').addEventListener('click', () => {
+    const modal = document.createElement('div');
+    modal.className = 'modal-backdrop';
+    modal.innerHTML = `<div class="modal">
+      <h3>👥 Create New Group</h3>
+      <input id="newGroupName" placeholder="Group name" style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff;margin-bottom:12px">
+      <div style="color:var(--muted);margin-bottom:10px;font-size:13px">Select members:</div>
+      <div id="membersPicker" style="max-height:250px;overflow-y:auto"></div>
+      <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+        <button class="btn secondary" id="cancelCreate">Cancel</button>
+        <button class="btn" id="confirmCreate">Create</button>
+      </div>
+    </div>`;
+    document.getElementById('modalRoot').appendChild(modal);
+    
+    const picker = document.getElementById('membersPicker');
+    users.filter(u => u.id !== currentUser.id).forEach(u => {
+      const label = document.createElement('label');
+      label.style.cssText = 'display:block;padding:10px;cursor:pointer;border-radius:8px;transition:background .2s';
+      label.onmouseenter = () => label.style.background = 'rgba(255,255,255,0.02)';
+      label.onmouseleave = () => label.style.background = 'transparent';
+      label.innerHTML = `<input type="checkbox" value="${u.id}" style="margin-right:8px"> ${u.name}`;
+      picker.appendChild(label);
+    });
+    
+    document.getElementById('cancelCreate').onclick = () => modal.remove();
+    document.getElementById('confirmCreate').onclick = () => {
+      const name = document.getElementById('newGroupName').value.trim();
+      if(!name) return alert('Enter a group name');
+      const checked = Array.from(picker.querySelectorAll('input:checked')).map(i => i.value);
+      if(checked.length === 0) return alert('Select at least one member');
+      const g = {id:uid('g'), name, members:[...checked, currentUser.id], createdBy:currentUser.id, createdAt:timeNow()};
+      groups.push(g);
+      saveAll();
+      modal.remove();
+      renderGroupsList();
+      openGroup(g.id);
+    };
+    
+    modal.onclick = (e) => { if(e.target === modal) modal.remove(); };
+  });
+  
+  document.getElementById('groupMembersBtn').addEventListener('click', () => {
+    if(!activeGroup) return;
+    const modal = document.createElement('div');
+    modal.className = 'modal-backdrop';
+    modal.innerHTML = `<div class="modal">
+      <h3>👥 Members (${activeGroup.members.length})</h3>
+      <div id="membersList"></div>
+      <button class="btn secondary" style="width:100%;margin-top:16px" onclick="this.closest('.modal-backdrop').remove()">Close</button>
+    </div>`;
+    document.getElementById('modalRoot').appendChild(modal);
+    
+    const list = document.getElementById('membersList');
+    activeGroup.members.forEach(mid => {
+      const member = users.find(u => u.id === mid);
+      if(!member) return;
+      const div = document.createElement('div');
+      div.className = 'member-item';
+      div.innerHTML = `<div style="width:36px;height:36px;border-radius:8px;background:${member.avatarColor || '#6ee7b7'};display:flex;align-items:center;justify-content:center;font-weight:700">${member.name.slice(0,2).toUpperCase()}</div>
+        <div><div style="font-weight:600">${member.name}</div><div style="font-size:12px;color:var(--muted)">${member.about || member.phone || '—'}</div></div>
+        <div class="member-role">${activeGroup.createdBy === mid ? 'Admin' : 'Member'}</div>`;
+      list.appendChild(div);
+    });
+    
+    modal.onclick = (e) => { if(e.target === modal) modal.remove(); };
+  });
+  
+  document.getElementById('leaveGroupBtn').addEventListener('click', () => {
+    if(!activeGroup) return;
+    if(!confirm(`Leave "${activeGroup.name}"?`)) return;
+    activeGroup.members = activeGroup.members.filter(m => m !== currentUser.id);
+    groups = groups.map(g => g.id === activeGroup.id ? activeGroup : g);
+    if(activeGroup.members.length === 0) groups = groups.filter(g => g.id !== activeGroup.id);
+    saveAll();
+    activeGroup = null;
+    renderGroupsList();
+    document.getElementById('groupTitle').textContent = 'Select a group';
+    document.getElementById('groupSubtitle').textContent = '0 members';
+    document.getElementById('groupMessages').innerHTML = '';
+  });
+  
+  document.getElementById('groupCallBtn').addEventListener('click', () => {
+    if(!activeGroup) return;
+    alert('📞 Group call feature coming soon!');
+  });
+  
+  document.getElementById('groupAiForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('groupAiInput');
+    const q = input.value.trim();
+    if(!q) return;
+    
+    const userMsg = document.createElement('div');
+    userMsg.className = 'ai-message user';
+    userMsg.textContent = q;
+    document.getElementById('aiConversation').appendChild(userMsg);
+    
+    setTimeout(() => {
+      const reply = generateAIReply(q);
+      const botMsg = document.createElement('div');
+      botMsg.className = 'ai-message bot';
+      botMsg.textContent = reply;
+      document.getElementById('aiConversation').appendChild(botMsg);
+      document.getElementById('aiConversation').scrollTop = document.getElementById('aiConversation').scrollHeight;
+    }, 600);
+    
+    input.value = '';
+    document.getElementById('aiConversation').scrollTop = document.getElementById('aiConversation').scrollHeight;
+  });
+  
+  function generateAIReply(query){
+    const low = query.toLowerCase();
+    if(low.includes('poll')) return '📊 Creating a poll... You can add options like "Pizza 🍕" or "Burger 🍔". Type the options!';
+    if(low.includes('pin')) return '📌 To pin a message, right-click on it and select "Pin message".';
+    if(low.includes('summarize') || low.includes('summary')) return `📝 Summary: ${msgs.filter(m=>activeGroup && m.convId===`group_${activeGroup.id}`).length} messages sent in this group.`;
+    if(low.includes('member')) return `👥 This group has ${activeGroup ? activeGroup.members.length : 0} members.`;
+    return `💡 I can help with polls, pinning messages, or summaries. Try asking "create poll" or "summarize chat".`;
+  }
+  
+  document.getElementById('groupAttachBtn').addEventListener('click', () => {
+    document.getElementById('groupFileAttach').click();
+  });
+  
+  document.getElementById('groupFileAttach').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    alert(`📎 File "${file.name}" attachment coming soon!`);
+  });
+  
+  renderGroupsList();
+  const urlParams = new URLSearchParams(location.search);
+  const gid = urlParams.get('id');
+  if(gid) openGroup(gid);
+  
+  console.log('🚀 Group chat loaded successfully!');
+  </script>
+</body>
+</html>

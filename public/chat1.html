@@ -1,0 +1,1247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Chat</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    /* WhatsApp-inspired Modern UI */
+    :root{
+      --whatsapp-bg:#0b141a;
+      --whatsapp-panel:#111b21;
+      --whatsapp-chat:#0b141a;
+      --whatsapp-header:#202c33;
+      --whatsapp-green:#00a884;
+      --whatsapp-green-dark:#008069;
+      --whatsapp-text:#e9edef;
+      --whatsapp-text-muted:#8696a0;
+      --whatsapp-border:#2a3942;
+      --whatsapp-hover:#202c33;
+      --whatsapp-bubble-in:#202c33;
+      --whatsapp-bubble-out:#005c4b;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--whatsapp-bg);color:var(--whatsapp-text);overflow:hidden}
+
+    /* Main App Container */
+    .app-container{
+      display:grid;
+      grid-template-columns:420px 1fr;
+      height:100vh;
+      background:var(--whatsapp-bg);
+    }
+
+    /* Left Sidebar Panel */
+    .sidebar-panel{
+      background:var(--whatsapp-panel);
+      border-right:1px solid var(--whatsapp-border);
+      display:flex;
+      flex-direction:column;
+      height:100vh;
+    }
+
+    /* Sidebar Header */
+    .sidebar-header{
+      background:var(--whatsapp-header);
+      padding:10px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      height:60px;
+      border-bottom:1px solid var(--whatsapp-border);
+    }
+
+    .sidebar-profile{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      cursor:pointer;
+    }
+
+    .sidebar-avatar{
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#00a884,#00d9a5);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:600;
+      font-size:16px;
+      color:white;
+    }
+
+    .sidebar-user-name{
+      font-size:16px;
+      font-weight:400;
+    }
+
+    .sidebar-actions{
+      display:flex;
+      gap:20px;
+      align-items:center;
+    }
+
+    .sidebar-icon{
+      width:40px;
+      height:40px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      border-radius:50%;
+      transition:background 0.2s;
+      font-size:20px;
+      color:var(--whatsapp-text-muted);
+    }
+
+    .sidebar-icon:hover{
+      background:var(--whatsapp-hover);
+    }
+
+    /* Search Bar */
+    .search-container{
+      padding:7px 10px;
+      background:var(--whatsapp-panel);
+    }
+
+    .search-wrapper{
+      background:var(--whatsapp-bg);
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      padding:8px 16px;
+      gap:12px;
+    }
+
+    .search-icon{
+      color:var(--whatsapp-text-muted);
+      font-size:16px;
+    }
+
+    .search-input{
+      flex:1;
+      background:transparent;
+      border:none;
+      outline:none;
+      color:var(--whatsapp-text);
+      font-size:14px;
+    }
+
+    .search-input::placeholder{
+      color:var(--whatsapp-text-muted);
+    }
+
+    /* Filter Tabs */
+    .filter-tabs{
+      display:flex;
+      gap:4px;
+      padding:8px 16px;
+      background:var(--whatsapp-panel);
+      border-bottom:1px solid var(--whatsapp-border);
+      overflow-x:auto;
+    }
+
+    .filter-tab{
+      padding:6px 16px;
+      background:var(--whatsapp-bg);
+      border:none;
+      border-radius:16px;
+      color:var(--whatsapp-text);
+      font-size:13px;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:all 0.2s;
+    }
+
+    .filter-tab:hover{
+      background:var(--whatsapp-hover);
+    }
+
+    .filter-tab.active{
+      background:var(--whatsapp-green);
+      color:white;
+    }
+
+    /* Chat List */
+    .chat-list{
+      flex:1;
+      overflow-y:auto;
+      overflow-x:hidden;
+    }
+
+    .chat-list::-webkit-scrollbar{
+      width:6px;
+    }
+
+    .chat-list::-webkit-scrollbar-thumb{
+      background:rgba(255,255,255,0.1);
+      border-radius:3px;
+    }
+
+    .chat-item{
+      display:flex;
+      align-items:center;
+      padding:12px 16px;
+      gap:12px;
+      cursor:pointer;
+      border-bottom:1px solid rgba(255,255,255,0.02);
+      transition:background 0.2s;
+    }
+
+    .chat-item:hover{
+      background:var(--whatsapp-hover);
+    }
+
+    .chat-item.active{
+      background:var(--whatsapp-hover);
+    }
+
+    .chat-avatar{
+      width:50px;
+      height:50px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#667eea,#764ba2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:600;
+      font-size:18px;
+      color:white;
+      flex-shrink:0;
+      position:relative;
+    }
+
+    .chat-avatar.ai{
+      background:linear-gradient(135deg,#667eea,#00a884);
+    }
+
+    .badge-ai{
+      position:absolute;
+      bottom:-2px;
+      right:-2px;
+      background:var(--whatsapp-green);
+      color:white;
+      font-size:9px;
+      padding:2px 5px;
+      border-radius:8px;
+      font-weight:600;
+      border:2px solid var(--whatsapp-panel);
+    }
+
+    .chat-info{
+      flex:1;
+      min-width:0;
+    }
+
+    .chat-header-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      margin-bottom:4px;
+    }
+
+    .chat-name{
+      font-size:16px;
+      font-weight:400;
+      color:var(--whatsapp-text);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .chat-time{
+      font-size:12px;
+      color:var(--whatsapp-text-muted);
+    }
+
+    .chat-preview{
+      font-size:14px;
+      color:var(--whatsapp-text-muted);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .chat-badge{
+      background:var(--whatsapp-green);
+      color:white;
+      font-size:11px;
+      padding:2px 6px;
+      border-radius:12px;
+      font-weight:600;
+      min-width:20px;
+      text-align:center;
+    }
+
+    .action-badge{
+      padding:4px 10px;
+      background:var(--whatsapp-green);
+      color:white;
+      font-size:11px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:background 0.2s;
+    }
+
+    .action-badge:hover{
+      background:var(--whatsapp-green-dark);
+    }
+
+    /* Main Chat Area */
+    .chat-main{
+      background:var(--whatsapp-chat);
+      display:flex;
+      flex-direction:column;
+      height:100vh;
+      position:relative;
+    }
+
+    .chat-main::before{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%230b141a"/><path d="M0 0L50 50M50 0L0 50M50 50L100 100M100 50L50 100" stroke="%23ffffff" stroke-width="0.5" opacity="0.03"/></svg>');
+      opacity:0.4;
+      pointer-events:none;
+    }
+
+    /* Chat Header */
+    .chat-header{
+      background:var(--whatsapp-header);
+      padding:10px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      height:60px;
+      border-bottom:1px solid var(--whatsapp-border);
+      position:relative;
+      z-index:10;
+    }
+
+    .chat-header-info{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      cursor:pointer;
+      flex:1;
+    }
+
+    .chat-header-avatar{
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#667eea,#764ba2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:600;
+      font-size:16px;
+      color:white;
+    }
+
+    .chat-header-details{
+      flex:1;
+    }
+
+    .chat-header-name{
+      font-size:16px;
+      font-weight:400;
+    }
+
+    .chat-header-status{
+      font-size:13px;
+      color:var(--whatsapp-text-muted);
+    }
+
+    .chat-header-actions{
+      display:flex;
+      gap:16px;
+    }
+
+    /* Chat Messages Area */
+    .chat-messages{
+      flex:1;
+      overflow-y:auto;
+      padding:20px 8%;
+      position:relative;
+      z-index:1;
+    }
+
+    .chat-messages::-webkit-scrollbar{
+      width:6px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb{
+      background:rgba(255,255,255,0.1);
+      border-radius:3px;
+    }
+
+    .message-date{
+      text-align:center;
+      margin:20px 0;
+    }
+
+    .message-date span{
+      background:var(--whatsapp-hover);
+      padding:6px 12px;
+      border-radius:8px;
+      font-size:12px;
+      color:var(--whatsapp-text-muted);
+    }
+
+    .message-row{
+      display:flex;
+      margin-bottom:8px;
+      animation:messageSlideIn 0.3s ease;
+    }
+
+    @keyframes messageSlideIn{
+      from{opacity:0;transform:translateY(10px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .message-row.mine{
+      justify-content:flex-end;
+    }
+
+    .message-bubble{
+      max-width:65%;
+      padding:6px 7px 8px 9px;
+      border-radius:8px;
+      position:relative;
+      word-wrap:break-word;
+    }
+
+    .message-row:not(.mine) .message-bubble{
+      background:var(--whatsapp-bubble-in);
+      border-radius:0 8px 8px 8px;
+    }
+
+    .message-row.mine .message-bubble{
+      background:var(--whatsapp-bubble-out);
+      border-radius:8px 0 8px 8px;
+    }
+
+    .message-text{
+      font-size:14.2px;
+      line-height:19px;
+      color:var(--whatsapp-text);
+      margin-bottom:4px;
+    }
+
+    .message-meta{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:4px;
+      margin-top:2px;
+    }
+
+    .message-time{
+      font-size:11px;
+      color:rgba(255,255,255,0.45);
+    }
+
+    .message-status{
+      font-size:16px;
+      color:rgba(255,255,255,0.45);
+    }
+
+    .message-status.read{
+      color:#53bdeb;
+    }
+
+    /* Chat Input */
+    .chat-input-container{
+      background:var(--whatsapp-header);
+      padding:10px 16px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      position:relative;
+      z-index:10;
+    }
+
+    .chat-input-wrapper{
+      flex:1;
+      background:var(--whatsapp-panel);
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      padding:10px 16px;
+      gap:8px;
+    }
+
+    .chat-input{
+      flex:1;
+      background:transparent;
+      border:none;
+      outline:none;
+      color:var(--whatsapp-text);
+      font-size:15px;
+      line-height:20px;
+      resize:none;
+      max-height:100px;
+    }
+
+    .chat-input::placeholder{
+      color:var(--whatsapp-text-muted);
+    }
+
+    .input-icon{
+      color:var(--whatsapp-text-muted);
+      cursor:pointer;
+      font-size:24px;
+      transition:color 0.2s;
+    }
+
+    .input-icon:hover{
+      color:var(--whatsapp-text);
+    }
+
+    .send-btn{
+      width:50px;
+      height:50px;
+      background:var(--whatsapp-green);
+      border:none;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:background 0.2s;
+      font-size:20px;
+      color:white;
+    }
+
+    .send-btn:hover{
+      background:var(--whatsapp-green-dark);
+    }
+
+    /* Empty State */
+    .empty-chat{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      height:100%;
+      color:var(--whatsapp-text-muted);
+      gap:20px;
+    }
+
+    .empty-chat-icon{
+      font-size:120px;
+      opacity:0.3;
+    }
+
+    .empty-chat-text{
+      font-size:32px;
+      font-weight:300;
+    }
+
+    .empty-chat-desc{
+      font-size:14px;
+      max-width:400px;
+      text-align:center;
+      line-height:1.6;
+    }
+
+    /* Mobile Responsive */
+    @media(max-width:1000px){
+      .app-container{
+        grid-template-columns:1fr;
+      }
+      
+      .sidebar-panel{
+        display:none;
+      }
+      
+      .sidebar-panel.mobile-active{
+        display:flex;
+        position:fixed;
+        inset:0;
+        z-index:1000;
+      }
+      
+      .chat-main{
+        display:none;
+      }
+      
+      .chat-main.mobile-active{
+        display:flex;
+      }
+      
+      .chat-messages{
+        padding:20px 4%;
+      }
+      
+      .mobile-back{
+        display:block !important;
+      }
+    }
+
+    @media(min-width:1001px){
+      .mobile-back{
+        display:none;
+      }
+    }
+
+    /* Modal */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.85);
+      z-index:10000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      backdrop-filter:blur(4px);
+    }
+
+    .modal{
+      background:var(--whatsapp-panel);
+      border-radius:12px;
+      padding:24px;
+      max-width:500px;
+      width:90%;
+      max-height:90vh;
+      overflow-y:auto;
+    }
+
+    .modal h3{
+      font-size:20px;
+      margin-bottom:20px;
+      color:var(--whatsapp-text);
+    }
+
+    .modal input,.modal textarea{
+      width:100%;
+      padding:12px;
+      background:var(--whatsapp-bg);
+      border:1px solid var(--whatsapp-border);
+      border-radius:8px;
+      color:var(--whatsapp-text);
+      margin-bottom:12px;
+      font-family:inherit;
+    }
+
+    .modal input:focus,.modal textarea:focus{
+      outline:none;
+      border-color:var(--whatsapp-green);
+    }
+
+    .modal-actions{
+      display:flex;
+      gap:12px;
+      margin-top:20px;
+    }
+
+    .btn{
+      padding:10px 24px;
+      border-radius:8px;
+      border:none;
+      cursor:pointer;
+      font-size:14px;
+      transition:all 0.2s;
+    }
+
+    .btn-primary{
+      background:var(--whatsapp-green);
+      color:white;
+    }
+
+    .btn-primary:hover{
+      background:var(--whatsapp-green-dark);
+    }
+
+    .btn-secondary{
+      background:var(--whatsapp-hover);
+      color:var(--whatsapp-text);
+    }
+
+    .btn-secondary:hover{
+      background:var(--whatsapp-border);
+    }
+  </style>
+</head>
+<body class="chat-page">
+  <div class="app-container">
+    <!-- Left Sidebar Panel -->
+    <div class="sidebar-panel" id="sidebarPanel">
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <div class="sidebar-profile" onclick="openProfile()">
+          <div class="sidebar-avatar" id="userAvatar">U</div>
+          <div class="sidebar-user-name" id="userName">User</div>
+        </div>
+        <div class="sidebar-actions">
+          <div class="sidebar-icon" onclick="openNewChat()" title="New chat">💬</div>
+          <div class="sidebar-icon" onclick="showMenu()" title="Menu">⋮</div>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" placeholder="Search or start new chat" id="searchInput" />
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="unread">Unread</button>
+        <button class="filter-tab" data-filter="favorites">Favorites</button>
+        <button class="filter-tab" data-filter="groups">Groups</button>
+      </div>
+
+      <!-- Chat List -->
+      <div class="chat-list" id="chatList">
+        <!-- RegentAI will be inserted first -->
+        <!-- Other users will be listed here -->
+      </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="chat-main" id="chatMain">
+      <div class="empty-chat" id="emptyChat">
+        <div class="empty-chat-icon">💬</div>
+        <div class="empty-chat-text">Regent Connect</div>
+        <div class="empty-chat-desc">
+          Select a chat to start messaging<br>
+          Connect with your campus community
+        </div>
+      </div>
+
+      <!-- Chat Header (hidden initially) -->
+      <div class="chat-header" id="chatHeader" style="display:none">
+        <div class="sidebar-icon mobile-back" onclick="backToList()">←</div>
+        <div class="chat-header-info" onclick="openChatInfo()">
+          <div class="chat-header-avatar" id="chatAvatar">U</div>
+          <div class="chat-header-details">
+            <div class="chat-header-name" id="chatName">User</div>
+            <div class="chat-header-status" id="chatStatus">online</div>
+          </div>
+        </div>
+        <div class="chat-header-actions">
+          <div class="sidebar-icon" onclick="startVoiceCall()" title="Voice call">📞</div>
+          <div class="sidebar-icon" onclick="startVideoCall()" title="Video call">📹</div>
+          <div class="sidebar-icon" onclick="showChatMenu()">⋮</div>
+        </div>
+      </div>
+
+      <!-- Messages Area -->
+      <div class="chat-messages" id="chatMessages" style="display:none"></div>
+
+      <!-- Input Area -->
+      <div class="chat-input-container" id="chatInput" style="display:none">
+        <div class="chat-input-wrapper">
+          <span class="input-icon" title="Emoji">😊</span>
+          <input type="text" class="chat-input" placeholder="Type a message" id="messageInput" />
+          <span class="input-icon" title="Attach">📎</span>
+        </div>
+        <button class="send-btn" onclick="sendMessage()">
+          <span>➤</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalRoot"></div>
+
+  <!-- Load modules -->
+  <script src="./js/db.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/users.js"></script>
+  <script src="./js/chat.js"></script>
+  <script src="./js/groups.js"></script>
+  <script src="./js/status.js"></script>
+  <script src="./js/calls.js"></script>
+  <script src="./js/ai.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/app.js"></script>
+
+  <script>
+  // State
+  let currentUser = DB.load(KEYS.CURRENT_USER);
+  let activeChat = null;
+  let currentFilter = 'all';
+
+  // Check auth
+  if(!currentUser){
+    window.location.href = 'login.html';
+  }
+
+  // Initialize
+  function init(){
+    updateUserInfo();
+    renderChatList();
+    setupEventListeners();
+  }
+
+  function updateUserInfo(){
+    if(currentUser){
+      document.getElementById('userName').textContent = currentUser.name;
+      document.getElementById('userAvatar').textContent = currentUser.name.slice(0,1).toUpperCase();
+      document.getElementById('userAvatar').style.background = currentUser.avatarColor || '#00a884';
+    }
+  }
+
+  function renderChatList(){
+    const chatList = document.getElementById('chatList');
+    chatList.innerHTML = '';
+
+    // Always show RegentAI first
+    const aiItem = createChatItem({
+      id: 'bot_ai',
+      name: 'RegentAI',
+      avatar: '🤖',
+      preview: 'Hey! I\'m here to help you with campus info, study tips, and more!',
+      time: 'AI',
+      unread: 0,
+      isAI: true
+    });
+    chatList.appendChild(aiItem);
+
+    // Load all users
+    const users = DB.load(KEYS.USERS, []);
+    const messages = DB.load(KEYS.MESSAGES, []);
+    const requests = DB.load(KEYS.REQUESTS, []);
+
+    // Filter and display users
+    users.forEach(user => {
+      if(user.id === currentUser.id) return; // Skip self
+      if(user.id === 'bot_ai') return; // Skip AI (already added)
+
+      const isFriend = currentUser.friends && currentUser.friends.includes(user.id);
+      const hasSentRequest = requests.some(r => r.from === currentUser.id && r.to === user.id);
+      const hasReceivedRequest = requests.some(r => r.from === user.id && r.to === currentUser.id);
+
+      // Get last message
+      const convId = getConvId(currentUser.id, user.id);
+      const userMessages = messages.filter(m => m.convId === convId);
+      const lastMsg = userMessages.sort((a,b) => new Date(b.time) - new Date(a.time))[0];
+
+      let preview = '';
+      let badge = null;
+
+      if(hasReceivedRequest){
+        preview = 'Wants to connect with you';
+        badge = 'Accept';
+      } else if(hasSentRequest){
+        preview = 'Friend request sent';
+      } else if(!isFriend){
+        preview = 'Send friend request to start chatting';
+        badge = 'Add';
+      } else if(lastMsg){
+        preview = lastMsg.text;
+      } else {
+        preview = 'Start a conversation';
+      }
+
+      const item = createChatItem({
+        id: user.id,
+        name: user.name,
+        avatar: user.name.slice(0,2).toUpperCase(),
+        avatarColor: user.avatarColor,
+        preview: preview,
+        time: lastMsg ? formatTime(lastMsg.time) : '',
+        unread: 0,
+        isFriend: isFriend,
+        badge: badge,
+        hasRequest: hasReceivedRequest
+      });
+
+      chatList.appendChild(item);
+    });
+  }
+
+  function createChatItem(data){
+    const item = document.createElement('div');
+    item.className = 'chat-item';
+    item.onclick = () => openChat(data);
+
+    const avatarClass = data.isAI ? 'chat-avatar ai' : 'chat-avatar';
+    const avatarContent = data.isAI ? data.avatar : `<span>${data.avatar}</span>`;
+    const aiBadge = data.isAI ? '<span class="badge-ai">AI</span>' : '';
+    
+    item.innerHTML = `
+      <div class="${avatarClass}" style="${data.avatarColor ? `background:${data.avatarColor}` : ''}">
+        ${avatarContent}
+        ${aiBadge}
+      </div>
+      <div class="chat-info">
+        <div class="chat-header-row">
+          <div class="chat-name">${data.name}</div>
+          <div class="chat-time">${data.time}</div>
+        </div>
+        <div class="chat-preview">
+          <span style="flex:1">${data.preview}</span>
+          ${data.badge ? `<span class="action-badge" onclick="event.stopPropagation(); handleAction('${data.id}', '${data.badge}')">${data.badge}</span>` : ''}
+          ${data.unread > 0 ? `<span class="chat-badge">${data.unread}</span>` : ''}
+        </div>
+      </div>
+    `;
+
+    return item;
+  }
+
+  function handleAction(userId, action){
+    if(action === 'Add'){
+      sendFriendRequest(userId);
+    } else if(action === 'Accept'){
+      acceptFriendRequest(userId);
+    }
+  }
+
+  function sendFriendRequest(userId){
+    const result = Users.sendFriendRequest(currentUser.id, userId);
+    if(result.ok){
+      UI.toast('Friend request sent!', 'success');
+      renderChatList();
+    } else {
+      UI.toast(result.msg, 'error');
+    }
+  }
+
+  function acceptFriendRequest(userId){
+    const requests = DB.load(KEYS.REQUESTS, []);
+    const request = requests.find(r => r.from === userId && r.to === currentUser.id);
+    
+    if(request){
+      const result = Users.acceptFriendRequest(request.id);
+      if(result.ok){
+        currentUser = DB.load(KEYS.CURRENT_USER);
+        UI.toast('Friend request accepted!', 'success');
+        renderChatList();
+      }
+    }
+  }
+
+  function openChat(data){
+    activeChat = data;
+    
+    // Mobile: hide sidebar, show chat
+    document.getElementById('sidebarPanel').classList.remove('mobile-active');
+    document.getElementById('chatMain').classList.add('mobile-active');
+    
+    // Show chat UI
+    document.getElementById('emptyChat').style.display = 'none';
+    document.getElementById('chatHeader').style.display = 'flex';
+    document.getElementById('chatMessages').style.display = 'block';
+    document.getElementById('chatInput').style.display = 'flex';
+    
+    // Update header
+    document.getElementById('chatName').textContent = data.name;
+    document.getElementById('chatAvatar').textContent = data.isAI ? data.avatar : data.avatar;
+    if(data.avatarColor && !data.isAI){
+      document.getElementById('chatAvatar').style.background = data.avatarColor;
+    }
+    document.getElementById('chatStatus').textContent = data.isAI ? 'AI Assistant' : 'online';
+    
+    // Load messages
+    renderMessages();
+  }
+
+  function renderMessages(){
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.innerHTML = '';
+    
+    if(!activeChat) return;
+    
+    const convId = activeChat.id === 'bot_ai' ? 'p_bot_ai_' + currentUser.id : getConvId(currentUser.id, activeChat.id);
+    const messages = DB.load(KEYS.MESSAGES, []).filter(m => m.convId === convId);
+    
+    if(messages.length === 0){
+      messagesContainer.innerHTML = '<div class="message-date"><span>Start a conversation</span></div>';
+      return;
+    }
+    
+    messages.sort((a,b) => new Date(a.time) - new Date(b.time)).forEach((msg, i) => {
+      // Add date divider
+      if(i === 0 || !isSameDay(messages[i-1].time, msg.time)){
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'message-date';
+        dateDiv.innerHTML = `<span>${formatDate(msg.time)}</span>`;
+        messagesContainer.appendChild(dateDiv);
+      }
+      
+      const row = document.createElement('div');
+      row.className = msg.from === currentUser.id ? 'message-row mine' : 'message-row';
+      
+      row.innerHTML = `
+        <div class="message-bubble">
+          <div class="message-text">${escapeHtml(msg.text)}</div>
+          <div class="message-meta">
+            <span class="message-time">${formatMessageTime(msg.time)}</span>
+            ${msg.from === currentUser.id ? '<span class="message-status read">✓✓</span>' : ''}
+          </div>
+        </div>
+      `;
+      
+      messagesContainer.appendChild(row);
+    });
+    
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  function sendMessage(){ 
+    if(!currentUser) return alert('Please login'); 
+    if(!activeChat) return alert('Select a conversation'); 
+    const text = document.getElementById('messageInput').value.trim(); 
+    if(!text) return;
+    
+    const convId = activeChat.id === 'bot_ai' ? 'p_bot_ai_' + currentUser.id : getConvId(currentUser.id, activeChat.id);
+    
+    // Save message
+    const messages = DB.load(KEYS.MESSAGES, []);
+    messages.push({
+      id: uid('msg'),
+      convId: convId,
+      from: currentUser.id,
+      to: activeChat.id,
+      text: text,
+      time: new Date().toISOString(),
+      status: 'sent'
+    });
+    DB.save(KEYS.MESSAGES, messages);
+    
+    document.getElementById('messageInput').value = '';
+    renderMessages();
+    
+    // AI response
+    if(activeChat.id === 'bot_ai'){
+      setTimeout(async () => {
+        const aiResponse = await RegentAI.chat(text);
+        if(aiResponse.ok){
+          messages.push({
+            id: uid('msg'),
+            convId: convId,
+            from: 'bot_ai',
+            to: currentUser.id,
+            text: aiResponse.response,
+            time: new Date().toISOString(),
+            status: 'sent'
+          });
+          DB.save(KEYS.MESSAGES, messages);
+          renderMessages();
+        }
+      }, 800);
+    }
+  }
+
+  btnSend.addEventListener('click',sendMessage);
+  msgInput.addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
+
+  function sendMessage(){ 
+    if(!currentUser) return alert('Please login'); 
+    if(!activeConv) return alert('Select a conversation'); 
+    const text = msgInput.value.trim(); 
+    if(!text) return;
+    
+    // Use Chat module if available
+    if(typeof Chat !== 'undefined') {
+      const result = Chat.sendMessage({
+        to: activeConv.type === 'group' ? activeConv.groupId : activeConv.other,
+        text: text,
+        isGroup: activeConv.type === 'group'
+      });
+      
+      if(result.ok) {
+        msgs = DB.load(KEYS.MESSAGES, []);
+        msgInput.value = '';
+        renderChatArea();
+        
+        if(toggleAi.checked) {
+          setTimeout(() => simulateReply(activeConv, result.message), 1000 + Math.random() * 1200);
+        }
+      }
+    } else {
+      // Fallback
+      const m = {id:uid('m'),convId:activeConv.id,from:currentUser.id,text, time:timeNow()}; 
+      msgs.push(m); 
+      saveAll(); 
+      msgInput.value=''; 
+      renderChatArea();
+      
+      if(toggleAi.checked) {
+        setTimeout(() => simulateReply(activeConv, m), 1000 + Math.random() * 1200);
+      }
+    }
+  }
+
+  function simulateReply(conv, m){
+    // Use RegentAI if available
+    if(typeof RegentAI !== 'undefined') {
+      RegentAI.chat(m.text).then(result => {
+        if(result.ok) {
+          const reply = {
+            id: uid('m'),
+            convId: conv.id,
+            from: conv.type === 'private' ? conv.other : 'bot_ai',
+            text: result.response,
+            time: timeNow()
+          };
+          msgs.push(reply);
+          saveAll();
+          renderChatArea();
+        }
+      });
+    } else {
+      // Fallback
+      const otherId = conv.type==='private' ? conv.id.split('_').slice(1).find(x=>x!==currentUser.id) : null;
+      let replierId = otherId==='bot_ai' ? 'bot_ai' : (conv.type==='group' ? conv.groupId : otherId);
+      const replyText = generateBotReply(m.text);
+      const reply = {id:uid('m'),convId:conv.id,from: replierId, text:replyText, time:timeNow()};
+      msgs.push(reply); 
+      saveAll(); 
+      renderChatArea();
+    }
+  }
+
+  function generateBotReply(userText){
+    const low = userText.toLowerCase();
+    if(low.includes('hi')||low.includes('hello')) return '👋 Hello! How can I help you today?';
+    if(low.includes('help')||low.includes('how')) return '💡 Try asking about campus events, robotics, or project ideas.';
+    if(low.includes('project')) return '🚀 I suggest building a small web frontend chat—use LocalStorage to store messages!';
+    if(low.includes('thank')) return '😊 You\'re welcome! Happy to help.';
+    if(low.includes('bye')) return '👋 Goodbye! Have a great day!';
+    return `📝 I read: "${userText.length>120?userText.slice(0,117)+'...':userText}" — tell me more!`;
+  }
+
+  function escapeHtml(s){ 
+    return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); 
+  }
+
+  /* Groups */
+  function openCreateGroup(){ 
+    if(!currentUser) return alert('Login to create groups');
+    const modal=document.createElement('div');
+    modal.className='modal-backdrop'; 
+    modal.innerHTML=`<div class="modal card">
+      <h3>👥 Create Group</h3>
+      <input id="gName" placeholder="Group name" style="margin-bottom:16px" />
+      <div class="muted" style="margin-bottom:8px">Select members:</div>
+      <div style="max-height:240px;overflow:auto;margin:12px 0;padding:12px;border-radius:10px;background:rgba(255,255,255,0.02)" id="membersPick"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:16px">
+        <button class="btn" id="doCreate">✨ Create</button>
+        <button class="small-action" id="closeC">Close</button>
+      </div>
+    </div>`; 
+    qs('#modalRoot').appendChild(modal);
+    modal.addEventListener('click',e=>{ if(e.target === modal) modal.remove() });
+    
+    const pick = qs('#membersPick',modal);
+    users.filter(u=>u.id!==currentUser.id && u.id!=='bot_ai').forEach(u=>{ 
+      const cb = document.createElement('label'); 
+      cb.style.cssText = 'display:block;padding:10px;cursor:pointer;border-radius:8px;transition:background .2s;margin-bottom:4px'; 
+      cb.onmouseenter = ()=>cb.style.background='rgba(255,255,255,0.04)';
+      cb.onmouseleave = ()=>cb.style.background='transparent';
+      cb.innerHTML = `<input type="checkbox" value="${u.id}" style="margin-right:10px;cursor:pointer" /> <span style="font-weight:500">${u.name}</span> <span class="muted" style="font-size:12px">${u.about||u.phone||''}</span>`;
+      pick.appendChild(cb) 
+    });
+    
+    qs('#closeC',modal).addEventListener('click',()=>modal.remove());
+    qs('#doCreate',modal).addEventListener('click',()=>{
+      const name = qs('#gName',modal).value.trim(); 
+      if(!name) return alert('Group needs a name');
+      const checked = Array.from(pick.querySelectorAll('input:checked')).map(i=>i.value); 
+      if(checked.length===0) return alert('Add at least one member');
+      
+      // Use Groups module if available
+      if(typeof Groups !== 'undefined') {
+        const result = Groups.createGroup({
+          name: name,
+          members: checked
+        });
+        
+        if(result.ok) {
+          groups = DB.load(KEYS.GROUPS, []);
+          modal.remove();
+          if(typeof UI !== 'undefined'){
+            UI.toast('✅ ' + result.msg, 'success');
+          } else {
+            alert('✅ ' + result.msg);
+          }
+          renderUsers();
+        } else {
+          alert(result.msg);
+        }
+      } else {
+        // Fallback
+        const g = {id:uid('g'),name,members:[...checked,currentUser.id]}; 
+        groups.push(g); 
+        saveAll(); 
+        modal.remove(); 
+        alert('✅ Group created!'); 
+        renderUsers();
+      }
+    })
+  }
+
+  function openGroupsModal(){ 
+    const modal=document.createElement('div');
+    modal.className='modal-backdrop';
+    modal.innerHTML=`<div class="modal card">
+      <h3>👥 Your Groups</h3>
+      <div id="groupList" style="max-height:380px;overflow:auto;margin-top:16px"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:20px">
+        <button class="btn" onclick="document.getElementById('groupModal').remove();openCreateGroup()">+ New Group</button>
+        <button class="small-action" id="closeG">Close</button>
+      </div>
+    </div>`; 
+    modal.id = 'groupModal';
+    qs('#modalRoot').appendChild(modal);
+    modal.addEventListener('click',e=>{ if(e.target === modal) modal.remove() });
+    
+    const gl = qs('#groupList',modal);
+    const myGroups = groups.filter(g => g.members && g.members.includes(currentUser.id));
+    
+    if(myGroups.length === 0){
+      gl.innerHTML = '<div class="muted" style="text-align:center;padding:40px">No groups yet.<br>Create one to get started!</div>';
+    } else {
+      myGroups.forEach(g=>{
+        const el=document.createElement('div'); 
+        el.className='user-item'; 
+        el.style.cssText = 'padding:12px;margin-bottom:8px;background:rgba(255,255,255,0.01);border-radius:10px';
+        el.innerHTML = `<div class="avatar" style="background:#8b5cf6;font-size:20px">👥</div>
+          <div style="flex:1">
+            <div class="name">${g.name}</div>
+            <div class="small">${g.members.length} members${g.admin===currentUser.id?' • Admin':''}</div>
+          </div>
+          <button class="btn" data-id="${g.id}" data-action="open" style="font-size:13px;padding:6px 16px">Open Chat</button>`;
+        gl.appendChild(el);
+      });
+    }
+    
+    qs('#closeG',modal).addEventListener('click',()=>modal.remove());
+    gl.addEventListener('click',e=>{ 
+      const btn = e.target.closest('button'); 
+      if(!btn) return; 
+      const id = btn.dataset.id; 
+      const action = btn.dataset.action; 
+      if(action==='open'){ 
+        modal.remove(); 
+        startGroupChat(id);
+      } 
+    });
+  }
+
+  // Initialize
+  loadChatBubbleComponent();
+
+  console.log('✅ Regent Connect loaded successfully!');
+  console.log('📊 Users:', users.length, '| Messages:', msgs.length, '| Groups:', groups.length);
+  console.log('👤 Current User:', currentUser ? currentUser.name : 'Not logged in');
+  </script>
+</body>
+</html>

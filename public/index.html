@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Campus Chat Platform</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+  <!-- Remove the top left logo and title -->
+  <!-- <div id="appHeader" class="app-header">
+    <img src="assets/icons/logo-regent.png" alt="Regent Connect Logo" style="height:40px;vertical-align:middle;margin-right:10px;">
+    <span style="font-size:1.5em;vertical-align:middle;">Regent Connect</span>
+  </div> -->
+  <header class="hero">
+    <div class="hero-content">
+      <div class="assets/icons/logo-regent.png">
+        <img src="assets/icons/logo-regent.png" alt="Regent Connect Logo" style="height:64px;width:64px;">
+      </div>
+      <h1>Regent Connect</h1>
+      <p class="tagline">Chat. Learn. Connect.</p>
+      <p class="description">The all-in-one platform for campus communication, collaboration, and community building.</p>
+      <div class="cta-buttons">
+        <a href="auth.html" class="btn primary large">Get Started</a>
+        <a href="chat.html" class="btn secondary large">View Demo</a>
+        <button type="button" class="btn secondary large" id="openRegentAiBtn" style="background:linear-gradient(135deg,#8b5cf6,#4f46e5);border:none">🤖 RegentAI</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="features">
+    <h2>Why Regent Connect?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>Real-time Chat</h3>
+        <p>Connect with friends and classmates instantly</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3>Group Collaboration</h3>
+        <p>Create groups for projects and study sessions</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Assistant</h3>
+        <p>RegentAI helps with queries and suggestions</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Secure & Private</h3>
+        <p>Your data stays safe with local storage</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <p>&copy; 2024 Regent Connect. Built for campus communities.</p>
+  </footer>
+
+  <!-- RegentAI Floating Modal -->
+  <div id="regentAiModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+    <div style="background:#181c2a;max-width:400px;width:95vw;border-radius:16px;box-shadow:0 8px 32px #000;padding:0 0 16px 0;display:flex;flex-direction:column;min-height:420px;max-height:90vh;">
+      <div style="display:flex;align-items:center;gap:10px;padding:18px 18px 10px 18px;">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;">🤖</div>
+        <div>
+          <div style="font-weight:600;font-size:18px;">RegentAI</div>
+          <div style="font-size:13px;color:#a3aed6;">Ask me anything about campus, study, or tech!</div>
+        </div>
+        <button onclick="closeRegentAiModal()" style="margin-left:auto;background:none;border:none;font-size:22px;color:#a3aed6;cursor:pointer;">&times;</button>
+      </div>
+      <div id="regentAiMessages" style="flex:1;overflow-y:auto;padding:0 18px 0 18px;display:flex;flex-direction:column;gap:12px;"></div>
+      <form id="regentAiForm" style="display:flex;gap:8px;padding:12px 18px 0 18px;">
+        <input id="regentAiInput" autocomplete="off" placeholder="Type your question..." style="flex:1;padding:12px 14px;border-radius:8px;border:1px solid #353b50;background:#23263a;color:#fff;font-size:15px;" />
+        <button type="submit" style="background:linear-gradient(135deg,#8b5cf6,#4f46e5);color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:15px;font-weight:600;cursor:pointer;">Send</button>
+      </form>
+    </div>
+  </div>
+  <style>
+    .ai-msg-user {align-self:flex-end;background:#4f46e5;color:#fff;padding:10px 14px;border-radius:10px;max-width:80%;font-size:15px;}
+    .ai-msg-ai {align-self:flex-start;background:#23263a;color:#e0e7ef;padding:10px 14px;border-radius:10px;max-width:80%;font-size:15px;}
+    @media (max-width:600px) {
+      #regentAiModal > div {max-width:98vw;}
+    }
+  </style>
+  <script>
+    // RegentAI modal logic
+    function openRegentAiModal() {
+      document.getElementById('regentAiModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('regentAiInput').focus(), 200);
+    }
+    function closeRegentAiModal() {
+      document.getElementById('regentAiModal').style.display = 'none';
+    }
+    document.getElementById('openRegentAiBtn').onclick = openRegentAiModal;
+    document.getElementById('regentAiForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const input = document.getElementById('regentAiInput');
+      const msg = input.value.trim();
+      if(!msg) return;
+      addAiMessage(msg, 'user');
+      input.value = '';
+      addAiMessage('<span style="opacity:.6">RegentAI is typing...</span>', 'ai', true);
+      let reply = '';
+      if(window.RegentAI && RegentAI.chat) {
+        try {
+          const res = await RegentAI.chat(msg);
+          reply = res && res.ok ? res.response : "Sorry, I couldn't process that.";
+        } catch {
+          reply = "Sorry, something went wrong.";
+        }
+      } else {
+        reply = getFallbackAiReply(msg);
+      }
+      removeAiTyping();
+      addAiMessage(reply, 'ai');
+    };
+    function addAiMessage(text, who, isTyping) {
+      const box = document.getElementById('regentAiMessages');
+      const div = document.createElement('div');
+      div.className = who === 'user' ? 'ai-msg-user' : 'ai-msg-ai';
+      if(isTyping) div.style.opacity = '.7';
+      div.dataset.typing = isTyping ? '1' : '';
+      div.innerHTML = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+    function removeAiTyping() {
+      const box = document.getElementById('regentAiMessages');
+      const typing = box.querySelector('[data-typing="1"]');
+      if(typing) typing.remove();
+    }
+    // RegentAI static knowledge base for Regent University Ghana
+    window.RegentAI_KB = [
+      {
+        q: /who\s+is\s+philip\s+cobbinah/i,
+        a: `Philip Cobbinah is a highly accomplished student, innovator, and student leader at Regent University College of Science and Technology in Ghana. He co-developed "Roboserve", served as Vice SRC President, Enactus Team Lead, and Hult Prize Team Lead. He represented Ghana at the Enactus World Cup 2025 and is known for blending global entrepreneurship with local knowledge. As of November 2025, he is an IT professional interning at Npontu Technologies Limited.`
+      },
+      {
+        q: /who\s+is\s+mr\.?\s*samuel\s+ayeh-bampoe/i,
+        a: `Mr. Samuel Ayeh-Bampoe is the Deputy Registrar for Human Resources and Administration at Regent University Ghana. He is involved in university management, staff experience, and student mentorship. He mentors innovation teams, is active in marketing, and is the National President of Green Land Nkyirimma Organization (GLaNO).`
+      },
+      {
+        q: /who\s+is\s+aseda\s+ayeh-bampoe/i,
+        a: `Aseda Kofi Ayeh-Bampoe is an outstanding student innovator at Regent University Ghana, pursuing a Bachelor of Engineering in Computer Engineering. He led a team that won second place at Ghana Digital & Innovation Week for a solar tracking system, was a Hult Prize National runner-up, and co-developed projects like Roboserve, ODUMGYA, and a Smart Irrigation System. He is the son of Mr. Samuel Ayeh-Bampoe.`
+      },
+      {
+        q: /who\s+is\s+president\s+at\s+regent\s+university/i,
+        a: `As of November 2025, the Acting President of Regent University College of Science and Technology, Ghana, is Nana Yaw Boadi Appiah. The founding president and current Chancellor is Rev. Prof. Emmanuel Kingsley Larbi.`
+      },
+      {
+        q: /who\s+is\s+the\s+founder\s+of\s+regent\s+university.*year/i,
+        a: `Regent University College of Science and Technology, Ghana, was founded by Rev. Professor Emmanuel Kingsley Larbi. The university was registered in September 2003, accredited in 2004, and began lectures in January 2005.`
+      },
+      {
+        q: /when\s+is\s+the\s+2025\s+graduation.*regent\s+university/i,
+        a: `Regent University College of Science and Technology, Ghana, will hold its 2025 graduation ceremony on 13th December 2025.`
+      }
+    ];
+
+    // Patch RegentAI fallback to use static KB
+    function getFallbackAiReply(msg) {
+      if (window.RegentAI_KB) {
+        for (const entry of RegentAI_KB) {
+          if (entry.q.test(msg)) return entry.a;
+        }
+      }
+      const m = msg.toLowerCase();
+      if(m.includes('hi')||m.includes('hello')) return "👋 Hi! How can I help you today?";
+      if(m.includes('project')) return "🚀 Try a web chat app using LocalStorage!";
+      if(m.includes('club')) return "🎓 There are many clubs: Robotics, Coding, Debate, and more!";
+      if(m.includes('exam')||m.includes('study')) return "📚 Study tip: Make a schedule and take regular breaks!";
+      if(m.includes('thank')) return "😊 You're welcome!";
+      if(m.includes('bye')) return "👋 Goodbye! Have a great day!";
+      return "🤖 I'm here to help with campus, study, or tech questions!";
+    }
+  </script>
+</body>
+</html>

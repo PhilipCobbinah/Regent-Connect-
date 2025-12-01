@@ -1,0 +1,22 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Manage Groups</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    /* ...existing styles from other pages... */
+    .groups-page { height: 100vh; overflow: hidden; }
+    .app-header { background: linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .app-header .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg,var(--accent),#06b6d4); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 20px; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 64px); }
+    .app-sidebar { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-right: 1px solid rgba(255,255,255,0.04); padding: 16px; overflow-y: auto; }
+    .groups-main { padding: 24px; overflow-y: auto; max-width: 900px; }
+    .card { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-radius: 12px; padding: 20px; box-shadow: 0 6px 20px rgba(2,6,23,0.6); margin-bottom: 20px; }
+    .card h3 { margin: 0 0 16px 0; font-size: 18px; }
+    .card label { display: block; margin-bottom: 16px; font-size: 14px; font-weight: 500; }

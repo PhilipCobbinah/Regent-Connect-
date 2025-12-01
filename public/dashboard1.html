@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Dashboard</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#4f46e5;--success:#10b981}
+    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071126 0%, #071b2a 100%);color:#e6eef8}
+    .app{display:grid;grid-template-columns:320px 1fr;gap:18px;height:100vh;padding:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:14px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+
+    /* Sidebar */
+    .sidebar{display:flex;flex-direction:column;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{font-size:18px;margin:0}
+    .muted{color:var(--muted);font-size:13px}
+    .search{display:flex;gap:8px}
+    .search input{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    .controls{display:flex;gap:8px}
+    .btn{background:var(--accent);padding:8px 12px;border-radius:10px;border:none;color:white;cursor:pointer;transition:background .2s}
+    .btn:hover{background:#4338ca}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+    .btn.secondary:hover{background:rgba(255,255,255,0.02)}
+
+    /* lists */
+    .list{overflow:auto;max-height:60vh;padding-right:6px}
+    .list::-webkit-scrollbar{width:6px}
+    .list::-webkit-scrollbar-track{background:transparent}
+    .list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+    .user-item{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:pointer;transition:background .2s}
+    .user-item:hover{background:rgba(255,255,255,0.02)}
+    .avatar{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#eab308,#ef4444);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+    .name{font-weight:600}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* Main chat */
+    .main{display:flex;flex-direction:column;gap:12px}
+    .chat-header{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px}
+    .chat-area{flex:1;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);padding:14px;border-radius:12px;overflow:auto;display:flex;flex-direction:column;gap:12px}
+    .chat-area::-webkit-scrollbar{width:8px}
+    .chat-area::-webkit-scrollbar-track{background:transparent}
+    .chat-area::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
+    .message-row{display:flex;align-items:flex-end;gap:10px}
+    .message-row.mine{justify-content:flex-end}
+    .bubble{max-width:66%;padding:10px 14px;border-radius:14px;line-height:1.3;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 6px 14px rgba(2,6,23,0.5);position:relative}
+    .bubble.me{background:linear-gradient(180deg,var(--accent),#3b82f6);color:white}
+    .bubble:after{content:"";position:absolute;width:12px;height:12px;bottom:6px;background:inherit;transform:rotate(45deg);}
+    .message-row.mine .bubble:after{right:-6px}
+    .message-row:not(.mine) .bubble:after{left:-6px}
+    .meta{font-size:12px;color:var(--muted);margin-top:6px}
+
+    .composer{display:flex;gap:8px;align-items:center}
+    .composer input{flex:1;padding:12px;border-radius:999px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    .composer input:focus{outline:none;border-color:var(--accent)}
+    .small-action{font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
+    .small-action:hover{background:rgba(255,255,255,0.02);color:#fff}
+
+    /* friend badges */
+    .badge{background:rgba(255,255,255,0.06);padding:6px 8px;border-radius:999px;font-size:12px}
+
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.8);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000}
+    .modal{width:720px;max-width:90vw;background:linear-gradient(180deg, rgba(15,23,36,0.98), rgba(11,18,32,0.98));padding:24px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.06)}
+    .modal h3{margin:0 0 16px 0;font-size:20px}
+    .modal h4{margin:0 0 12px 0;font-size:16px;color:var(--muted)}
+    .modal input,.modal textarea{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff;margin-bottom:12px}
+    .modal input:focus,.modal textarea:focus{outline:none;border-color:var(--accent)}
+
+    /* animations */
+    .bubble{animation:pop .28s cubic-bezier(.2,.9,.2,1)}
+    @keyframes pop{from{transform:translateY(6px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+
+    /* responsive */
+    @media(max-width:900px){
+      .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+      .sidebar{max-height:40vh}
+    }
+  </style>
+</head>
+<body class="dashboard-page">
+  <!-- Header component will be loaded here -->
+  <div id="appHeader"></div>
+
+  <div class="layout">
+    <!-- Existing layout content for the dashboard -->
+  </div>
+
+  <!-- Load component loader first -->
+  <script src="./js/components.js"></script>
+  
+  <script>
+  /* ====== Simple Local DB helpers ====== */
+  const DB = {
+    load(key, defaultVal){try{const v=localStorage.getItem(key);return v?JSON.parse(v):defaultVal}catch(e){return defaultVal}},
+    save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+  }
+
+  /* Keys */
+  const KEY = {USERS:'rc_users',CUR:'rc_currentUser',REQS:'rc_reqs',MSGS:'rc_msgs',GROUPS:'rc_groups'}
+
+  /* Seed sample users if none */
+  function seed(){
+    let users = DB.load(KEY.USERS,[]);
+    if(users.length===0){
+      users = [
+        {id:uid(),name:'Philip',phone:'+233201234567',about:'Level 300 — CS',avatarColor:'#ef4444'},
+        {id:uid(),name:'Nana',phone:'+233245000123',about:'Robotics Club',avatarColor:'#f97316'},
+        {id:uid(),name:'Akosua',phone:'+233244999888',about:'STEMAID',avatarColor:'#06b6d4'},
+        {id:'bot_ai',name:'Regent AI',phone:'',about:'Simulated assistant',avatarColor:'#4f46e5'}
+      ];
+      DB.save(KEY.USERS,users);
+    }
+    if(!DB.load(KEY.MSGS)) DB.save(KEY.MSGS,[]);
+    if(!DB.load(KEY.REQS)) DB.save(KEY.REQS,[]);
+    if(!DB.load(KEY.GROUPS)) DB.save(KEY.GROUPS,[]);
+  }
+  seed();
+
+  /* Utilities */
+  function uid(prefix='u'){return prefix+Math.random().toString(36).slice(2,9)}
+  function qs(sel,el=document){return el.querySelector(sel)}
+  function qsa(sel,el=document){return Array.from(el.querySelectorAll(sel))}
+  function timeNow(){return new Date().toISOString()}
+  function convIdFor(u1,u2){const a=[u1,u2].sort();return `p_${a[0]}_${a[1]}`}
+
+  /* App State */
+  let users = DB.load(KEY.USERS,[]);
+  let msgs = DB.load(KEY.MSGS,[]);
+  let reqs = DB.load(KEY.REQS,[]);
+  let groups = DB.load(KEY.GROUPS,[]);
+  let currentUser = DB.load(KEY.CUR,null);
+  let activeConv = null;
+
+  /* DOM Elements */
+  const usersList = qs('#usersList'), requestsList=qs('#requestsList'), usersCount=qs('#usersCount');
+  const currentShort = qs('#currentShort'), chatTitle=qs('#chatTitle'), chatSubtitle=qs('#chatSubtitle');
+  const chatArea = qs('#chatArea'), msgInput=qs('#msgInput'), btnSend=qs('#btnSend'), toggleAi=qs('#toggleAi');
+  const reqCount = qs('#reqCount');
+
+  function saveAll(){DB.save(KEY.USERS,users);DB.save(KEY.MSGS,msgs);DB.save(KEY.REQS,reqs);DB.save(KEY.GROUPS,groups);DB.save(KEY.CUR,currentUser)}
+
+  function renderUsers(filter=''){
+    usersList.innerHTML='';
+    const list = users.filter(u=>u.name.toLowerCase().includes(filter.toLowerCase()));
+    usersCount.textContent = users.length;
+    list.forEach(u=>{
+      const isFriend = currentUser && u.friends && u.friends.includes(currentUser.id);
+      const el=document.createElement('div');el.className='user-item';
+      el.innerHTML=`<div class="avatar" style="background:${u.avatarColor || '#6ee7b7'}">${u.name.slice(0,2).toUpperCase()}</div>
+        <div style="flex:1"><div class="name">${u.name} <span class="small">${u.id==='bot_ai'?'• bot':isFriend?'• friend':''}</span></div>
+        <div class="small">${u.about||u.phone||'—'}</div></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <button class="small-action" data-action="view" data-id="${u.id}">View</button>
+          ${currentUser && currentUser.id !== u.id ? `<button class="btn" data-action="${isFriend?'message':'request'}" data-id="${u.id}" style="font-size:12px;padding:4px 8px">${isFriend?'Message':'Add'}</button>` : ''}
+        </div>`;
+      usersList.appendChild(el);
+    })
+  }
+
+  function renderRequests(){
+    requestsList.innerHTML='';
+    const myReqs = currentUser ? reqs.filter(r=>r.to===currentUser.id) : [];
+    reqCount.textContent = myReqs.length;
+    if(myReqs.length === 0){
+      requestsList.innerHTML = '<div class="muted" style="padding:8px;text-align:center">No pending requests</div>';
+      return;
+    }
+    myReqs.forEach(r=>{
+      const from = users.find(u=>u.id===r.from);
+      if(!from) return;
+      const el=document.createElement('div');el.className='user-item';
+      el.innerHTML=`<div class="avatar" style="background:${from.avatarColor}">${from.name.slice(0,2).toUpperCase()}</div>
+        <div style="flex:1"><div class="name">${from.name}</div><div class="small">${from.about||from.phone}</div></div>
+        <div style="display:flex;gap:6px"><button class="btn" data-action="accept" data-id="${r.from}" style="font-size:12px;padding:4px 8px">Accept</button>
+        <button class="small-action" data-action="reject" data-id="${r.from}">Reject</button></div>`;
+      requestsList.appendChild(el);
+    })
+  }
+
+  function updateCurrentUI(){currentShort.textContent = currentUser?currentUser.name:'—';}
+
+  function init(){renderUsers();renderRequests();updateCurrentUI();renderChatArea();}
+  init();
+
+  /* Event delegations */
+  usersList.addEventListener('click',e=>{
+    const btn = e.target.closest('button'); if(!btn) return; const action = btn.dataset.action; const id=btn.dataset.id;
+    const target = users.find(u=>u.id===id); if(!target) return;
+    if(action==='view'){ openProfileModal(target) }
+    if(action==='request'){ sendFriendRequest(id) }
+    if(action==='message'){ startPrivateChat(id) }
+  })
+
+  requestsList.addEventListener('click',e=>{
+    const btn=e.target.closest('button'); if(!btn) return; const action=btn.dataset.action; const id=btn.dataset.id;
+    if(action==='accept') acceptRequest(id); if(action==='reject') rejectRequest(id);
+  })
+
+  qs('#btnOpenAuth').addEventListener('click',()=>openAuthModal());
+  qs('#btnProfile').addEventListener('click',()=>{ if(!currentUser) return openAuthModal(); openEditProfile() });
+  qs('#btnLogout').addEventListener('click',()=>{
+    if(confirm('Are you sure you want to logout?')){
+      localStorage.removeItem('rc_remember');
+      DB.save(KEY.CUR, null);
+      window.location.href = 'login.html';
+    }
+  });
+  qs('#btnCreateGroup').addEventListener('click',()=>openCreateGroup());
+  qs('#btnViewGroups').addEventListener('click',()=>openGroupsModal());
+  qs('#searchUsers').addEventListener('input',e=>renderUsers(e.target.value));
+  qs('#btnClearSearch').addEventListener('click',()=>{qs('#searchUsers').value='';renderUsers()});
+
+  /* Auth / Register */
+  function openAuthModal(){
+    const modal = document.createElement('div');modal.className='modal-backdrop'; modal.innerHTML=`
+      <div class="modal card">
+        <h3>🔐 Login or Register</h3>
+        <div style="display:flex;gap:16px;margin-top:16px">
+          <div style="flex:1">
+            <h4>Login</h4>
+            <input id="loginId" placeholder="Your username or phone" />
+            <button class="btn" id="doLogin" style="width:100%">Login</button>
+          </div>
+          <div style="flex:1">
+            <h4>Register</h4>
+            <input id="regName" placeholder="Full name" />
+            <input id="regPhone" placeholder="Phone (optional)" />
+            <button class="btn" id="doRegister" style="width:100%">Create account</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="small-action" id="closeModal">Close</button></div>
+      </div>`;
+    qs('#modalRoot').appendChild(modal);
+    qs('#closeModal',modal).addEventListener('click',()=>modal.remove());
+    modal.addEventListener('click',e=>{ if(e.target === modal) modal.remove() });
+    
+    qs('#doRegister',modal).addEventListener('click',()=>{
+      const name=qs('#regName',modal).value.trim(); const phone=qs('#regPhone',modal).value.trim();
+      if(!name) return alert('Please enter a name');
+      const u={id:uid(),name,phone,about:'',avatarColor:randomColor(),friends:[]}; 
+      users.push(u); currentUser = u; saveAll(); modal.remove(); renderUsers(); renderRequests(); updateCurrentUI(); openEditProfile();
+    })
+    
+    qs('#doLogin',modal).addEventListener('click',()=>{
+      const key=qs('#loginId',modal).value.trim(); if(!key) return alert('Enter username or phone');
+      const found = users.find(u=>u.name.toLowerCase()===key.toLowerCase()||u.phone===key||u.id===key);
+      if(!found) return alert('No user found. Please register first.');
+      currentUser=found; saveAll(); modal.remove(); updateCurrentUI(); renderUsers(); renderRequests();
+    })
+  }
+
+  function openEditProfile(userId){
+    const u = userId?users.find(x=>x.id===userId):currentUser; if(!u) return alert('No user');
+    const modal=document.createElement('div');modal.className='modal-backdrop'; modal.innerHTML=`<div class="modal card">
+      <h3>✏️ Profile — ${u.name}</h3>
+      <input id="pName" value="${u.name}" placeholder="Full name" />
+      <input id="pPhone" value="${u.phone||''}" placeholder="Phone number" />
+      <textarea id="pAbout" style="min-height:100px" placeholder="About / Bio">${u.about||''}</textarea>
+      <div style="display:flex;justify-content:space-between;margin-top:12px">
+        <button class="btn" id="saveProfile">💾 Save</button>
+        <button class="small-action" id="closeM">Close</button>
+      </div>
+    </div>`; qs('#modalRoot').appendChild(modal);
+    qs('#closeM',modal).addEventListener('click',()=>modal.remove());
+    modal.addEventListener('click',e=>{ if(e.target === modal) modal.remove() });
+    
+    qs('#saveProfile',modal).addEventListener('click',()=>{
+      u.name = qs('#pName',modal).value.trim(); u.phone = qs('#pPhone',modal).value.trim(); u.about = qs('#pAbout',modal).value.trim();
+      if(!u.name) return alert('Name cannot be empty');
+      users = users.map(x=>x.id===u.id?u:x); 
+      if(currentUser && currentUser.id===u.id) currentUser=u;
+      saveAll(); modal.remove(); renderUsers(); updateCurrentUI();
+    })
+  }
+
+  function openProfileModal(user){
+    const modal=document.createElement('div');modal.className='modal-backdrop'; modal.innerHTML=`<div class="modal card">
+      <div style="display:flex;gap:16px;align-items:center">
+        <div class="avatar" style="background:${user.avatarColor};width:72px;height:72px;font-size:28px">${user.name.slice(0,2).toUpperCase()}</div>
+        <div><h3 style="margin:0">${user.name}</h3><div class="small">${user.about||user.phone||'No bio'}</div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        ${currentUser && currentUser.id !== user.id ? `<button class="btn" id="startChat">💬 Message</button>` : ''}
+        <button class="small-action" id="closeQ">Close</button>
+      </div>
+    </div>`; qs('#modalRoot').appendChild(modal);
+    qs('#closeQ',modal).addEventListener('click',()=>modal.remove());
+    modal.addEventListener('click',e=>{ if(e.target === modal) modal.remove() });
+    const chatBtn = qs('#startChat',modal);
+    if(chatBtn) chatBtn.addEventListener('click',()=>{modal.remove(); startPrivateChat(user.id) });
+  }
+
+  /* Friend Requests */
+  function sendFriendRequest(toId){ 
+    if(!currentUser) return alert('Please login or register first'); 
+    if(toId===currentUser.id) return alert('Cannot friend yourself');
+    if(reqs.find(r=>r.from===currentUser.id && r.to===toId)) return alert('Request already sent');
+    if(isFriend(currentUser.id,toId)) return startPrivateChat(toId);
+    reqs.push({from:currentUser.id,to:toId,time:timeNow()}); saveAll(); renderRequests(); alert('✅ Friend request sent!');
+  }
+
+  function acceptRequest(fromId){ 
+    if(!currentUser) return alert('Login first');
+    const a=users.find(u=>u.id===fromId); const b=users.find(u=>u.id===currentUser.id);
+    if(!a || !b) return;
+    if(!a.friends) a.friends=[]; if(!b.friends) b.friends=[]; 
+    if(!a.friends.includes(b.id)) a.friends.push(b.id); 
+    if(!b.friends.includes(a.id)) b.friends.push(a.id);
+    users = users.map(u=>u.id===a.id?a:u.id===b.id?b:u);
+    reqs = reqs.filter(r=>!(r.from===fromId && r.to===currentUser.id)); 
+    saveAll(); renderUsers(); renderRequests(); alert('✅ Friend added!');
+  }
+
+  function rejectRequest(fromId){ 
+    reqs=reqs.filter(r=>!(r.from===fromId && r.to===currentUser.id)); 
+    saveAll(); renderRequests(); 
+  }
+
+  function isFriend(u1,u2){const a=users.find(u=>u.id===u1); return a && a.friends && a.friends.includes(u2)}
+
+  /* Chat */
+  function startPrivateChat(otherId){ 
+    if(!currentUser) return alert('Please login first');
+    activeConv = {type:'private', id:convIdFor(currentUser.id,otherId), other:otherId}; 
+    renderChatArea(); 
+  }
+  
+  function startGroupChat(groupId){ 
+    if(!currentUser) return alert('Please login first');
+    activeConv = {type:'group', id:`group_${groupId}`, groupId}; 
+    renderChatArea(); 
+  }
+
+  function renderChatArea(){ 
+    chatArea.innerHTML=''; 
+    if(!activeConv){ 
+      chatTitle.textContent='No conversation selected'; 
+      chatSubtitle.textContent='Select someone to chat with'; 
+      return;
+    }
+    
+    if(activeConv.type==='private'){
+      const ids = activeConv.id.split('_').slice(1); 
+      const other = ids.find(i=>i!==currentUser.id);
+      const otherUser = users.find(u=>u.id===other) || {name:'Unknown'}; 
+      chatTitle.textContent = '💬 ' + otherUser.name; 
+      chatSubtitle.textContent = otherUser.about||otherUser.phone||'Private conversation';
+    } else {
+      const gid = activeConv.groupId; 
+      const g = groups.find(x=>x.id===gid) || {name:'Unknown',members:[]}; 
+      chatTitle.textContent='👥 ' + g.name; 
+      chatSubtitle.textContent=`Group • ${g.members.length} members`;
+    }
+    
+    const conversationMessages = msgs.filter(m=>m.convId===activeConv.id).sort((a,b)=>new Date(a.time)-new Date(b.time));
+    
+    if(conversationMessages.length === 0){
+      const empty = document.createElement('div');
+      empty.style.cssText = 'text-align:center;padding:40px;color:var(--muted)';
+      empty.textContent = '👋 Start the conversation by sending a message!';
+      chatArea.appendChild(empty);
+    } else {
+      conversationMessages.forEach(m=>{
+        const el = document.createElement('div'); 
+        el.className = 'message-row ' + (m.from===currentUser.id?'mine':'');
+        const user = users.find(u=>u.id===m.from) || {name:'?'};
+        const bubble = document.createElement('div'); 
+        bubble.className='bubble ' + (m.from===currentUser.id? 'me':''); 
+        bubble.innerHTML = `<div>${escapeHtml(m.text)}</div><div class="meta">${user.name} • ${new Date(m.time).toLocaleTimeString()}</div>`;
+        el.appendChild(bubble); 
+        chatArea.appendChild(el);
+      })
+    }
+    
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  btnSend.addEventListener('click',sendMessage);
+  msgInput.addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
+
+  function sendMessage(){ 
+    if(!currentUser) return alert('Please login'); 
+    if(!activeConv) return alert('Select a conversation'); 
+    const text = msgInput.value.trim(); 
+    if(!text) return;
+    
+    const m = {id:uid('m'),convId:activeConv.id,from:currentUser.id,text, time:timeNow()}; 
+    msgs.push(m); saveAll(); msgInput.value=''; renderChatArea();
+    
+    if(toggleAi.checked){ setTimeout(()=>simulateReply(activeConv,m),1000 + Math.random()*1200) }
+  }
+
+  function simulateReply(conv,m){
+    const otherId = conv.type==='private' ? conv.id.split('_').slice(1).find(x=>x!==currentUser.id) : null;
+    let replierId = otherId==='bot_ai' ? 'bot_ai' : (conv.type==='group' ? conv.groupId : otherId);
+    const replyText = generateBotReply(m.text);
+    const reply = {id:uid('m'),convId:conv.id,from: replierId, text:replyText, time:timeNow()};
+    msgs.push(reply); saveAll(); renderChatArea();
+  }
+
+  function generateBotReply(userText){
+    const low = userText.toLowerCase();
+    if(low.includes('hi')||low.includes('hello')) return '👋 Hello! How can I help you today?';
+    if(low.includes('help')||low.includes('how')) return '💡 Try asking about campus events, robotics, or project ideas.';
+    if(low.includes('project')) return '🚀 I suggest building a small web frontend chat—use LocalStorage to store messages!';
+    if(low.includes('thank')) return '😊 You\'re welcome! Happy to help.';
+    if(low.includes('bye')) return '👋 Goodbye! Have a great day!';
+    return `📝 I read: "${userText.length>120?userText.slice(0,117)+'...':userText}" — tell me more!`;
+  }
+
+  function escapeHtml(s){ return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') }
+
+  /* Groups */
+  function openCreateGroup(){ 
+    if(!currentUser) return alert('Login to create groups');
+    const modal=document.createElement('div');modal.className='modal-backdrop'; modal.innerHTML=`<div class="modal card">
+      <h3>👥 Create Group</h3>
+      <input id="gName" placeholder="Group name" />
+      <div class="muted">Select members:</div>
+      <div style="max-height:240px;overflow:auto;margin:12px 0;padding:12px;border-radius:10px;background:rgba(255,255,255,0.02)" id="membersPick"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:12px">
+        <button class="btn" id="doCreate">✨ Create</button>
+        <button class="small-action" id="closeC">Close</button>
+      </div>
+    </div>`; qs('#modalRoot').appendChild(modal);
+    modal.addEventListener('click',e=>{ if(e.target === modal) modal.remove() });
+    
+    const pick = qs('#membersPick',modal);
+    users.filter(u=>u.id!==currentUser.id).forEach(u=>{ 
+      const cb = document.createElement('label'); 
+      cb.style.cssText = 'display:block;padding:8px;cursor:pointer;border-radius:8px;transition:background .2s'; 
+      cb.onmouseenter = ()=>cb.style.background='rgba(255,255,255,0.02)';
+      cb.onmouseleave = ()=>cb.style.background='transparent';
+      cb.innerHTML = `<input type="checkbox" value="${u.id}" style="margin-right:8px" /> ${u.name} ${u.id==='bot_ai'? '(bot)':''}`;
+      pick.appendChild(cb) 
+    });
+    
+    qs('#closeC',modal).addEventListener('click',()=>modal.remove());
+    qs('#doCreate',modal).addEventListener('click',()=>{
+      const name = qs('#gName',modal).value.trim(); 
+      if(!name) return alert('Group needs a name');
+      const checked = Array.from(pick.querySelectorAll('input:checked')).map(i=>i.value); 
+      if(checked.length===0) return alert('Add at least one member');
+      const g = {id:uid('g'),name,members:[...checked,currentUser.id]}; 
+      groups.push(g); saveAll(); modal.remove(); alert('✅ Group created!'); openGroupsModal();
+    })
+  }
+
+  function openGroupsModal(){ 
+    const modal=document.createElement('div');modal.className='modal-backdrop';
+    modal.innerHTML=`<div class="modal card">
+      <h3>👥 Groups</h3>
+      <div id="groupList" style="max-height:320px;overflow:auto;margin-top:12px"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:16px">
+        <button class="small-action" id="closeG">Close</button>
+      </div>
+    </div>`; 
+    qs('#modalRoot').appendChild(modal);
+    modal.addEventListener('click',e=>{ if(e.target === modal) modal.remove() });
+    
+    const gl = qs('#groupList',modal);
+    
+    if(groups.length === 0){
+      gl.innerHTML = '<div class="muted" style="text-align:center;padding:24px">No groups yet. Create one!</div>';
+    } else {
+      groups.forEach(g=>{
+        const el=document.createElement('div'); 
+        el.className='user-item'; 
+        el.innerHTML = `<div style="flex:1">
+          <div class="name">${g.name}</div>
+          <div class="small">${g.members.length} members</div>
+        </div>
+        <button class="btn" data-id="${g.id}" data-action="open" style="font-size:12px;padding:6px 12px">Open</button>`;
+        gl.appendChild(el);
+      });
+    }
+    
+    qs('#closeG',modal).addEventListener('click',()=>modal.remove());
+    gl.addEventListener('click',e=>{ 
+      const btn = e.target.closest('button'); 
+      if(!btn) return; 
+      const id = btn.dataset.id; 
+      const action = btn.dataset.action; 
+      if(action==='open'){ modal.remove(); startGroupChat(id) } 
+    });
+  }
+
+  /* helpers */
+  function randomColor(){ 
+    const colors=['#ef4444','#f97316','#06b6d4','#10b981','#8b5cf6','#ef6b8a','#f59e0b','#eab308']; 
+    return colors[Math.floor(Math.random()*colors.length)] 
+  }
+
+  // keyboard shortcuts
+  document.addEventListener('keydown',e=>{
+    if(e.key==='/' && document.activeElement.tagName!=='INPUT'){ 
+      e.preventDefault(); 
+      qs('#searchUsers').focus() 
+    }
+  })
+
+  // Check if user is logged in, redirect if not
+  if(!currentUser){
+    window.location.href = 'login.html';
+  } else {
+    updateCurrentUI(); 
+    renderUsers(); 
+    renderRequests(); 
+    renderChatArea();
+  }
+
+  console.log('🚀 Regent Connect Chat loaded successfully!');
+  </script>
+</body>
+</html>

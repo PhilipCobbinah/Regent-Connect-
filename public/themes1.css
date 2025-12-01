@@ -1,0 +1,213 @@
+/* Theme system for Regent Connect */
+
+/* Default Dark Theme (already set in main) */
+:root {
+  --bg: #0f1724;
+  --bg-secondary: #071126;
+  --card: #0b1220;
+  --muted: #94a3b8;
+  --text: #e6eef8;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #06b6d4;
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f8fafc;
+  --card: #f1f5f9;
+  --muted: #64748b;
+  --text: #1e293b;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #06b6d4;
+}
+
+[data-theme="light"] body {
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+  color: var(--text);
+}
+
+[data-theme="light"] .card {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+[data-theme="light"] .bubble:not(.me) {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* Blue Theme */
+[data-theme="blue"] {
+  --bg: #0c1b2e;
+  --bg-secondary: #061121;
+  --card: #0a1628;
+  --muted: #94a3b8;
+  --text: #e0f2fe;
+  --accent: #0ea5e9;
+  --accent-hover: #0284c7;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #06b6d4;
+}
+
+[data-theme="blue"] body {
+  background: linear-gradient(180deg, #061121 0%, #0c1b2e 100%);
+}
+
+[data-theme="blue"] .logo {
+  background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+}
+
+/* Purple Theme */
+[data-theme="purple"] {
+  --bg: #1e1238;
+  --bg-secondary: #140d2b;
+  --card: #1a0f33;
+  --muted: #c4b5fd;
+  --text: #f3e8ff;
+  --accent: #a855f7;
+  --accent-hover: #9333ea;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #06b6d4;
+}
+
+[data-theme="purple"] body {
+  background: linear-gradient(180deg, #140d2b 0%, #1e1238 100%);
+}
+
+[data-theme="purple"] .logo {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+}
+
+/* Green Theme */
+[data-theme="green"] {
+  --bg: #0f1e15;
+  --bg-secondary: #071209;
+  --card: #0d1912;
+  --muted: #94a3b8;
+  --text: #d1fae5;
+  --accent: #10b981;
+  --accent-hover: #059669;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #06b6d4;
+}
+
+[data-theme="green"] body {
+  background: linear-gradient(180deg, #071209 0%, #0f1e15 100%);
+}
+
+[data-theme="green"] .logo {
+  background: linear-gradient(135deg, #10b981, #14b8a6);
+}
+
+/* High Contrast Theme */
+[data-theme="high-contrast"] {
+  --bg: #000000;
+  --bg-secondary: #0a0a0a;
+  --card: #1a1a1a;
+  --muted: #a0a0a0;
+  --text: #ffffff;
+  --accent: #00ff00;
+  --accent-hover: #00cc00;
+  --success: #00ff00;
+  --danger: #ff0000;
+  --warning: #ffff00;
+  --info: #00ffff;
+}
+
+[data-theme="high-contrast"] body {
+  background: #000000;
+}
+
+[data-theme="high-contrast"] .card {
+  background: #1a1a1a;
+  border: 2px solid #ffffff;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--info));
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+  z-index: 998;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Theme picker modal */
+.theme-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.theme-option {
+  padding: 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+  text-align: center;
+}
+
+.theme-option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.theme-option.active {
+  border-color: var(--accent);
+}
+
+.theme-option.dark {
+  background: linear-gradient(180deg, #071126, #071b2a);
+}
+
+.theme-option.light {
+  background: linear-gradient(180deg, #f8fafc, #e2e8f0);
+  color: #1e293b;
+}
+
+.theme-option.blue {
+  background: linear-gradient(180deg, #061121, #0c1b2e);
+}
+
+.theme-option.purple {
+  background: linear-gradient(180deg, #140d2b, #1e1238);
+}
+
+.theme-option.green {
+  background: linear-gradient(180deg, #071209, #0f1e15);
+}
+
+.theme-option.high-contrast {
+  background: #000000;
+  border: 2px solid #ffffff;
+}

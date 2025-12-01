@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — RegentAI</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    .ai-page { height: 100vh; overflow: hidden; }
+    .app-header { background: linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .app-header .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg,var(--accent),#06b6d4); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 20px; }
+    
+    .layout { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 64px); }
+    .app-sidebar { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-right: 1px solid rgba(255,255,255,0.04); padding: 16px; overflow-y: auto; }
+    
+    .chat-main { display: flex; flex-direction: column; height: 100%; background: linear-gradient(180deg,rgba(79,70,229,0.02),transparent); }
+    .card { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-radius: 12px; padding: 14px; box-shadow: 0 6px 20px rgba(2,6,23,0.6); }
+    .chat-top { display: flex; justify-content: space-between; align-items: center; margin: 16px 16px 12px; padding: 12px; }
+    .chat-meta { display: flex; align-items: center; gap: 12px; flex: 1; }
+    .avatar-sm { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg,#a855f7,#ec4899); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .back { color: var(--accent); text-decoration: none; padding: 8px 12px; border-radius: 8px; transition: background .2s; }
+    .back:hover { background: rgba(255,255,255,0.02); }
+    
+    .chat-window { flex: 1; margin: 0 16px; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; }
+    .messages { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    .message-row { display: flex; align-items: flex-end; gap: 10px; animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .message-row.user { justify-content: flex-end; }
+    .bubble { max-width: 75%; padding: 12px 16px; border-radius: 14px; line-height: 1.5; box-shadow: 0 6px 14px rgba(2,6,23,0.5); position: relative; }
+    .bubble.user { background: linear-gradient(180deg,var(--accent),#3b82f6); color: white; border-bottom-right-radius: 4px; }
+    .bubble.bot { background: linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02)); border-bottom-left-radius: 4px; }
+    .meta { font-size: 11px; color: var(--muted); margin-top: 6px; }
+    
+    .typing-indicator { padding: 10px 0; display: flex; align-items: center; gap: 8px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: bounce 1.4s infinite; }
+    .dot:nth-child(2) { animation-delay: .2s; }
+    .dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-8px); } }
+    
+    .chat-composer { margin: 12px 16px 16px; display: flex; gap: 8px; align-items: center; padding: 12px; }
+    .chat-composer input { flex: 1; padding: 14px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: inherit; font-size: 15px; }
+    .chat-composer input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+    
+    .btn { padding: 12px 24px; border-radius: 999px; border: none; background: linear-gradient(135deg,var(--accent),#06b6d4); color: white; cursor: pointer; transition: all .2s; font-size: 15px; font-weight: 600; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(79,70,229,0.3); }
+    .btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.06); }
+    
+    /* Sidebar suggestions */
+    .suggestions-section { margin-bottom: 20px; }
+    .suggestions-section h3 { font-size: 13px; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .suggestion-item { padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,0.02); margin-bottom: 8px; cursor: pointer; transition: all .2s; border-left: 3px solid transparent; }
+    .suggestion-item:hover { background: rgba(255,255,255,0.04); border-left-color: var(--accent); transform: translateX(4px); }
+    .suggestion-item .title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+    .suggestion-item .desc { font-size: 12px; color: var(--muted); }
+    
+    /* AI capabilities */
+    .capabilities { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 20px; }
+    .capability-card { padding: 16px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); text-align: center; }
+    .capability-card .icon { font-size: 32px; margin-bottom: 8px; }
+    .capability-card .label { font-size: 13px; font-weight: 600; }
+    
+    @media(max-width:900px){ .layout { grid-template-columns: 1fr; } .app-sidebar { display: none; } }
+  </style>
+</head>
+<body class="ai-page">
+  <div class="app-header">
+    <div class="brand">
+      <div class="logo">🤖</div>
+      <h1 style="margin:0;font-size:18px">RegentAI Assistant</h1>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn secondary" onclick="location.href='dashboard.html'">Dashboard</button>
+      <button class="btn secondary" onclick="location.href='chat.html'">Chat</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="app-sidebar">
+      <div class="suggestions-section">
+        <h3>Quick Actions</h3>
+        <div class="suggestion-item" data-prompt="Help me study for exams">
+          <div class="title">📚 Study Help</div>
+          <div class="desc">Get study tips and resources</div>
+        </div>
+        <div class="suggestion-item" data-prompt="Find campus events this week">
+          <div class="title">📅 Campus Events</div>
+          <div class="desc">Discover what's happening</div>
+        </div>
+        <div class="suggestion-item" data-prompt="Suggest a project idea">
+          <div class="title">💡 Project Ideas</div>
+          <div class="desc">Get creative suggestions</div>
+        </div>
+        <div class="suggestion-item" data-prompt="Tell me about robotics club">
+          <div class="title">🤖 Club Info</div>
+          <div class="desc">Learn about campus clubs</div>
+        </div>
+      </div>
+      
+      <div class="suggestions-section">
+        <h3>Conversation History</h3>
+        <div id="conversationHistory" style="font-size:12px;color:var(--muted);padding:12px;text-align:center">
+          No previous conversations
+        </div>
+      </div>
+      
+      <div class="suggestions-section">
+        <h3>AI Capabilities</h3>
+        <div class="capabilities">
+          <div class="capability-card">
+            <div class="icon">💬</div>
+            <div class="label">Chat</div>
+          </div>
+          <div class="capability-card">
+            <div class="icon">🎓</div>
+            <div class="label">Study</div>
+          </div>
+          <div class="capability-card">
+            <div class="icon">🔍</div>
+            <div class="label">Search</div>
+          </div>
+          <div class="capability-card">
+            <div class="icon">📊</div>
+            <div class="label">Analyze</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="chat-main">
+      <div class="chat-top card">
+        <a href="dashboard.html" class="back">← Back</a>
+        <div class="chat-meta">
+          <div class="avatar-sm">🤖</div>
+          <div>
+            <h3 style="margin:0;font-size:16px">RegentAI</h3>
+            <div class="muted" style="font-size:12px">AI assistant — instant replies</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn secondary" id="aiSettings" style="padding:8px 12px">⚙️ Settings</button>
+          <button class="btn secondary" id="clearChat" style="padding:8px 12px">🗑️ Clear</button>
+        </div>
+      </div>
+
+      <section id="aiWindow" class="chat-window card">
+        <div id="aiMessages" class="messages">
+          <div class="message-row bot">
+            <div class="bubble bot">
+              <div>👋 Hello! I'm RegentAI, your campus assistant. I can help you with:</div>
+              <ul style="margin:10px 0;padding-left:20px;line-height:1.8">
+                <li>Finding friends and groups</li>
+                <li>Campus events and activities</li>
+                <li>Study tips and project ideas</li>
+                <li>Club information and resources</li>
+                <li>Answering questions about Regent Connect</li>
+              </ul>
+              <div>What would you like to know?</div>
+            </div>
+          </div>
+        </div>
+        <div id="aiTyping" class="typing-indicator" hidden>
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <small style="color:var(--muted)">RegentAI is thinking...</small>
+        </div>
+      </section>
+
+      <form id="aiForm" class="chat-composer card">
+        <input type="text" id="aiInput" placeholder="Ask RegentAI anything..." autocomplete="off" required>
+        <button type="submit" class="btn primary">Send</button>
+      </form>
+    </main>
+  </div>
+
+  <script>
+  /* Database helpers */
+  const DB = {
+    load(key, defaultVal){try{const v=localStorage.getItem(key);return v?JSON.parse(v):defaultVal}catch(e){return defaultVal}},
+    save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+  }
+  const KEY = {USERS:'rc_users',CUR:'rc_currentUser',MSGS:'rc_msgs',GROUPS:'rc_groups',AI_HISTORY:'rc_ai_history'}
+  
+  let currentUser = DB.load(KEY.CUR,null);
+  let users = DB.load(KEY.USERS,[]);
+  let groups = DB.load(KEY.GROUPS,[]);
+  let msgs = DB.load(KEY.MSGS,[]);
+  let aiHistory = DB.load(KEY.AI_HISTORY,[]);
+  
+  if(!currentUser){ window.location.href = 'login.html'; }
+  
+  function escapeHtml(s){ return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') }
+  
+  /* Render initial messages */
+  function renderMessages(){
+    const container = document.getElementById('aiMessages');
+    aiHistory.forEach(h => {
+      appendMessage(h.type, h.text, false);
+    });
+  }
+  
+  /* Append message */
+  function appendMessage(type, text, scroll = true){
+    const container = document.getElementById('aiMessages');
+    const div = document.createElement('div');
+    div.className = `message-row ${type}`;
+    div.innerHTML = `<div class="bubble ${type}">
+      <div>${escapeHtml(text)}</div>
+      <div class="meta">${new Date().toLocaleTimeString()}</div>
+    </div>`;
+    container.appendChild(div);
+    if(scroll) container.scrollTop = container.scrollHeight;
+  }
+  
+  /* Generate AI response */
+  function generateAIResponse(query){
+    const low = query.toLowerCase();
+    
+    // Greetings
+    if(low.match(/^(hi|hello|hey|good morning|good afternoon)/)){
+      return `👋 Hello ${currentUser.name}! How can I assist you today? I can help with campus info, study tips, friend suggestions, or answer questions about Regent Connect.`;
+    }
+    
+    // Friends and social
+    if(low.includes('friend') || low.includes('people') || low.includes('contact')){
+      const friendCount = currentUser.friends ? currentUser.friends.length : 0;
+      return `You currently have ${friendCount} friends on Regent Connect. ${friendCount === 0 ? 'Want me to suggest some people to connect with? Try searching for users interested in ' + (currentUser.about || 'similar topics') + '!' : 'Visit the Chat page to message them!'}`;
+    }
+    
+    // Groups
+    if(low.includes('group')){
+      return `📊 You're in ${groups.length} groups. Groups are great for study sessions, project collaboration, and club activities. Want to create a new group? Go to Groups page!`;
+    }
+    
+    // Study help
+    if(low.includes('study') || low.includes('exam') || low.includes('test')){
+      return `📚 Study tips:\n1. Use the Pomodoro technique (25min focus + 5min break)\n2. Create a study group on Regent Connect\n3. Review notes daily, not just before exams\n4. Teach concepts to others - it reinforces learning\n5. Stay hydrated and take regular breaks\n\nNeed specific help with a subject?`;
+    }
+    
+    // Project ideas
+    if(low.includes('project') || low.includes('idea')){
+      return `💡 Project ideas for CS students:\n1. Campus event tracker app\n2. Study buddy matching system\n3. AI-powered note summarizer\n4. Virtual club management platform\n5. Student marketplace\n\nPick one and start building! I can help you plan it out.`;
+    }
+    
+    // Campus events
+    if(low.includes('event') || low.includes('happening')){
+      return `📅 Upcoming campus events:\n• Tech Talk: AI in Education - Friday 3PM\n• Robotics Club Meeting - Wednesday 5PM\n• Hackathon Registration Open\n• Career Fair - Next Month\n\nJoin relevant groups to stay updated!`;
+    }
+    
+    // Clubs
+    if(low.includes('club') || low.includes('robotics') || low.includes('stemaid')){
+      return `🤖 Active campus clubs:\n• Robotics Club - Build robots & compete\n• STEMAID - Community outreach\n• Coding Club - Weekly challenges\n• Entrepreneurs' Club - Startup ideas\n\nConnect with members: Nana (Robotics), Akosua (STEMAID), Philip (CS projects)`;
+    }
+    
+    // App help
+    if(low.includes('how') || low.includes('help') || low.includes('use')){
+      return `ℹ️ Regent Connect features:\n• Chat: Message friends privately\n• Groups: Collaborate with multiple people\n• Friends: Send & accept requests\n• Profile: Update your info\n• AI Assistant (me!): Get help anytime\n\nWhat specific feature do you need help with?`;
+    }
+    
+    // Messages/chats
+    if(low.includes('message') || low.includes('chat')){
+      const msgCount = msgs.filter(m => m.from === currentUser.id || m.convId.includes(currentUser.id)).length;
+      return `💬 You've sent/received ${msgCount} messages on Regent Connect. Want to start a new conversation? Head to the Chat page and select a friend!`;
+    }
+    
+    // About self
+    if(low.includes('who are you') || low.includes('what are you')){
+      return `🤖 I'm RegentAI, your intelligent campus assistant! I use advanced AI to help Regent students with:\n• Finding information\n• Connecting with peers\n• Study guidance\n• Campus navigation\n• Platform support\n\nI'm constantly learning to serve you better!`;
+    }
+    
+    // Goodbye
+    if(low.includes('bye') || low.includes('thanks') || low.includes('thank you')){
+      return `You're welcome, ${currentUser.name}! 😊 Feel free to come back anytime. Have a great day!`;
+    }
+    
+    // Default response with context
+    return `I understand you asked about "${query}". I can help with:\n• Friends & Groups 👥\n• Study Tips 📚\n• Campus Events 📅\n• Project Ideas 💡\n• Platform Help ℹ️\n\nCould you rephrase your question or pick a topic?`;
+  }
+  
+  /* Handle form submission */
+  document.getElementById('aiForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('aiInput');
+    const query = input.value.trim();
+    if(!query) return;
+    
+    // Add user message
+    appendMessage('user', query);
+    aiHistory.push({type:'user', text:query, time:new Date().toISOString()});
+    input.value = '';
+    
+    // Show typing indicator
+    document.getElementById('aiTyping').hidden = false;
+    
+    // Simulate thinking delay
+    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 800));
+    
+    // Generate and show response
+    const response = generateAIResponse(query);
+    document.getElementById('aiTyping').hidden = true;
+    appendMessage('bot', response);
+    aiHistory.push({type:'bot', text:response, time:new Date().toISOString()});
+    
+    // Save history
+    DB.save(KEY.AI_HISTORY, aiHistory.slice(-50)); // Keep last 50 messages
+  });
+  
+  /* Suggestion items */
+  document.querySelectorAll('.suggestion-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const prompt = item.dataset.prompt;
+      document.getElementById('aiInput').value = prompt;
+      document.getElementById('aiInput').focus();
+    });
+  });
+  
+  /* Clear chat */
+  document.getElementById('clearChat').addEventListener('click', () => {
+    if(confirm('Clear conversation history?')){
+      aiHistory = [];
+      DB.save(KEY.AI_HISTORY, []);
+      document.getElementById('aiMessages').innerHTML = `<div class="message-row bot">
+        <div class="bubble bot">
+          <div>Chat cleared! How can I help you today?</div>
+        </div>
+      </div>`;
+    }
+  });
+  
+  /* Settings */
+  document.getElementById('aiSettings').addEventListener('click', () => {
+    alert('⚙️ AI Settings:\n\n• Voice: Text-based (coming soon: voice)\n• Response Speed: Instant\n• Context Awareness: Enabled\n• Learning Mode: Active\n\nMore settings coming soon!');
+  });
+  
+  /* Load previous history */
+  renderMessages();
+  
+  console.log('🤖 RegentAI loaded successfully!');
+  </script>
+</body>
+</html>

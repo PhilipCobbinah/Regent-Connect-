@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Dashboard</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <style>
+    body { background: linear-gradient(180deg,#071126 0%, #071b2a 100%); color: #e6eef8; margin: 0; font-family: Inter, system-ui; }
+    
+    .nav-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 200;
+      background: #8b5cf6;
+      color: #fff;
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+    .nav-toggle:hover { background: #7c3aed; transform: scale(1.05); }
+    
+    .side-nav { position: fixed; top: 0; left: 0; height: 100vh; width: 180px; background: #10172a; display: flex; flex-direction: column; padding-top: 80px; z-index: 100; box-shadow: 2px 0 16px rgba(0,0,0,0.07); transform: translateX(0); transition: transform 0.3s ease; }
+    .side-nav.hidden { transform: translateX(-180px); }
+    .side-nav .nav-btn, .side-nav a.btn { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: none; border: none; color: #e0e7ef; text-decoration: none; font-size: 1em; border-radius: 0 20px 20px 0; transition: background 0.15s; cursor: pointer; margin-bottom: 2px; }
+    .side-nav .nav-btn:hover, .side-nav a.btn:hover { background: #23263a; color: #fff; }
+    .side-nav .nav-btn.active, .side-nav a.btn.active { background: #4f46e5; color: #fff; }
+    
+    .main-content { margin-left: 200px; padding: 40px; transition: margin-left 0.3s ease; }
+    .main-content.expanded { margin-left: 20px; }
+    .card { background: #181c2a; border-radius: 14px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .stat-card { background: linear-gradient(135deg, #8b5cf6, #6366f1); padding: 24px; border-radius: 12px; text-align: center; }
+    .stat-value { font-size: 2.5em; font-weight: bold; margin: 8px 0; }
+    .quick-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-top: 20px; }
+    .quick-link { background: #23263a; padding: 20px; border-radius: 12px; text-align: center; cursor: pointer; transition: background 0.2s; text-decoration: none; color: inherit; display: block; }
+    .quick-link:hover { background: #353b50; }
+    
+    @media (max-width: 700px) {
+      .side-nav { width: 250px; }
+      .side-nav.hidden { transform: translateX(-250px); }
+      .main-content { margin-left: 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="nav-toggle" id="navToggle">☰</button>
+
+  <nav class="side-nav" id="sideNav">
+    <a href="dashboard.html" class="btn secondary nav-btn active">📊 Dashboard</a>
+    <a href="chat.html" class="btn secondary nav-btn">💬 Chat</a>
+    <a href="friends.html" class="btn secondary nav-btn">👥 Friends</a>
+    <a href="groups.html" class="btn secondary nav-btn">🔗 Groups</a>
+    <a href="notifications.html" class="btn secondary nav-btn">🔔 Notifications</a>
+    <a href="profile.html" class="btn secondary nav-btn">👤 Profile</a>
+    <a href="settings.html" class="btn secondary nav-btn">⚙️ Settings</a>
+  </nav>
+
+  <div class="main-content" id="mainContent">
+    <h1>📊 Dashboard</h1>
+    <p style="color:#a3aed6;font-size:1.1em">Welcome back, <span id="userName">User</span>!</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div style="font-size:2em">👥</div>
+        <div class="stat-value" id="friendsCount">0</div>
+        <div>Friends</div>
+      </div>
+      <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669)">
+        <div style="font-size:2em">🔗</div>
+        <div class="stat-value" id="groupsCount">0</div>
+        <div>Groups</div>
+      </div>
+      <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706)">
+        <div style="font-size:2em">💬</div>
+        <div class="stat-value" id="messagesCount">0</div>
+        <div>Messages</div>
+      </div>
+      <div class="stat-card" style="background: linear-gradient(135deg, #ef4444, #dc2626)">
+        <div style="font-size:2em">🔔</div>
+        <div class="stat-value" id="notifsCount">0</div>
+        <div>Notifications</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Quick Actions</h2>
+      <div class="quick-links">
+        <a href="chat.html" class="quick-link">
+          <div style="font-size:2em;margin-bottom:8px">💬</div>
+          <div>Start Chat</div>
+        </a>
+        <a href="groups.html" class="quick-link">
+          <div style="font-size:2em;margin-bottom:8px">➕</div>
+          <div>Create Group</div>
+        </a>
+        <a href="friends.html" class="quick-link">
+          <div style="font-size:2em;margin-bottom:8px">👥</div>
+          <div>Find Friends</div>
+        </a>
+        <a href="profile.html" class="quick-link">
+          <div style="font-size:2em;margin-bottom:8px">👤</div>
+          <div>Edit Profile</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script>
+    const navToggle = document.getElementById('navToggle');
+    const sideNav = document.getElementById('sideNav');
+    const mainContent = document.getElementById('mainContent');
+    
+    navToggle.addEventListener('click', function() {
+      sideNav.classList.toggle('hidden');
+      mainContent.classList.toggle('expanded');
+      navToggle.textContent = sideNav.classList.contains('hidden') ? '☰' : '✕';
+    });
+    
+    const currentUser = DB.load(KEYS.CURRENT_USER);
+    if (!currentUser) window.location.href = 'login.html';
+
+    document.getElementById('userName').textContent = currentUser.name;
+
+    const users = DB.load(KEYS.USERS, []);
+    const groups = DB.load(KEYS.GROUPS, []);
+    const messages = DB.load(KEYS.MESSAGES, []);
+    const requests = DB.load(KEYS.REQUESTS, []);
+    const groupInvites = DB.load('group_invites', []);
+
+    // Calculate stats
+    const friendsCount = (currentUser.friends || []).length;
+    const groupsCount = groups.filter(g => g.members.includes(currentUser.id)).length;
+    const messagesCount = messages.filter(m => m.from === currentUser.id || m.to === currentUser.id).length;
+    const notifsCount = requests.filter(r => r.to === currentUser.id).length + groupInvites.filter(i => i.userId === currentUser.id).length;
+
+    document.getElementById('friendsCount').textContent = friendsCount;
+    document.getElementById('groupsCount').textContent = groupsCount;
+    document.getElementById('messagesCount').textContent = messagesCount;
+    document.getElementById('notifsCount').textContent = notifsCount;
+  </script>
+</body>
+</html>

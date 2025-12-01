@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Status</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    .status-page { height: 100vh; overflow: hidden; }
+    .app-header { background: linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .app-header .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg,var(--accent),#06b6d4); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 20px; }
+    
+    .layout { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 64px); }
+    .app-sidebar { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-right: 1px solid rgba(255,255,255,0.04); padding: 16px; overflow-y: auto; }
+    
+    .status-main { padding: 24px; overflow-y: auto; }
+    .card { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-radius: 12px; padding: 20px; box-shadow: 0 6px 20px rgba(2,6,23,0.6); margin-bottom: 20px; }
+    
+    /* Create status section */
+    .create-status h3 { margin: 0 0 16px 0; font-size: 18px; }
+    #statusForm { display: flex; flex-direction: column; gap: 12px; }
+    #statusForm input[type="file"] { padding: 12px; border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; background: rgba(255,255,255,0.02); color: var(--muted); cursor: pointer; }
+    #statusForm input[type="text"] { padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: #fff; }
+    #statusForm input:focus { outline: none; border-color: var(--accent); }
+    
+    /* Status list */
+    .statuses h3 { margin: 0 0 16px 0; font-size: 18px; }
+    .status-item { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.02); margin-bottom: 12px; cursor: pointer; transition: all .2s; position: relative; overflow: hidden; }
+    .status-item:hover { background: rgba(255,255,255,0.04); transform: translateX(4px); }
+    .status-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--accent), #06b6d4); opacity: 0; transition: opacity .2s; }
+    .status-item:hover::before { opacity: 1; }
+    
+    .status-avatar { position: relative; }
+    .status-avatar-ring { width: 64px; height: 64px; border-radius: 50%; padding: 3px; background: linear-gradient(135deg, var(--accent), #06b6d4); display: flex; align-items: center; justify-content: center; }
+    .status-avatar-inner { width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg,#eab308,#ef4444); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; border: 3px solid var(--bg); }
+    
+    .status-info { flex: 1; }
+    .status-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+    .status-time { font-size: 12px; color: var(--muted); }
+    .status-preview { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    
+    /* Status viewer modal */
+    .status-viewer { position: fixed; inset: 0; background: rgba(2,6,23,0.95); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .status-content { max-width: 500px; width: 90%; background: linear-gradient(180deg,rgba(15,23,36,0.98),rgba(11,18,32,0.98)); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
+    .status-header { padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .status-header .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg,#eab308,#ef4444); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; }
+    .status-header-info { flex: 1; }
+    .status-header-name { font-weight: 600; }
+    .status-header-time { font-size: 12px; color: var(--muted); }
+    .status-body { padding: 0; position: relative; min-height: 400px; display: flex; align-items: center; justify-content: center; background: #000; }
+    .status-body img, .status-body video { max-width: 100%; max-height: 500px; display: block; }
+    .status-text-only { padding: 60px 40px; font-size: 24px; text-align: center; line-height: 1.5; background: linear-gradient(135deg, var(--accent), #06b6d4); color: white; }
+    .status-caption { padding: 16px; background: rgba(0,0,0,0.3); }
+    .status-actions { padding: 16px; display: flex; gap: 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+    
+    .btn { padding: 10px 20px; border-radius: 10px; border: none; background: var(--accent); color: white; cursor: pointer; transition: background .2s; font-size: 14px; font-weight: 600; }
+    .btn:hover { background: #4338ca; }
+    .btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.06); }
+    .btn.secondary:hover { background: rgba(255,255,255,0.02); }
+    
+    /* My status preview */
+    .my-status { padding: 16px; border-radius: 12px; background: linear-gradient(135deg, rgba(79,70,229,0.1), rgba(6,182,212,0.1)); border: 2px solid rgba(79,70,229,0.3); margin-bottom: 20px; }
+    .my-status-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .my-status-add { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; transition: transform .2s; }
+    .my-status-add:hover { transform: scale(1.1); }
+    
+    @media(max-width:900px){ .layout { grid-template-columns: 1fr; } .app-sidebar { display: none; } }
+  </style>
+</head>
+<body class="status-page">
+  <div class="app-header">
+    <div class="brand">
+      <div class="logo">📸</div>
+      <h1 style="margin:0;font-size:18px">Status Updates</h1>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn secondary" onclick="location.href='dashboard.html'">Dashboard</button>
+      <button class="btn secondary" onclick="location.href='chat.html'">Chat</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="app-sidebar">
+      <div style="margin-bottom:20px">
+        <h3 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase">PRIVACY</h3>
+        <div style="padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;font-size:13px">
+          <div style="margin-bottom:8px">📊 Status expires in 24 hours</div>
+          <div style="margin-bottom:8px">👥 Visible to your friends</div>
+          <div>🔒 End-to-end encrypted</div>
+        </div>
+      </div>
+      
+      <div>
+        <h3 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase">TIPS</h3>
+        <div style="padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.6">
+          • Share photos, videos, or text<br>
+          • React to friends' status<br>
+          • View who saw your status<br>
+          • Delete anytime
+        </div>
+      </div>
+    </aside>
+
+    <main class="status-main">
+      <section class="create-status card">
+        <h3>📸 Share Your Status</h3>
+        <form id="statusForm">
+          <input type="file" id="statusFile" accept="image/*,video/*">
+          <input type="text" id="statusText" placeholder="What's on your mind?" maxlength="200">
+          <button class="btn primary" type="submit">📤 Share Status</button>
+        </form>
+      </section>
+
+      <section class="my-status card" id="myStatusSection" style="display:none">
+        <h3>My Status</h3>
+        <div id="myStatusList"></div>
+      </section>
+
+      <section class="statuses card">
+        <h3>Recent Status Updates</h3>
+        <div id="statusList"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="statusViewer" class="status-viewer" hidden></div>
+
+  <script>
+  /* Database helpers */
+  const DB = {
+    load(key, defaultVal){try{const v=localStorage.getItem(key);return v?JSON.parse(v):defaultVal}catch(e){return defaultVal}},
+    save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+  }
+  const KEY = {USERS:'rc_users',CUR:'rc_currentUser',STATUS:'rc_status'}
+  
+  let currentUser = DB.load(KEY.CUR,null);
+  let users = DB.load(KEY.USERS,[]);
+  let statuses = DB.load(KEY.STATUS,[]);
+  
+  if(!currentUser){ window.location.href = 'login.html'; }
+  
+  function uid(prefix='s'){return prefix+Math.random().toString(36).slice(2,9)}
+  function timeAgo(isoString){
+    const seconds = Math.floor((new Date() - new Date(isoString)) / 1000);
+    if(seconds < 60) return 'just now';
+    if(seconds < 3600) return Math.floor(seconds/60) + 'm ago';
+    if(seconds < 86400) return Math.floor(seconds/3600) + 'h ago';
+    return Math.floor(seconds/86400) + 'd ago';
+  }
+  
+  function isExpired(time){
+    const hours = (new Date() - new Date(time)) / (1000 * 60 * 60);
+    return hours >= 24;
+  }
+  
+  /* Clean expired statuses */
+  function cleanExpired(){
+    statuses = statuses.filter(s => !isExpired(s.time));
+    DB.save(KEY.STATUS, statuses);
+  }
+  cleanExpired();
+  
+  /* Render statuses */
+  function renderStatuses(){
+    const container = document.getElementById('statusList');
+    const myStatusContainer = document.getElementById('myStatusList');
+    container.innerHTML = '';
+    myStatusContainer.innerHTML = '';
+    
+    // Separate my status and friends' status
+    const myStatuses = statuses.filter(s => s.userId === currentUser.id);
+    const friendsStatuses = statuses.filter(s => s.userId !== currentUser.id);
+    
+    // Show my status section if I have statuses
+    if(myStatuses.length > 0){
+      document.getElementById('myStatusSection').style.display = 'block';
+      myStatuses.forEach(s => {
+        const div = createStatusItem(s, true);
+        myStatusContainer.appendChild(div);
+      });
+    } else {
+      document.getElementById('myStatusSection').style.display = 'none';
+    }
+    
+    // Group friends' statuses by user
+    const groupedStatuses = {};
+    friendsStatuses.forEach(s => {
+      if(!groupedStatuses[s.userId]) groupedStatuses[s.userId] = [];
+      groupedStatuses[s.userId].push(s);
+    });
+    
+    if(Object.keys(groupedStatuses).length === 0){
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)">No status updates yet. Be the first to share!</div>';
+      return;
+    }
+    
+    // Render each user's latest status
+    Object.entries(groupedStatuses).forEach(([userId, userStatuses]) => {
+      const latestStatus = userStatuses.sort((a,b) => new Date(b.time) - new Date(a.time))[0];
+      const div = createStatusItem(latestStatus, false);
+      container.appendChild(div);
+    });
+  }
+  
+  function createStatusItem(status, isMine){
+    const user = users.find(u => u.id === status.userId) || {name:'Unknown', avatarColor:'#6ee7b7'};
+    const div = document.createElement('div');
+    div.className = 'status-item';
+    div.innerHTML = `
+      <div class="status-avatar">
+        <div class="status-avatar-ring">
+          <div class="status-avatar-inner" style="background:${user.avatarColor}">${user.name.slice(0,2).toUpperCase()}</div>
+        </div>
+      </div>
+      <div class="status-info">
+        <div class="status-name">${user.name} ${isMine ? '(You)' : ''}</div>
+        <div class="status-time">${timeAgo(status.time)}</div>
+        ${status.text ? `<div class="status-preview">${status.text.slice(0,50)}${status.text.length>50?'...':''}</div>` : ''}
+      </div>
+      ${isMine ? '<button class="btn secondary" onclick="deleteStatus(\''+status.id+'\')">Delete</button>' : ''}
+    `;
+    div.onclick = (e) => {
+      if(e.target.tagName === 'BUTTON') return;
+      viewStatus(status);
+    };
+    return div;
+  }
+  
+  /* View status */
+  function viewStatus(status){
+    const user = users.find(u => u.id === status.userId) || {name:'Unknown', avatarColor:'#6ee7b7'};
+    const viewer = document.getElementById('statusViewer');
+    
+    let contentHtml = '';
+    if(status.type === 'text'){
+      contentHtml = `<div class="status-text-only">${status.text}</div>`;
+    } else if(status.type === 'image'){
+      contentHtml = `<img src="${status.file}" alt="Status">`;
+      if(status.text) contentHtml += `<div class="status-caption">${status.text}</div>`;
+    } else if(status.type === 'video'){
+      contentHtml = `<video src="${status.file}" controls autoplay></video>`;
+      if(status.text) contentHtml += `<div class="status-caption">${status.text}</div>`;
+    }
+    
+    viewer.innerHTML = `
+      <div class="status-content">
+        <div class="status-header">
+          <div class="avatar" style="background:${user.avatarColor}">${user.name.slice(0,2).toUpperCase()}</div>
+          <div class="status-header-info">
+            <div class="status-header-name">${user.name}</div>
+            <div class="status-header-time">${timeAgo(status.time)}</div>
+          </div>
+          <button class="btn secondary" onclick="closeStatusViewer()">✕</button>
+        </div>
+        <div class="status-body">${contentHtml}</div>
+        <div class="status-actions">
+          ${status.userId !== currentUser.id ? '<button class="btn">❤️ React</button>' : ''}
+          <button class="btn secondary" onclick="closeStatusViewer()">Close</button>
+        </div>
+      </div>
+    `;
+    viewer.hidden = false;
+    
+    // Mark as viewed
+    if(!status.views) status.views = [];
+    if(!status.views.includes(currentUser.id)){
+      status.views.push(currentUser.id);
+      statuses = statuses.map(s => s.id === status.id ? status : s);
+      DB.save(KEY.STATUS, statuses);
+    }
+  }
+  
+  window.closeStatusViewer = function(){
+    document.getElementById('statusViewer').hidden = true;
+  }
+  
+  window.deleteStatus = function(statusId){
+    if(!confirm('Delete this status?')) return;
+    statuses = statuses.filter(s => s.id !== statusId);
+    DB.save(KEY.STATUS, statuses);
+    renderStatuses();
+  }
+  
+  /* Create status */
+  document.getElementById('statusForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById('statusFile');
+    const textInput = document.getElementById('statusText');
+    const file = fileInput.files[0];
+    const text = textInput.value.trim();
+    
+    if(!file && !text) return alert('Please add a photo, video, or text');
+    
+    const status = {
+      id: uid(),
+      userId: currentUser.id,
+      time: new Date().toISOString(),
+      text: text,
+      views: []
+    };
+    
+    if(file){
+      // In a real app, upload to server. Here we'll use a data URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        status.file = e.target.result;
+        status.type = file.type.startsWith('image/') ? 'image' : 'video';
+        statuses.push(status);
+        DB.save(KEY.STATUS, statuses);
+        renderStatuses();
+        document.getElementById('statusForm').reset();
+        alert('✅ Status shared!');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      status.type = 'text';
+      statuses.push(status);
+      DB.save(KEY.STATUS, statuses);
+      renderStatuses();
+      document.getElementById('statusForm').reset();
+      alert('✅ Status shared!');
+    }
+  });
+  
+  /* Close viewer on backdrop click */
+  document.getElementById('statusViewer').addEventListener('click', (e) => {
+    if(e.target.id === 'statusViewer') closeStatusViewer();
+  });
+  
+  /* Initialize */
+  renderStatuses();
+  
+  console.log('📸 Status page loaded successfully!');
+  </script>
+</body>
+</html>

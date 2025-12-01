@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Notifications</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="styleshee
+
+  t" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    .notifications-page { height: 100vh; overflow: hidden; }
+    .app-header { background: linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .app-header .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg,var(--accent),#06b6d4); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 20px; }
+    
+    .layout { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 64px); }
+    .app-sidebar { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-right: 1px solid rgba(255,255,255,0.04); padding: 16px; overflow-y: auto; }
+    
+    .notifications-main { padding: 24px; overflow-y: auto; max-width: 800px; }
+    .card { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-radius: 12px; padding: 20px; box-shadow: 0 6px 20px rgba(2,6,23,0.6); margin-bottom: 20px; }
+    .card h3 { margin: 0 0 16px 0; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
+    
+    .list { list-style: none; padding: 0; margin: 0; }
+    .notif-item { padding: 16px; border-radius: 10px; background: rgba(255,255,255,0.02); margin-bottom: 12px; display: flex; align-items: center; gap: 16px; transition: all .2s; position: relative; }
+    .notif-item:hover { background: rgba(255,255,255,0.04); transform: translateX(4px); }
+    .notif-item.unread { background: rgba(79,70,229,0.1); border-left: 3px solid var(--accent); }
+    .notif-item.unread::before { content: ''; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    
+    .notif-icon { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg,#eab308,#ef4444); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+    .notif-content { flex: 1; min-width: 0; }
+    .notif-title { font-weight: 600; margin-bottom: 4px; }
+    .notif-message { font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+    .notif-time { font-size: 12px; color: var(--muted); }
+    
+    .notif-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn { padding: 8px 16px; border-radius: 8px; border: none; background: var(--accent); color: white; cursor: pointer; transition: all .2s; font-size: 13px; font-weight: 600; }
+    .btn:hover { background: #4338ca; }
+    .btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.06); }
+    .btn.secondary:hover { background: rgba(255,255,255,0.02); }
+    .btn.success { background: var(--success); }
+    .btn.success:hover { background: #059669; }
+    .btn.danger { background: #ef4444; }
+    .btn.danger:hover { background: #dc2626; }
+    
+    .badge { background: var(--accent); color: white; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    
+    .filter-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-tab { padding: 10px 20px; border-radius: 999px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: all .2s; font-size: 14px; }
+    .filter-tab:hover { background: rgba(255,255,255,0.04); }
+    .filter-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+    
+    @media(max-width:900px){ .layout { grid-template-columns: 1fr; } .app-sidebar { display: none; } }
+  </style>
+</head>
+<body class="notifications-page">
+  <div class="app-header">
+    <div class="brand">
+      <div class="logo">🔔</div>
+      <h1 style="margin:0;font-size:18px">Notifications</h1>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn secondary" onclick="location.href='dashboard.html'" style="padding:8px 16px">Dashboard</button>
+      <button class="btn secondary" id="markAllRead" style="padding:8px 16px">Mark All Read</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="app-sidebar">
+      <div style="margin-bottom:20px">
+        <h3 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase">STATISTICS</h3>
+        <div style="padding:16px;background:rgba(255,255,255,0.02);border-radius:8px;text-align:center;margin-bottom:12px">
+          <div style="font-size:32px;font-weight:700;color:var(--accent)" id="totalNotifs">0</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Total</div>
+        </div>
+        <div style="padding:16px;background:rgba(255,255,255,0.02);border-radius:8px;text-align:center">
+          <div style="font-size:32px;font-weight:700;color:var(--success)" id="unreadNotifs">0</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Unread</div>
+        </div>
+      </div>
+      
+      <div>
+        <h3 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase">QUICK ACTIONS</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn" style="width:100%" onclick="clearAllNotifications()">🗑️ Clear All</button>
+          <button class="btn secondary" style="width:100%" onclick="location.href='settings.html'">⚙️ Settings</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="notifications-main">
+      <section class="card">
+        <h3>
+          <span>🔔 All Notifications</span>
+          <span class="badge" id="notifsCount">0</span>
+        </h3>
+        
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab" data-filter="unread">Unread</button>
+          <button class="filter-tab" data-filter="requests">Friend Requests</button>
+          <button class="filter-tab" data-filter="messages">Messages</button>
+          <button class="filter-tab" data-filter="groups">Groups</button>
+        </div>
+        
+        <ul id="notifList" class="list"></ul>
+      </section>
+    </main>
+  </div>
+
+  <script>
+  /* Database helpers */
+  const DB = {
+    load(key, defaultVal){try{const v=localStorage.getItem(key);return v?JSON.parse(v):defaultVal}catch(e){return defaultVal}},
+    save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+  }
+  const KEY = {USERS:'rc_users',CUR:'rc_currentUser',REQS:'rc_reqs',NOTIFS:'rc_notifs',MSGS:'rc_msgs',GROUPS:'rc_groups'}
+  
+  let currentUser = DB.load(KEY.CUR,null);
+  let users = DB.load(KEY.USERS,[]);
+  let reqs = DB.load(KEY.REQS,[]);
+  let notifs = DB.load(KEY.NOTIFS,[]);
+  let msgs = DB.load(KEY.MSGS,[]);
+  let groups = DB.load(KEY.GROUPS,[]);
+  let currentFilter = 'all';
+  
+  if(!currentUser){ window.location.href = 'login.html'; }
+  
+  /* Generate notifications from data */
+  function generateNotifications(){
+    const generated = [];
+    
+    // Friend requests
+    reqs.filter(r=>r.to===currentUser.id).forEach(r => {
+      const from = users.find(u=>u.id===r.from);
+      if(!from) return;
+      generated.push({
+        id: 'req_'+r.from,
+        type: 'request',
+        icon: '👤',
+        title: 'Friend Request',
+        message: `${from.name} sent you a friend request`,
+        time: r.time,
+        read: false,
+        actionable: true,
+        data: {fromId: r.from}
+      });
+    });
+    
+    // Recent messages (last 10)
+    const recentMsgs = msgs
+      .filter(m => m.convId.includes(currentUser.id) && m.from !== currentUser.id)
+      .sort((a,b) => new Date(b.time) - new Date(a.time))
+      .slice(0, 10);
+    
+    recentMsgs.forEach(m => {
+      const from = users.find(u=>u.id===m.from);
+      if(!from) return;
+      generated.push({
+        id: 'msg_'+m.id,
+        type: 'message',
+        icon: '💬',
+        title: 'New Message',
+        message: `${from.name}: ${m.text.slice(0,50)}${m.text.length>50?'...':''}`,
+        time: m.time,
+        read: notifs.find(n=>n.id==='msg_'+m.id)?.read || false,
+        actionable: false
+      });
+    });
+    
+    // Group invitations
+    groups.filter(g => g.members && g.members.includes(currentUser.id)).forEach(g => {
+      if(g.createdBy !== currentUser.id){
+        generated.push({
+          id: 'group_'+g.id,
+          type: 'group',
+          icon: '👥',
+          title: 'Group Invitation',
+          message: `You were added to "${g.name}"`,
+          time: g.createdAt || new Date().toISOString(),
+          read: notifs.find(n=>n.id==='group_'+g.id)?.read || false,
+          actionable: false
+        });
+      }
+    });
+    
+    // Merge with existing read statuses
+    return generated.map(n => {
+      const existing = notifs.find(e => e.id === n.id);
+      return existing ? {...n, read: existing.read} : n;
+    });
+  }
+  
+  /* Time ago helper */
+  function timeAgo(isoString){
+    const seconds = Math.floor((new Date() - new Date(isoString)) / 1000);
+    if(seconds < 60) return 'just now';
+    if(seconds < 3600) return Math.floor(seconds/60) + 'm ago';
+    if(seconds < 86400) return Math.floor(seconds/3600) + 'h ago';
+    if(seconds < 604800) return Math.floor(seconds/86400) + 'd ago';
+    return new Date(isoString).toLocaleDateString();
+  }
+  
+  /* Render notifications */
+  function renderNotifications(){
+    notifs = generateNotifications();
+    const container = document.getElementById('notifList');
+    container.innerHTML = '';
+    
+    let filtered = notifs;
+    if(currentFilter === 'unread') filtered = notifs.filter(n => !n.read);
+    else if(currentFilter === 'requests') filtered = notifs.filter(n => n.type === 'request');
+    else if(currentFilter === 'messages') filtered = notifs.filter(n => n.type === 'message');
+    else if(currentFilter === 'groups') filtered = notifs.filter(n => n.type === 'group');
+    
+    // Sort by time
+    filtered.sort((a,b) => new Date(b.time) - new Date(a.time));
+    
+    // Update stats
+    document.getElementById('totalNotifs').textContent = notifs.length;
+    document.getElementById('unreadNotifs').textContent = notifs.filter(n=>!n.read).length;
+    document.getElementById('notifsCount').textContent = filtered.length;
+    
+    if(filtered.length === 0){
+      container.innerHTML = '<li style="padding:40px;text-align:center;color:var(--muted)">No notifications</li>';
+      return;
+    }
+    
+    filtered.forEach(n => {
+      const li = document.createElement('li');
+      li.className = 'notif-item' + (n.read ? '' : ' unread');
+      
+      let actions = '';
+      if(n.actionable && n.type === 'request'){
+        actions = `<div class="notif-actions">
+          <button class="btn success" onclick="acceptRequest('${n.data.fromId}')">Accept</button>
+          <button class="btn danger" onclick="rejectRequest('${n.data.fromId}')">Reject</button>
+        </div>`;
+      } else {
+        actions = `<button class="btn secondary" onclick="markRead('${n.id}')">✓</button>`;
+      }
+      
+      li.innerHTML = `
+        <div class="notif-icon">${n.icon}</div>
+        <div class="notif-content">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-message">${n.message}</div>
+          <div class="notif-time">${timeAgo(n.time)}</div>
+        </div>
+        ${actions}
+      `;
+      
+      li.onclick = (e) => {
+        if(e.target.tagName === 'BUTTON') return;
+        markRead(n.id);
+      };
+      
+      container.appendChild(li);
+    });
+    
+    DB.save(KEY.NOTIFS, notifs);
+  }
+  
+  /* Mark as read */
+  window.markRead = function(notifId){
+    notifs = notifs.map(n => n.id === notifId ? {...n, read: true} : n);
+    DB.save(KEY.NOTIFS, notifs);
+    renderNotifications();
+  }
+  
+  /* Mark all read */
+  document.getElementById('markAllRead').addEventListener('click', () => {
+    notifs = notifs.map(n => ({...n, read: true}));
+    DB.save(KEY.NOTIFS, notifs);
+    renderNotifications();
+  });
+  
+  /* Accept request */
+  window.acceptRequest = function(fromId){
+    const a = users.find(u=>u.id===fromId);
+    const b = users.find(u=>u.id===currentUser.id);
+    if(!a || !b) return;
+    
+    if(!a.friends) a.friends = [];
+    if(!b.friends) b.friends = [];
+    if(!a.friends.includes(b.id)) a.friends.push(b.id);
+    if(!b.friends.includes(a.id)) b.friends.push(a.id);
+    
+    users = users.map(u=>u.id===a.id?a:u.id===b.id?b:u);
+    reqs = reqs.filter(r=>!(r.from===fromId && r.to===currentUser.id));
+    
+    currentUser = b;
+    DB.save(KEY.USERS, users);
+    DB.save(KEY.REQS, reqs);
+    DB.save(KEY.CUR, currentUser);
+    
+    renderNotifications();
+    alert('✅ Friend added!');
+  }
+  
+  /* Reject request */
+  window.rejectRequest = function(fromId){
+    reqs = reqs.filter(r=>!(r.from===fromId && r.to===currentUser.id));
+    DB.save(KEY.REQS, reqs);
+    renderNotifications();
+  }
+  
+  /* Clear all */
+  window.clearAllNotifications = function(){
+    if(!confirm('Clear all notifications?')) return;
+    notifs = [];
+    DB.save(KEY.NOTIFS, []);
+    renderNotifications();
+  }
+  
+  /* Filter tabs */
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentFilter = tab.dataset.filter;
+      renderNotifications();
+    });
+  });
+  
+  /* Initialize */
+  renderNotifications();
+  
+  console.log('🔔 Notifications page loaded successfully!');
+  </script>
+</body>
+</html>
