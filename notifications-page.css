@@ -1,0 +1,153 @@
+.notifications-main {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.notifications-main .card {
+  padding: 24px;
+}
+
+.notifications-main h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notifications-main h3::before {
+  content: '🔔';
+}
+
+.notifications-main .list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notif-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+}
+
+.notif-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.notif-item.unread {
+  background: rgba(79, 70, 229, 0.05);
+  border-color: rgba(79, 70, 229, 0.2);
+}
+
+.notif-item .avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.notif-item .content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-item .message {
+  font-size: 15px;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.notif-item .message strong {
+  color: var(--text-primary);
+}
+
+.notif-item .time {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.notif-item .actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.notif-item .actions button {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.notif-item .btn-accept {
+  background: var(--success);
+  color: white;
+  border: none;
+}
+
+.notif-item .btn-accept:hover {
+  background: #059669;
+}
+
+.notif-item .btn-reject {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--error);
+  border: 1px solid var(--border-color);
+}
+
+.notif-item .btn-reject:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--error);
+}
+
+.empty-notifications {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+}
+
+.empty-notifications-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.empty-notifications p {
+  margin: 8px 0;
+}
+
+@media (max-width: 640px) {
+  .notifications-main {
+    padding: 16px;
+  }
+
+  .notif-item {
+    flex-wrap: wrap;
+  }
+
+  .notif-item .actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+}
