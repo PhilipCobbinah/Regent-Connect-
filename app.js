@@ -1,274 +1,239 @@
-/* ============================================================
-   app.js – Global startup & initialization
-   Main application controller and utilities
-   ============================================================ */
+// Main application initialization
 
-const App = {
-    /**
-     * Initialize the application
-     */
-    init() {
-        this.checkAuth();
-        this.updateOnlineStatus();
-        this.loadTheme();
-        this.startHeartbeat();
-        this.handleVisibilityChange();
-        console.log('🚀 Regent Connect initialized');
-    },
+const app = {
+  // Load header and sidebar components
+  async loadComponents() {
+    await this.loadHeader();
+    await this.loadSidebar();
+    this.initRegentAI();
+    this.updateNotificationBadge();
+  },
 
-    /**
-     * Check authentication and redirect if needed
-     */
-    checkAuth() {
-        const currentUser = DB.load(KEYS.CURRENT_USER);
-        const currentPage = window.location.pathname.split('/').pop();
-        
-        // Public pages that don't require auth
-        const publicPages = ['index.html', 'login.html', ''];
-        
-        // Redirect to login if not authenticated on protected pages
-        if (!currentUser && !publicPages.includes(currentPage)) {
-            window.location.href = 'login.html';
-            return;
-        }
-        
-        // Redirect to dashboard if authenticated on login/index pages
-        if (currentUser && (currentPage === 'login.html' || currentPage === 'index.html')) {
-            window.location.href = 'dashboard.html';
-            return;
-        }
-    },
+  // Load header
+  async loadHeader() {
+    const header = document.getElementById('appHeader');
+    if (!header) return;
 
-    /**
-     * Update user's online status
-     */
-    updateOnlineStatus() {
-        const currentUser = DB.load(KEYS.CURRENT_USER);
-        if (!currentUser) return;
-
-        let users = DB.load(KEYS.USERS, []);
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
-        
-        if (userIndex !== -1) {
-            users[userIndex].online = true;
-            users[userIndex].lastSeen = Date.now();
-            DB.save(KEYS.USERS, users);
-            
-            // Update current user session
-            currentUser.online = true;
-            currentUser.lastSeen = Date.now();
-            DB.save(KEYS.CURRENT_USER, currentUser);
-        }
-    },
-
-    /**
-     * Start heartbeat to update online status periodically
-     */
-    startHeartbeat() {
-        // Update every 30 seconds
-        setInterval(() => {
-            this.updateOnlineStatus();
-        }, 30000);
-    },
-
-    /**
-     * Handle visibility change (tab focus/blur)
-     */
-    handleVisibilityChange() {
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                this.setUserOffline();
-            } else {
-                this.updateOnlineStatus();
-            }
-        });
-
-        // Handle page unload
-        window.addEventListener('beforeunload', () => {
-            this.setUserOffline();
-        });
-    },
-
-    /**
-     * Set user as offline
-     */
-    setUserOffline() {
-        const currentUser = DB.load(KEYS.CURRENT_USER);
-        if (!currentUser) return;
-
-        let users = DB.load(KEYS.USERS, []);
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
-        
-        if (userIndex !== -1) {
-            users[userIndex].online = false;
-            users[userIndex].lastSeen = Date.now();
-            DB.save(KEYS.USERS, users);
-        }
-    },
-
-    /**
-     * Load and apply theme
-     */
-    loadTheme() {
-        const settings = DB.load(KEYS.SETTINGS, {});
-        const theme = settings.theme || 'dark';
-        document.documentElement.setAttribute('data-theme', theme);
-    },
-
-    /**
-     * Set theme
-     * @param {string} theme - Theme name
-     */
-    setTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        
-        const settings = DB.load(KEYS.SETTINGS, {});
-        settings.theme = theme;
-        DB.save(KEYS.SETTINGS, settings);
-        
-        if (typeof UI !== 'undefined') {
-            UI.toast(`Theme changed to ${theme}`, 'success', 2000);
-        }
-    },
-
-    /**
-     * Load header and sidebar components
-     */
-    async loadComponents() {
-        if (typeof ComponentLoader !== 'undefined') {
-            await ComponentLoader.loadAll();
-        }
-    },
-
-    /**
-     * Get current user
-     * @returns {Object|null} Current user
-     */
-    getCurrentUser() {
-        return DB.load(KEYS.CURRENT_USER, null);
-    },
-
-    /**
-     * Get app statistics
-     * @returns {Object} App statistics
-     */
-    getStats() {
-        const users = DB.load(KEYS.USERS, []);
-        const messages = DB.load(KEYS.MESSAGES, []);
-        const groups = DB.load(KEYS.GROUPS, []);
-        const status = DB.load(KEYS.STATUS, []);
-        const calls = DB.load(KEYS.CALLS, []);
-
-        return {
-            totalUsers: users.length,
-            onlineUsers: users.filter(u => u.online).length,
-            totalMessages: messages.length,
-            totalGroups: groups.length,
-            totalStatus: status.length,
-            totalCalls: calls.length
-        };
-    },
-
-    /**
-     * Export all app data
-     * @returns {Object} All app data
-     */
-    exportData() {
-        return {
-            users: DB.load(KEYS.USERS, []),
-            messages: DB.load(KEYS.MESSAGES, []),
-            groups: DB.load(KEYS.GROUPS, []),
-            status: DB.load(KEYS.STATUS, []),
-            requests: DB.load(KEYS.REQUESTS, []),
-            notifications: DB.load(KEYS.NOTIFICATIONS, []),
-            calls: DB.load(KEYS.CALLS, []),
-            settings: DB.load(KEYS.SETTINGS, {}),
-            aiHistory: DB.load(KEYS.AI_HISTORY, []),
-            exportDate: new Date().toISOString(),
-            version: '1.0.0'
-        };
-    },
-
-    /**
-     * Import app data
-     * @param {Object} data - Data to import
-     * @returns {Object} Result object
-     */
-    importData(data) {
-        try {
-            if (data.users) DB.save(KEYS.USERS, data.users);
-            if (data.messages) DB.save(KEYS.MESSAGES, data.messages);
-            if (data.groups) DB.save(KEYS.GROUPS, data.groups);
-            if (data.status) DB.save(KEYS.STATUS, data.status);
-            if (data.requests) DB.save(KEYS.REQUESTS, data.requests);
-            if (data.notifications) DB.save(KEYS.NOTIFICATIONS, data.notifications);
-            if (data.calls) DB.save(KEYS.CALLS, data.calls);
-            if (data.settings) DB.save(KEYS.SETTINGS, data.settings);
-            if (data.aiHistory) DB.save(KEYS.AI_HISTORY, data.aiHistory);
-
-            return { ok: true, msg: 'Data imported successfully' };
-        } catch (error) {
-            console.error('Import error:', error);
-            return { ok: false, msg: 'Failed to import data' };
-        }
-    },
-
-    /**
-     * Clear all app data (factory reset)
-     */
-    clearAllData() {
-        if (typeof UI !== 'undefined') {
-            UI.confirm('This will delete ALL data. Continue?', {
-                title: '⚠️ Factory Reset',
-                confirmText: 'Delete Everything',
-                cancelText: 'Cancel'
-            }).then(confirmed => {
-                if (confirmed) {
-                    localStorage.clear();
-                    window.location.href = 'index.html';
-                }
-            });
-        } else if (confirm('This will delete ALL data. Continue?')) {
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
-    },
-
-    /**
-     * Get app version
-     * @returns {string} Version string
-     */
-    getVersion() {
-        return '1.0.0';
-    },
-
-    /**
-     * Check for updates (placeholder)
-     */
-    checkForUpdates() {
-        console.log('Current version:', this.getVersion());
-        if (typeof UI !== 'undefined') {
-            UI.toast('You are using the latest version', 'info');
-        }
+    try {
+      const response = await fetch('./components/header.html');
+      if (response.ok) {
+        const html = await response.text();
+        header.innerHTML = html;
+        this.updateNotificationBadge();
+      } else {
+        // Fallback if component file doesn't exist
+        this.loadHeaderFallback();
+      }
+    } catch (error) {
+      console.error('Error loading header:', error);
+      this.loadHeaderFallback();
     }
+  },
+
+  loadHeaderFallback() {
+    const header = document.getElementById('appHeader');
+    if (!header) return;
+
+    const currentUser = DB.load(STORAGE_KEYS.CURRENT_USER);
+    
+    header.innerHTML = `
+      <header class="site-header">
+        <div class="header-left">
+          <a href="dashboard.html" class="brand">
+            <div class="logo-small" style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">RC</div>
+            <span>Regent Connect</span>
+          </a>
+        </div>
+        <div class="header-right">
+          <a href="notifications.html" class="icon-btn" title="Notifications">🔔<span id="notifBadge" class="badge hidden">0</span></a>
+          <a href="profile.html" title="Profile">Profile</a>
+          <a href="settings.html" title="Settings">Settings</a>
+        </div>
+      </header>
+    `;
+
+    this.updateNotificationBadge();
+  },
+
+  updateNotificationBadge() {
+    const badge = document.getElementById('notifBadge');
+    if (!badge) return;
+
+    const currentUser = DB.load(STORAGE_KEYS.CURRENT_USER);
+    if (!currentUser) return;
+
+    const allRequests = DB.load(STORAGE_KEYS.REQUESTS, []);
+    const myRequests = allRequests.filter(r => r.to === currentUser.id);
+    const count = myRequests.length;
+
+    if (count > 0) {
+      badge.textContent = count > 9 ? '9+' : count;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+  },
+
+  // Load sidebar
+  async loadSidebar() {
+    const sidebar = document.getElementById('appSidebar');
+    if (!sidebar) return;
+
+    const currentPage = window.location.pathname.split('/').pop();
+
+    try {
+      const response = await fetch('components/sidebar.html');
+      if (response.ok) {
+        const html = await response.text();
+        sidebar.innerHTML = html;
+        
+        // Add click handlers and active state
+        sidebar.querySelectorAll('.nav-item').forEach(item => {
+          const page = item.getAttribute('data-page');
+          if (page === currentPage || 
+              (page === 'chat.html' && currentPage === 'chat-page.html') ||
+              (page === 'groups.html' && currentPage === 'group-chat.html')) {
+            item.classList.add('active');
+          }
+          
+          item.addEventListener('click', () => {
+            window.location.href = page;
+          });
+        });
+      } else {
+        this.loadSidebarFallback();
+      }
+    } catch (error) {
+      console.error('Error loading sidebar:', error);
+      this.loadSidebarFallback();
+    }
+  },
+
+  loadSidebarFallback() {
+    const sidebar = document.getElementById('appSidebar');
+    if (!sidebar) return;
+
+    const currentPage = window.location.pathname.split('/').pop();
+
+    sidebar.innerHTML = `
+      <div class="nav-item ${currentPage === 'dashboard.html' ? 'active' : ''}" onclick="window.location.href='dashboard.html'">
+        <span>📊</span> Dashboard
+      </div>
+      <div class="nav-item ${currentPage === 'chat.html' || currentPage === 'chat-page.html' ? 'active' : ''}" onclick="window.location.href='chat.html'">
+        <span>💬</span> Chat
+      </div>
+      <div class="nav-item ${currentPage === 'friends.html' ? 'active' : ''}" onclick="window.location.href='friends.html'">
+        <span>👥</span> Friends
+      </div>
+      <div class="nav-item ${currentPage === 'groups.html' ? 'active' : ''}" onclick="window.location.href='groups.html'">
+        <span>🔗</span> Groups
+      </div>
+      <div class="nav-item ${currentPage === 'notifications.html' ? 'active' : ''}" onclick="window.location.href='notifications.html'">
+        <span>🔔</span> Notifications
+      </div>
+      <div class="nav-item ${currentPage === 'profile.html' ? 'active' : ''}" onclick="window.location.href='profile.html'">
+        <span>👤</span> Profile
+      </div>
+      <div class="nav-item" onclick="window.location.href='settings.html'">
+        <span>⚙️</span> Settings
+      </div>
+    `;
+  },
+
+  // Initialize RegentAI
+  initRegentAI() {
+    const aiForm = document.getElementById('aiForm');
+    const aiInput = document.getElementById('aiInput');
+    const aiConversation = document.getElementById('aiConversation');
+    const closeBtn = document.getElementById('closeRegentAI');
+    const widget = document.getElementById('regentAI');
+
+    if (!aiForm || !widget) return;
+
+    // Handle close
+    closeBtn?.addEventListener('click', () => {
+      widget.setAttribute('aria-hidden', 'true');
+    });
+
+    // Handle form submit
+    aiForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const message = aiInput.value.trim();
+      if (!message) return;
+
+      this.handleAIMessage(message, aiConversation);
+      aiInput.value = '';
+    });
+  },
+
+  // Handle AI messages
+  handleAIMessage(message, container) {
+    // Add user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'ai-message user';
+    userMsg.textContent = message;
+    container.appendChild(userMsg);
+
+    // Generate AI response
+    setTimeout(() => {
+      const botMsg = document.createElement('div');
+      botMsg.className = 'ai-message bot';
+      botMsg.textContent = this.generateAIResponse(message);
+      container.appendChild(botMsg);
+      container.scrollTop = container.scrollHeight;
+    }, 500);
+
+    container.scrollTop = container.scrollHeight;
+  },
+
+  // Generate AI response
+  generateAIResponse(message) {
+    const lower = message.toLowerCase();
+    
+    if (lower.includes('hello') || lower.includes('hi')) {
+      return '👋 Hello! How can I help you today?';
+    }
+    
+    if (lower.includes('find') || lower.includes('search')) {
+      return '🔍 You can search for users in the chat page. Use the search bar at the top!';
+    }
+    
+    if (lower.includes('group') && lower.includes('create')) {
+      return '👥 To create a group, go to the Groups page and click "Create Group" button!';
+    }
+    
+    if (lower.includes('friend')) {
+      return '👫 You can add friends by clicking on users and sending them a friend request!';
+    }
+    
+    if (lower.includes('help')) {
+      return '💡 I can help you with:\n- Finding users\n- Creating groups\n- Adding friends\n- Navigating the app\nWhat would you like to know?';
+    }
+
+    return `🤔 I understand you said: "${message}". Try asking about finding users, creating groups, or getting help!`;
+  },
+
+  // Logout
+  logout() {
+    if (confirm('Are you sure you want to logout?')) {
+      DB.remove(STORAGE_KEYS.AUTH);
+      DB.remove(STORAGE_KEYS.CURRENT_USER);
+      window.location.href = 'auth.html';
+    }
+  }
 };
 
-// Auto-initialize on DOM load
-if (typeof window !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => App.init());
-    } else {
-        App.init();
+// Check auth on load
+document.addEventListener('DOMContentLoaded', () => {
+  const currentPage = window.location.pathname.split('/').pop();
+  
+  if (currentPage !== 'auth.html' && currentPage !== '' && currentPage !== 'index.html') {
+    const auth = DB.load(STORAGE_KEYS.AUTH);
+    if (!auth) {
+      window.location.href = 'auth.html';
     }
-    
-    // Global access
-    window.App = App;
-    
-    // Legacy support
-    window.getCurrentUser = () => App.getCurrentUser();
-}
+  }
+});
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { App };
-}
+// Export
+window.app = app;
