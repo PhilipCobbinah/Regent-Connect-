@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Notifications</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <style>
+    body {
+      background: linear-gradient(180deg,#071126 0%, #071b2a 100%);
+      color: #e6eef8;
+      margin: 0;
+      padding: 0;
+      font-family: Inter, system-ui, sans-serif;
+    }
+    .nav-toggle {
+      position: fixed !important;
+      top: 20px !important;
+      left: 20px !important;
+      z-index: 200 !important;
+      background: #8b5cf6 !important;
+      color: #fff !important;
+      border: none !important;
+      width: 48px !important;
+      height: 48px !important;
+      border-radius: 50% !important;
+      cursor: pointer !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 1.5em !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+      transition: all 0.3s ease !important;
+    }
+    .nav-toggle:hover {
+      background: #7c3aed !important;
+      transform: scale(1.05) !important;
+    }
+    .side-nav {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      height: 100vh !important;
+      width: 180px !important;
+      background: #10172a !important;
+      display: flex !important;
+      flex-direction: column !important;
+      padding-top: 80px !important;
+      z-index: 100 !important;
+      box-shadow: 2px 0 16px rgba(0,0,0,0.07) !important;
+      transform: translateX(0) !important;
+      transition: transform 0.3s ease !important;
+    }
+    .side-nav.hidden {
+      transform: translateX(-180px) !important;
+    }
+    .side-nav .nav-btn, .side-nav a.btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: none;
+      border: none;
+      color: #e0e7ef;
+      text-decoration: none;
+      font-size: 1em;
+      border-radius: 0 20px 20px 0;
+      transition: background 0.15s;
+      cursor: pointer;
+      margin-bottom: 2px;
+    }
+    .side-nav .nav-btn:hover, .side-nav a.btn:hover {
+      background: #23263a;
+      color: #fff;
+    }
+    .side-nav .nav-btn.active, .side-nav a.btn.active {
+      background: #4f46e5;
+      color: #fff;
+    }
+    .main-content {
+      margin-left: 200px;
+      padding: 40px;
+      max-width: 900px;
+      transition: margin-left 0.3s ease;
+    }
+    .main-content.expanded {
+      margin-left: 20px;
+    }
+    .card { background: #181c2a; border-radius: 14px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
+    .notif-item { background: #23263a; padding: 16px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+    .notif-item.unread { border-left: 4px solid #8b5cf6; }
+    .btn { background: #8b5cf6; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9em; margin-right: 8px; }
+    .btn:hover { background: #7c3aed; }
+    .btn.secondary { background: #353b50; }
+    .btn.secondary:hover { background: #4a5568; }
+    
+    @media (max-width: 700px) {
+      .side-nav { width: 250px; }
+      .side-nav.hidden { transform: translateX(-250px) !important; }
+      .main-content { margin-left: 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="nav-toggle" id="navToggle">☰</button>
+
+  <nav class="side-nav" id="sideNav">
+    <button onclick="history.back()" class="nav-btn">⬅️ Back</button>
+    <a href="chat.html" class="btn secondary nav-btn">💬 Chat</a>
+    <a href="friends.html" class="btn secondary nav-btn">👥 Friends</a>
+    <a href="groups.html" class="btn secondary nav-btn">🔗 Groups</a>
+    <a href="notifications.html" class="btn secondary nav-btn active">🔔 Notifications</a>
+    <a href="profile.html" class="btn secondary nav-btn">👤 Profile</a>
+    <a href="settings.html" class="btn secondary nav-btn">⚙️ Settings</a>
+  </nav>
+
+  <div class="main-content" id="mainContent">
+    <h1>🔔 Notifications</h1>
+    
+    <div class="card">
+      <h2>Friend Requests (<span id="reqCount">0</span>)</h2>
+      <div id="friendRequests"></div>
+    </div>
+
+    <div class="card">
+      <h2>Group Invites (<span id="groupInvCount">0</span>)</h2>
+      <div id="groupInvites"></div>
+    </div>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/users.js"></script>
+  <script src="js/groups.js"></script>
+  <script>
+    // IMPORTANT: Run navigation toggle FIRST before any other code
+    (function initNavToggle() {
+      console.log('Initializing navigation toggle for notifications page');
+      
+      const navToggle = document.getElementById('navToggle');
+      const sideNav = document.getElementById('sideNav');
+      const mainContent = document.getElementById('mainContent');
+      
+      if (!navToggle || !sideNav || !mainContent) {
+        console.error('Navigation elements not found');
+        return;
+      }
+      
+      navToggle.addEventListener('click', function() {
+        console.log('Notifications navigation toggle clicked');
+        sideNav.classList.toggle('hidden');
+        mainContent.classList.toggle('expanded');
+        navToggle.textContent = sideNav.classList.contains('hidden') ? '☰' : '✕';
+      });
+      
+      console.log('Navigation toggle initialized successfully');
+    })();
+
+    // Then run other code after navigation is set up
+    (function initNotifications() {
+      const currentUser = DB.load(KEYS.CURRENT_USER);
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const users = DB.load(KEYS.USERS, []);
+      const requests = DB.load(KEYS.REQUESTS, []);
+      const groupInvites = DB.load('group_invites', []);
+      const groups = DB.load(KEYS.GROUPS, []); // This is the only declaration now
+
+      // Render friend requests
+      const myRequests = requests.filter(r => r.to === currentUser.id);
+      document.getElementById('reqCount').textContent = myRequests.length;
+      const reqContainer = document.getElementById('friendRequests');
+      
+      if (myRequests.length === 0) {
+        reqContainer.innerHTML = '<p style="color:#a3aed6;text-align:center;padding:20px">No pending friend requests</p>';
+      } else {
+        myRequests.forEach(req => {
+          const fromUser = users.find(u => u.id === req.from);
+          if (!fromUser) return;
+          
+          const div = document.createElement('div');
+          div.className = 'notif-item unread';
+          div.innerHTML = `
+            <div style="flex:1">
+              <strong>${fromUser.name}</strong> sent you a friend request
+              <div style="font-size:0.85em;color:#a3aed6;margin-top:4px">${new Date(req.timestamp).toLocaleString()}</div>
+            </div>
+            <button class="btn" onclick="acceptRequest('${req.id}')">✓ Accept</button>
+            <button class="btn secondary" onclick="rejectRequest('${req.id}')">✗ Reject</button>
+          `;
+          reqContainer.appendChild(div);
+        });
+      }
+
+      // Render group invites
+      const myGroupInvites = groupInvites.filter(i => i.userId === currentUser.id);
+      document.getElementById('groupInvCount').textContent = myGroupInvites.length;
+      const invContainer = document.getElementById('groupInvites');
+      
+      if (myGroupInvites.length === 0) {
+        invContainer.innerHTML = '<p style="color:#a3aed6;text-align:center;padding:20px">No pending group invites</p>';
+      } else {
+        myGroupInvites.forEach(inv => {
+          const group = groups.find(g => g.id === inv.groupId);
+          const inviter = users.find(u => u.id === inv.invitedBy);
+          if (!group) return;
+          
+          const div = document.createElement('div');
+          div.className = 'notif-item unread';
+          div.innerHTML = `
+            <div style="flex:1">
+              <strong>${inviter?.name || 'Someone'}</strong> invited you to join <strong>${group.name}</strong>
+              <div style="font-size:0.85em;color:#a3aed6;margin-top:4px">${new Date(inv.timestamp).toLocaleString()}</div>
+            </div>
+            <button class="btn" onclick="acceptGroupInvite('${inv.id}')">✓ Join</button>
+            <button class="btn secondary" onclick="rejectGroupInvite('${inv.id}')">✗ Decline</button>
+          `;
+          invContainer.appendChild(div);
+        });
+      }
+
+      // Make functions global so onclick can access them
+      window.acceptRequest = function(reqId) {
+        const result = Users.acceptFriendRequest(reqId);
+        alert(result.msg);
+        if (result.ok) location.reload();
+      };
+
+      window.rejectRequest = function(reqId) {
+        Users.rejectFriendRequest(reqId);
+        location.reload();
+      };
+
+      window.acceptGroupInvite = function(invId) {
+        const result = Groups.acceptGroupInvite(invId);
+        alert(result.msg);
+        if (result.ok) location.reload();
+      };
+
+      window.rejectGroupInvite = function(invId) {
+        const invitesData = DB.load('group_invites', []);
+        const updated = invitesData.filter(i => i.id !== invId);
+        DB.save('group_invites', updated);
+        location.reload();
+      };
+    })();
+  </script>
+</body>
+</html>

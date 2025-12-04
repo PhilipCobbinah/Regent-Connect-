@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Campus Chat Platform</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/landing.css">
+  
+  <!-- Inline Critical Styles (in case CSS files missing) -->
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box;}
+    body {font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0f1419;color:#fff;line-height:1.6;}
+    
+    /* Hero Section */
+    .hero {min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);}
+    .hero-content {max-width:800px;}
+    .hero h1 {font-size:3.5rem;margin:20px 0;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .tagline {font-size:1.5rem;color:#a3aed6;margin-bottom:15px;}
+    .description {font-size:1.1rem;color:#8b95a8;margin-bottom:40px;}
+    
+    /* Logo Fix */
+    .logo-container {margin-bottom:20px;}
+    .logo-container img {height:80px;width:80px;border-radius:16px;box-shadow:0 8px 30px rgba(102,126,234,0.3);}
+    
+    /* Buttons */
+    .cta-buttons {display:flex;gap:15px;justify-content:center;flex-wrap:wrap;}
+    .btn {padding:14px 32px;border-radius:8px;font-size:16px;font-weight:600;text-decoration:none;transition:all 0.3s ease;cursor:pointer;border:none;}
+    .btn.primary {background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;}
+    .btn.primary:hover {transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,126,234,0.4);}
+    .btn.secondary {background:transparent;color:#667eea;border:2px solid #667eea;}
+    .btn.secondary:hover {background:#667eea;color:#fff;}
+    
+    /* Features Section */
+    .features {padding:80px 20px;max-width:1200px;margin:0 auto;}
+    .features h2 {text-align:center;font-size:2.5rem;margin-bottom:50px;}
+    .features-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:30px;}
+    .feature-card {background:#1e293b;padding:30px;border-radius:12px;text-align:center;transition:transform 0.3s ease;}
+    .feature-card:hover {transform:translateY(-5px);box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+    .feature-icon {font-size:3rem;margin-bottom:15px;}
+    .feature-card h3 {margin-bottom:10px;color:#667eea;}
+    
+    /* Footer */
+    .landing-footer {text-align:center;padding:30px;background:#0f172a;color:#8b95a8;}
+    
+    /* Responsive */
+    @media (max-width:768px) {
+      .hero h1 {font-size:2.5rem;}
+      .tagline {font-size:1.2rem;}
+      .cta-buttons {flex-direction:column;align-items:center;}
+      .btn {width:100%;max-width:300px;}
+    }
+  </style>
+</head>
+<body>
+  
+  <header class="hero">
+    <div class="hero-content">
+      <!-- FIXED: Logo container -->
+      <div class="logo-container">
+        <img src="assets/icons/logo-regent.png" alt="Regent Connect Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🎓%3C/text%3E%3C/svg%3E'">
+      </div>
+      <h1>Regent Connect</h1>
+      <p class="tagline">Chat. Learn. Connect.</p>
+      <p class="description">The all-in-one platform for campus communication, collaboration, and community building.</p>
+      <div class="cta-buttons">
+        <a href="auth.html" class="btn primary large">Get Started</a>
+        <a href="chat.html" class="btn secondary large">View Demo</a>
+        <button type="button" class="btn secondary large" id="openRegentAiBtn" style="background:linear-gradient(135deg,#8b5cf6,#4f46e5);border:none;color:#fff;">🤖 RegentAI</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="features">
+    <h2>Why Regent Connect?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>Real-time Chat</h3>
+        <p>Connect with friends and classmates instantly</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3>Group Collaboration</h3>
+        <p>Create groups for projects and study sessions</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Assistant</h3>
+        <p>RegentAI helps with queries and suggestions</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Secure & Private</h3>
+        <p>Your data stays safe with local storage</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <p>&copy; 2025 Regent Connect. Built with ❤️ for Regent University College.</p>
+    <p style="margin-top:10px;font-size:14px;"><a href="https://philip-cobbinah.vercel.app" style="color:#667eea;text-decoration:none;">Designed by Philip Cobbinah</a></p>
+  </footer>
+
+  <!-- RegentAI Floating Modal -->
+  <div id="regentAiModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;">
+    <div style="background:#1e293b;max-width:450px;width:95vw;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.5);padding:0;display:flex;flex-direction:column;min-height:500px;max-height:90vh;border:1px solid #334155;">
+      <!-- Modal Header -->
+      <div style="display:flex;align-items:center;gap:12px;padding:20px;border-bottom:1px solid #334155;">
+        <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#8b5cf6,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 15px rgba(139,92,246,0.3);">🤖</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:20px;color:#fff;">RegentAI</div>
+          <div style="font-size:13px;color:#94a3b8;margin-top:2px;">Your campus AI assistant</div>
+        </div>
+        <button onclick="closeRegentAiModal()" style="background:none;border:none;font-size:28px;color:#64748b;cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#64748b'">&times;</button>
+      </div>
+      
+      <!-- Messages Area -->
+      <div id="regentAiMessages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;background:#0f172a;"></div>
+      
+      <!-- Input Form -->
+      <form id="regentAiForm" style="display:flex;gap:10px;padding:16px;border-top:1px solid #334155;background:#1e293b;">
+        <input id="regentAiInput" autocomplete="off" placeholder="Ask me anything..." style="flex:1;padding:12px 16px;border-radius:12px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:15px;transition:border-color 0.2s;" onfocus="this.style.borderColor='#667eea'" onblur="this.style.borderColor='#334155'" />
+        <button type="submit" style="background:linear-gradient(135deg,#8b5cf6,#4f46e5);color:#fff;border:none;border-radius:12px;padding:0 24px;font-size:15px;font-weight:600;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 15px rgba(139,92,246,0.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">Send</button>
+      </form>
+    </div>
+  </div>
+  
+  <style>
+    /* AI Message Styles */
+    .ai-msg-user {
+      align-self:flex-end;
+      background:linear-gradient(135deg,#667eea,#764ba2);
+      color:#fff;
+      padding:12px 16px;
+      border-radius:16px 16px 4px 16px;
+      max-width:80%;
+      font-size:15px;
+      box-shadow:0 2px 8px rgba(102,126,234,0.3);
+      animation:slideInRight 0.3s ease;
+    }
+    .ai-msg-ai {
+      align-self:flex-start;
+      background:#1e293b;
+      color:#e2e8f0;
+      padding:12px 16px;
+      border-radius:16px 16px 16px 4px;
+      max-width:80%;
+      font-size:15px;
+      border:1px solid #334155;
+      animation:slideInLeft 0.3s ease;
+    }
+    
+    @keyframes slideInRight {
+      from {transform:translateX(20px);opacity:0;}
+      to {transform:translateX(0);opacity:1;}
+    }
+    
+    @keyframes slideInLeft {
+      from {transform:translateX(-20px);opacity:0;}
+      to {transform:translateX(0);opacity:1;}
+    }
+    
+    /* Scrollbar styling for messages */
+    #regentAiMessages::-webkit-scrollbar {width:8px;}
+    #regentAiMessages::-webkit-scrollbar-track {background:#0f172a;}
+    #regentAiMessages::-webkit-scrollbar-thumb {background:#334155;border-radius:4px;}
+    #regentAiMessages::-webkit-scrollbar-thumb:hover {background:#475569;}
+    
+    @media (max-width:600px) {
+      #regentAiModal > div {
+        max-width:98vw;
+        min-height:85vh;
+      }
+    }
+  </style>
+  
+  <script>
+    // RegentAI Enhanced Knowledge Base
+    window.RegentAI_KB = [
+      {
+        q: /who\s+is\s+philip\s+cobbinah/i,
+        a: `🎓 <strong>Philip Cobbinah</strong> is a highly accomplished student, innovator, and leader at Regent University Ghana. He co-developed "RoboServe" (ENACTUS National Champion 2025), serves as Vice SRC President, Enactus Team Lead, and Hult Prize Team Lead. He represented Ghana at the Enactus World Cup 2025 and is the Founder & CEO of TechGenius Consortium. Currently an IT intern at Npontu Technologies Limited.`
+      },
+      {
+        q: /who\s+is\s+(mr\.?\s*)?samuel\s+ayeh-?bampoe/i,
+        a: `👔 <strong>Mr. Samuel Ayeh-Bampoe</strong> is the Deputy Registrar for Human Resources and Administration at Regent University Ghana. He mentors innovation teams, leads university management initiatives, and serves as National President of Green Land Nkyirimma Organization (GLaNO).`
+      },
+      {
+        q: /who\s+is\s+aseda\s+(kofi\s+)?ayeh-?bampoe/i,
+        a: `🚀 <strong>Aseda Kofi Ayeh-Bampoe</strong> is an outstanding Computer Engineering student at Regent University. His team won 2nd place at Ghana Digital & Innovation Week for a solar tracking system. He was Hult Prize National runner-up and co-developed RoboServe, ODUMGYA, and Smart Irrigation System. Son of Mr. Samuel Ayeh-Bampoe.`
+      },
+      {
+        q: /who\s+is\s+(the\s+)?(acting\s+)?president\s+(at|of)\s+regent/i,
+        a: `🏛️ The <strong>Acting President</strong> of Regent University Ghana (as of Nov 2025) is <strong>Nana Yaw Boadi Appiah</strong>. The founding president and current Chancellor is <strong>Rev. Prof. Emmanuel Kingsley Larbi</strong>.`
+      },
+      {
+        q: /who\s+(founded|created|started)\s+regent/i,
+        a: `📜 <strong>Rev. Professor Emmanuel Kingsley Larbi</strong> founded Regent University College of Science and Technology, Ghana. The university was registered in September 2003, accredited in 2004, and began lectures in January 2005.`
+      },
+      {
+        q: /when\s+is\s+(the\s+)?2025\s+graduation/i,
+        a: `🎓 Regent University Ghana will hold its <strong>2025 graduation ceremony</strong> on <strong>13th December 2025</strong>. Congratulations to all graduates!`
+      },
+      {
+        q: /roboserve|robot\s+waiter/i,
+        a: `🤖 <strong>RoboServe</strong> is an award-winning autonomous robot waiter developed by Philip Cobbinah and team. It won 1st place (Best Innovative Project) at the ENACTUS National Competition 2025 in Accra, Ghana.`
+      },
+      {
+        q: /regent\s+connect/i,
+        a: `💬 <strong>Regent Connect</strong> is the official campus chat platform for Regent University Ghana, featuring real-time messaging, group collaboration, file sharing, and RegentAI assistant. Built by Philip Cobbinah.`
+      }
+    ];
+
+    // RegentAI Modal Functions
+    function openRegentAiModal() {
+      const modal = document.getElementById('regentAiModal');
+      modal.style.display = 'flex';
+      
+      // Welcome message on first open
+      const messagesBox = document.getElementById('regentAiMessages');
+      if(messagesBox.children.length === 0) {
+        addAiMessage('👋 Hi! I\'m <strong>RegentAI</strong>, your campus assistant. Ask me about Regent University, students, projects, or anything campus-related!', 'ai');
+      }
+      
+      setTimeout(() => document.getElementById('regentAiInput').focus(), 200);
+    }
+    
+    function closeRegentAiModal() {
+      document.getElementById('regentAiModal').style.display = 'none';
+    }
+    
+    // Event Listeners
+    document.getElementById('openRegentAiBtn').onclick = openRegentAiModal;
+    
+    document.getElementById('regentAiForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const input = document.getElementById('regentAiInput');
+      const msg = input.value.trim();
+      if(!msg) return;
+      
+      // Add user message
+      addAiMessage(msg, 'user');
+      input.value = '';
+      
+      // Show typing indicator
+      addAiMessage('<span style="opacity:.7">RegentAI is typing...</span>', 'ai', true);
+      
+      // Simulate thinking delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Get AI response
+      let reply = getAiReply(msg);
+      
+      // Remove typing indicator and show response
+      removeAiTyping();
+      addAiMessage(reply, 'ai');
+    };
+    
+    // Add message to chat
+    function addAiMessage(text, who, isTyping = false) {
+      const box = document.getElementById('regentAiMessages');
+      const div = document.createElement('div');
+      div.className = who === 'user' ? 'ai-msg-user' : 'ai-msg-ai';
+      if(isTyping) div.dataset.typing = '1';
+      div.innerHTML = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+    
+    // Remove typing indicator
+    function removeAiTyping() {
+      const box = document.getElementById('regentAiMessages');
+      const typing = box.querySelector('[data-typing="1"]');
+      if(typing) typing.remove();
+    }
+    
+    // Get AI reply from knowledge base or fallback
+    function getAiReply(msg) {
+      // Check knowledge base
+      for (const entry of window.RegentAI_KB) {
+        if (entry.q.test(msg)) return entry.a;
+      }
+      
+      // Fallback responses
+      const m = msg.toLowerCase();
+      if(m.includes('hi')||m.includes('hello')||m.includes('hey')) 
+        return "👋 Hello! How can I help you today?";
+      if(m.includes('thank')) 
+        return "😊 You're welcome! Happy to help!";
+      if(m.includes('bye')||m.includes('goodbye')) 
+        return "👋 Goodbye! Have a great day at Regent!";
+      if(m.includes('help')) 
+        return "🤝 I can answer questions about:<br>• Regent University students & staff<br>• Campus projects like RoboServe<br>• University events & dates<br>• General campus info<br><br>Just ask me anything!";
+      if(m.includes('project')) 
+        return "🚀 Some amazing projects at Regent:<br>• <strong>RoboServe</strong> - National Champion robot waiter<br>• <strong>ODUMGYA</strong> - Innovation project<br>• <strong>Smart Irrigation</strong> - Agricultural tech<br>• <strong>Regent Connect</strong> - This chat platform!";
+      if(m.includes('study')||m.includes('exam')) 
+        return "📚 Study tips:<br>• Create a study schedule<br>• Take regular breaks (Pomodoro technique)<br>• Form study groups<br>• Use campus resources<br>• Get enough sleep!";
+      
+      return "🤖 I'm not sure about that. Try asking about:<br>• Students (Philip, Aseda, etc.)<br>• University leadership<br>• Campus projects<br>• Graduation dates<br>• General campus info";
+    }
+    
+    // Close modal on ESC key
+    document.addEventListener('keydown', function(e) {
+      if(e.key === 'Escape') closeRegentAiModal();
+    });
+    
+    // Close modal on backdrop click
+    document.getElementById('regentAiModal').onclick = function(e) {
+      if(e.target === this) closeRegentAiModal();
+    };
+  </script>
+</body>
+</html>

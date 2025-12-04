@@ -1,0 +1,1303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Chat</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#4f46e5;--success:#10b981}
+    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071126 0%, #071b2a 100%);color:#e6eef8}
+    
+    /* Navigation Toggle - FIXED */
+    .nav-toggle {
+      position: fixed !important;
+      top: 20px !important;
+      left: 20px !important;
+      z-index: 300 !important;
+      background: #8b5cf6 !important;
+      color: #fff !important;
+      border: none !important;
+      width: 48px !important;
+      height: 48px !important;
+      border-radius: 50% !important;
+      cursor: pointer !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 1.5em !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+      transition: all 0.3s ease !important;
+    }
+    .nav-toggle:hover { background: #7c3aed !important; transform: scale(1.05) !important; }
+
+    /* Side Navigation - FIXED */
+    .side-nav {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      height: 100vh !important;
+      width: 180px !important;
+      background: #10172a !important;
+      display: flex !important;
+      flex-direction: column !important;
+      padding-top: 80px !important;
+      z-index: 200 !important;
+      box-shadow: 2px 0 16px rgba(0,0,0,0.07) !important;
+      transform: translateX(0) !important;
+      transition: transform 0.3s ease !important;
+      overflow-y: auto !important;
+    }
+    .side-nav.hidden { transform: translateX(-180px) !important; }
+    .side-nav .nav-btn, .side-nav a.btn { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: none; border: none; color: #e0e7ef; text-decoration: none; font-size: 1em; border-radius: 0 20px 20px 0; transition: background 0.15s; cursor: pointer; margin-bottom: 2px; }
+    .side-nav .nav-btn:hover, .side-nav a.btn:hover { background: #23263a; color: #fff; }
+    .side-nav .nav-btn.active, .side-nav a.btn.active { background: #4f46e5; color: #fff; }
+    
+    /* Main Layout - FIXED */
+    .app{
+      display:grid;
+      grid-template-columns:320px 1fr;
+      gap:18px;
+      height:100vh;
+      padding:18px;
+      margin-left: 180px !important;
+      transition: margin-left 0.3s ease !important;
+    }
+    .app.expanded {
+      margin-left: 0 !important;
+    }
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:14px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+
+    /* Sidebar */
+    .sidebar{display:flex;flex-direction:column;gap:12px;overflow:hidden;}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{font-size:18px;margin:0}
+    .muted{color:var(--muted);font-size:13px}
+    .search{display:flex;gap:8px}
+    .search input{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    .controls{display:flex;gap:8px}
+    .btn{background:var(--accent);padding:8px 12px;border-radius:10px;border:none;color:white;cursor:pointer;transition:background .2s}
+    .btn:hover{background:#4338ca}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+    .btn.secondary:hover{background:rgba(255,255,255,0.02)}
+
+    /* lists */
+    .list{overflow:auto;max-height:60vh;padding-right:6px}
+    .list::-webkit-scrollbar{width:6px}
+    .list::-webkit-scrollbar-track{background:transparent}
+    .list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+    .user-item{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:pointer;transition:background .2s}
+    .user-item:hover{background:rgba(255,255,255,0.02)}
+    .avatar{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#eab308,#ef4444);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+    .name{font-weight:600}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* Main chat */
+    .main{display:flex;flex-direction:column;gap:12px;overflow:hidden;}
+    .chat-area{flex:1;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);padding:14px;border-radius:12px;overflow:auto;display:flex;flex-direction:column;gap:12px;max-height: calc(100vh - 200px);}
+    .chat-area::-webkit-scrollbar{width:8px}
+    .chat-area::-webkit-scrollbar-track{background:transparent}
+    .chat-area::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
+    .message-row{display:flex;align-items:flex-end;gap:10px}
+    .message-row.mine{justify-content:flex-end}
+    .bubble{max-width:66%;padding:10px 14px;border-radius:14px;line-height:1.3;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 6px 14px rgba(2,6,23,0.5);position:relative}
+    .bubble.me{background:linear-gradient(180deg,var(--accent),#3b82f6);color:white}
+    .bubble:after{content:"";position:absolute;width:12px;height:12px;bottom:6px;background:inherit;transform:rotate(45deg);}
+    .message-row.mine .bubble:after{right:-6px}
+    .message-row:not(.mine) .bubble:after{left:-6px}
+    .meta{font-size:12px;color:var(--muted);margin-top:6px}
+
+    .composer{display:flex;gap:8px;align-items:center;padding-top:12px;}
+    .composer input{flex:1;padding:12px;border-radius:999px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    .composer input:focus{outline:none;border-color:var(--accent)}
+    .small-action{font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
+    .small-action:hover{background:rgba(255,255,255,0.02);color:#fff}
+
+    /* friend badges */
+    .badge{background:rgba(255,255,255,0.06);padding:6px 8px;border-radius:999px;font-size:12px}
+
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.8);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000}
+    .modal{width:720px;max-width:90vw;background:linear-gradient(180deg, rgba(15,23,36,0.98), rgba(11,18,32,0.98));padding:24px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.06)}
+    .modal h3{margin:0 0 16px 0;font-size:20px}
+    .modal h4{margin:0 0 12px 0;font-size:16px;color:var(--muted)}
+    .modal input,.modal textarea{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff;margin-bottom:12px}
+    .modal input:focus,.modal textarea:focus{outline:none;border-color:var(--accent)}
+
+    /* animations */
+    .bubble{animation:pop .28s cubic-bezier(.2,.9,.2,1)}
+    @keyframes pop{from{transform:translateY(6px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+
+    /* Responsive - FIXED */
+    @media(max-width:900px){
+      .app{
+        grid-template-columns:1fr;
+        grid-template-rows:auto 1fr;
+        margin-left: 0 !important;
+        padding: 80px 10px 10px 10px;
+      }
+      .sidebar{
+        max-height:40vh;
+        overflow-y: auto;
+      }
+      .main{
+        max-height: calc(100vh - 50vh);
+      }
+      .side-nav {
+        width: 250px !important;
+        padding-top: 80px !important;
+      }
+      .side-nav.hidden { transform: translateX(-250px) !important; }
+      .nav-toggle {
+        left: 10px !important;
+        top: 10px !important;
+      }
+    }
+
+    /* RegentAI button states */
+    #regentAiSendBtn:disabled, button[type="submit"]:disabled {
+      background: linear-gradient(135deg,#6b46c1,#3730a3) !important;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .sending {
+      background: linear-gradient(135deg,#f59e0b,#d97706) !important;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .success {
+      background: linear-gradient(135deg,#10b981,#059669) !important;
+      animation: successPulse 0.5s ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    @keyframes successPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    /* Audio recording UI */
+    .audio-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .record-btn {
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+      transition: all 0.2s;
+    }
+    .record-btn:hover {
+      background: #dc2626;
+      transform: scale(1.05);
+    }
+    .record-btn.recording {
+      background: #10b981;
+      animation: recordPulse 1s infinite;
+    }
+    @keyframes recordPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    }
+    .recording-timer {
+      color: #ef4444;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+    .cancel-recording {
+      background: #6b7280;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85em;
+    }
+    
+    /* Audio message bubble */
+    .audio-message {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      min-width: 200px;
+    }
+    .audio-play-btn {
+      background: #8b5cf6;
+      color: #fff;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9em;
+      flex-shrink: 0;
+    }
+    .audio-play-btn:hover {
+      background: #7c3aed;
+    }
+    .audio-waveform {
+      flex: 1;
+      height: 20px;
+      background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
+      border-radius: 10px;
+      opacity: 0.5;
+    }
+    .audio-duration {
+      font-size: 0.75em;
+      color: #a3aed6;
+    }
+    
+    /* WhatsApp-style read ticks */
+    .message-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      margin-left: 6px;
+      font-size: 0.85em;
+    }
+    .tick {
+      color: #94a3b8;
+      font-size: 1.1em;
+    }
+    .tick.read {
+      color: #0ea5e9;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Toggle Button -->
+  <button class="nav-toggle" id="navToggle">☰</button>
+  
+  <nav class="side-nav" id="sideNav">
+    <button onclick="history.back()" class="nav-btn btn secondary" style="font-size:1.1em;">⬅️ Back</button>
+    <a href="chat.html" class="btn secondary nav-btn active">💬 Chat</a>
+    <a href="friends.html" class="btn secondary nav-btn">👥 Friends</a>
+    <a href="groups.html" class="btn secondary nav-btn">🔗 Groups</a>
+    <a href="notifications.html" class="btn secondary nav-btn">🔔 Notifications</a>
+    <a href="profile.html" class="btn secondary nav-btn">👤 Profile</a>
+    <a href="settings.html" class="btn secondary nav-btn">⚙️ Settings</a>
+  </nav>
+
+  <div class="app" id="appContainer">
+    <aside class="card sidebar">
+      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+        <div class="muted">Current: <span id="currentShort" style="color:#fff">—</span></div>
+        <div class="controls">
+          <button class="btn secondary" id="btnProfile">Profile</button>
+          <button class="btn secondary" id="btnLogout">Logout</button>
+        </div>
+      </div>
+
+      <div class="card" style="padding:10px">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="searchUsers" placeholder="Search users..." style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit" />
+          <button class="small-action" id="btnClearSearch">Clear</button>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div class="muted">Registered Users</div>
+          <div class="badge" id="usersCount">0</div>
+        </div>
+        <div class="list" id="usersList"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div class="muted">Friend Requests</div>
+          <div class="badge" id="reqCount">0</div>
+        </div>
+        <div id="requestsList" class="list" style="max-height:150px"></div>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="btnRegentAI" style="flex:1;background:linear-gradient(135deg,#8b5cf6,#4f46e5);display:flex;align-items:center;justify-content:center;gap:6px">
+          <span>🤖</span>
+          <span>RegentAI</span>
+        </button>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="btnCreateGroup" style="flex:1">Create Group</button>
+        <button class="btn secondary" id="btnViewGroups">Groups</button>
+      </div>
+    </aside>
+
+    <main class="card main">
+      <div class="chat-header">
+        <div>
+          <div id="chatTitle" style="font-size:18px;font-weight:600">No conversation selected</div>
+          <div class="small" id="chatSubtitle">Select a friend or group to start chatting</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <label class="small" style="cursor:pointer;user-select:none">
+            Simulate AI replies
+            <input type="checkbox" id="toggleAi" style="margin-left:8px;cursor:pointer">
+          </label>
+          <div class="muted">💾 Saved locally</div>
+        </div>
+      </div>
+
+      <div class="chat-area" id="chatArea"></div>
+
+      <div class="composer">
+        <input id="msgInput" placeholder="Type a message..." />
+        <div class="audio-controls" id="audioControls" style="display:none;">
+          <span class="recording-timer" id="recordingTimer">0:00</span>
+          <button class="cancel-recording" onclick="cancelRecording()">✕ Cancel</button>
+        </div>
+        <button class="record-btn" id="recordBtn" onclick="toggleRecording()" title="Record audio">🎤</button>
+        <button class="btn" id="btnSend">Send</button>
+      </div>
+    </main>
+  </div>
+
+  <div id="modalRoot"></div>
+  <div id="componentTemplates" style="display:none"></div>
+
+  <!-- Load modules in correct order -->
+  <script src="./js/db.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/users.js"></script>
+  <script src="./js/chat.js"></script>
+  <script src="./js/groups.js"></script>
+  <script src="./js/status.js"></script>
+  <script src="./js/calls.js"></script>
+  <script src="./js/ai.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/app.js"></script>
+  <script src="./js/components.js"></script>
+
+  <script>
+    // IMPORTANT: Run navigation toggle FIRST before any other code
+    (function initNavToggle() {
+      console.log('Initializing navigation toggle for chat page');
+      
+      const navToggle = document.getElementById('navToggle');
+      const sideNav = document.getElementById('sideNav');
+      const appContainer = document.getElementById('appContainer');
+      
+      if (!navToggle || !sideNav || !appContainer) {
+        console.error('Navigation elements not found:', {navToggle, sideNav, appContainer});
+        return;
+      }
+      
+      console.log('Navigation elements found, attaching listener');
+      
+      navToggle.addEventListener('click', function() {
+        console.log('Chat navigation toggle clicked');
+        sideNav.classList.toggle('hidden');
+        appContainer.classList.toggle('expanded');
+        navToggle.textContent = sideNav.classList.contains('hidden') ? '☰' : '✕';
+      });
+      
+      console.log('Navigation toggle initialized successfully');
+    })();
+    
+    // Then run other initialization code
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM Content Loaded');
+      /* Keys - Use KEYS from db.js */
+      const KEY = KEYS;
+
+      /* Seed sample users if none */
+      function seed(){
+        let users = DB.load(KEY.USERS,[]);
+        if(users.length===0){
+          users = [
+            {id:uid(),name:'Philip',phone:'+233201234567',about:'Level 300 — CS',avatarColor:'#ef4444'},
+            {id:uid(),name:'Nana',phone:'+233245000123',about:'Robotics Club',avatarColor:'#f97316'},
+            {id:uid(),name:'Akosua',phone:'+233244999888',about:'STEMAID',avatarColor:'#06b6d4'},
+            {id:'bot_ai',name:'Regent AI',phone:'',about:'Simulated assistant',avatarColor:'#4f46e5'}
+          ];
+          DB.save(KEY.USERS,users);
+        }
+        if(!DB.load(KEY.MSGS)) DB.save(KEY.MSGS,[]);
+        if(!DB.load(KEY.REQS)) DB.save(KEY.REQS,[]);
+        if(!DB.load(KEY.GROUPS)) DB.save(KEY.GROUPS,[]);
+      }
+      seed();
+
+      /* Utilities */
+      function uid(prefix='u'){return prefix+Math.random().toString(36).slice(2,9)}
+      function qs(sel,el=document){return el.querySelector(sel)}
+      function qsa(sel,el=document){return Array.from(el.querySelectorAll(sel))}
+      function timeNow(){return new Date().toISOString()}
+      function convIdFor(u1,u2){const a=[u1,u2].sort();return `p_${a[0]}_${a[1]}`}
+
+      /* App State - Load from DB using KEYS */
+      let users = DB.load(KEYS.USERS,[]);
+      let msgs = DB.load(KEYS.MESSAGES,[]);
+      let reqs = DB.load(KEYS.REQUESTS,[]);
+      let groups = DB.load(KEYS.GROUPS,[]);
+      let currentUser = DB.load(KEYS.CURRENT_USER,null);
+      let activeConv = null;
+
+      /* DOM Elements */
+      const usersList = qs('#usersList'), requestsList=qs('#requestsList'), usersCount=qs('#usersCount');
+      const currentShort = qs('#currentShort'), chatTitle=qs('#chatTitle'), chatSubtitle=qs('#chatSubtitle');
+      const chatArea = qs('#chatArea'), msgInput=qs('#msgInput'), btnSend=qs('#btnSend'), toggleAi=qs('#toggleAi');
+      const reqCount = qs('#reqCount');
+
+      function saveAll(){
+        DB.save(KEYS.USERS,users);
+        DB.save(KEYS.MESSAGES,msgs);
+        DB.save(KEYS.REQUESTS,reqs);
+        DB.save(KEYS.GROUPS,groups);
+        DB.save(KEYS.CURRENT_USER,currentUser);
+      }
+
+      function renderUsers(filter=''){
+        usersList.innerHTML='';
+        const list = users.filter(u=>u.name.toLowerCase().includes(filter.toLowerCase()));
+        usersCount.textContent = users.length;
+        list.forEach(u=>{
+          const isFriend = currentUser && u.friends && u.friends.includes(currentUser.id);
+          const el=document.createElement('div');el.className='user-item';
+          el.innerHTML=`<div class="avatar" style="background:${u.avatarColor || '#6ee7b7'}">${u.name.slice(0,2).toUpperCase()}</div>
+            <div style="flex:1"><div class="name">${u.name} <span class="small">${u.id==='bot_ai'?'• bot':isFriend?'• friend':''}</span></div>
+            <div class="small">${u.about||u.phone||'—'}</div></div>
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+              <button class="small-action" data-action="view" data-id="${u.id}">View</button>
+              ${currentUser && currentUser.id !== u.id ? `<button class="btn" data-action="${isFriend?'message':'request'}" data-id="${u.id}" style="font-size:12px;padding:4px 8px">${isFriend?'Message':'Add'}</button>` : ''}
+            </div>`;
+          usersList.appendChild(el);
+        })
+      }
+
+      function renderRequests(){
+        requestsList.innerHTML='';
+        const myReqs = currentUser ? reqs.filter(r=>r.to===currentUser.id) : [];
+        reqCount.textContent = myReqs.length;
+        if(myReqs.length === 0){
+          requestsList.innerHTML = '<div class="muted" style="padding:8px;text-align:center">No pending requests</div>';
+          return;
+        }
+        myReqs.forEach(r=>{
+          const from = users.find(u=>u.id===r.from);
+          if(!from) return;
+          const el=document.createElement('div');el.className='user-item';
+          el.innerHTML=`<div class="avatar" style="background:${from.avatarColor}">${from.name.slice(0,2).toUpperCase()}</div>
+            <div style="flex:1"><div class="name">${from.name}</div><div class="small">${from.about||from.phone}</div></div>
+            <div style="display:flex;gap:6px"><button class="btn" data-action="accept" data-id="${r.from}" style="font-size:12px;padding:4px 8px">Accept</button>
+            <button class="small-action" data-action="reject" data-id="${r.from}">Reject</button></div>`;
+          requestsList.appendChild(el);
+        })
+      }
+
+      function updateCurrentUI(){currentShort.textContent = currentUser?currentUser.name:'—';}
+
+      function init(){renderUsers();renderRequests();updateCurrentUI();renderChatArea();}
+      init();
+
+      /* Event delegations */
+      usersList.addEventListener('click',e=>{
+        const btn = e.target.closest('button'); if(!btn) return; const action = btn.dataset.action; const id=btn.dataset.id;
+        const target = users.find(u=>u.id===id); if(!target) return;
+        if(action==='view'){ openProfileModal(target) }
+        if(action==='request'){ sendFriendRequest(id) }
+        if(action==='message'){ startPrivateChat(id) }
+      })
+
+      requestsList.addEventListener('click',e=>{
+        const btn=e.target.closest('button'); if(!btn) return; const action=btn.dataset.action; const id=btn.dataset.id;
+        if(action==='accept') acceptRequest(id); if(action==='reject') rejectRequest(id);
+      })
+
+      qs('#btnOpenAuth').addEventListener('click',()=>openAuthModal());
+      qs('#btnProfile').addEventListener('click',()=>{ if(!currentUser) return openAuthModal(); openEditProfile() });
+      qs('#btnLogout').addEventListener('click',()=>{
+        if(confirm('Are you sure you want to logout?')){
+          localStorage.removeItem('rc_remember');
+          DB.save(KEY.CUR, null);
+          window.location.href = 'login.html';
+        }
+      });
+      qs('#btnCreateGroup').addEventListener('click',()=>openCreateGroup());
+      qs('#btnViewGroups').addEventListener('click',()=>openGroupsModal());
+      qs('#searchUsers').addEventListener('input',e=>renderUsers(e.target.value));
+      qs('#btnClearSearch').addEventListener('click',()=>{qs('#searchUsers').value='';renderUsers()});
+      qs('#btnRegentAI').addEventListener('click',()=>{
+        const aiBot = users.find(u => u.id === 'bot_ai');
+        if(aiBot) {
+          startPrivateChat('bot_ai');
+        } else {
+          alert('RegentAI is not available');
+        }
+      });
+
+      /* Auth / Register */
+      function openAuthModal(){
+        const modal = document.createElement('div');modal.className='modal-backdrop'; modal.innerHTML=`
+          <div class="modal card">
+            <h3>🔐 Login or Register</h3>
+            <div style="display:flex;gap:16px;margin-top:16px">
+              <div style="flex:1">
+                <h4>Login</h4>
+                <input id="loginId" placeholder="Your username or phone" />
+                <button class="btn" id="doLogin" style="width:100%">Login</button>
+              </div>
+              <div style="flex:1">
+                <h4>Register</h4>
+                <input id="regName" placeholder="Full name" />
+                <input id="regPhone" placeholder="Phone (optional)" />
+                <button class="btn" id="doRegister" style="width:100%">Create account</button>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="small-action" id="closeModal">Close</button></div>
+          </div>`;
+        qs('#modalRoot').appendChild(modal);
+        qs('#closeModal',modal).addEventListener('click',()=>modal.remove());
+        modal.addEventListener('click',e=>{ if(e.target === modal) modal.remove() });
+        
+        qs('#doRegister',modal).addEventListener('click',()=>{
+          const name=qs('#regName',modal).value.trim(); const phone=qs('#regPhone',modal).value.trim();
+          if(!name) return alert('Please enter a name');
+          const u={id:uid(),name,phone,about:'',avatarColor:randomColor(),friends:[]}; 
+          users.push(u); currentUser = u; saveAll(); modal.remove(); renderUsers(); renderRequests(); updateCurrentUI(); openEditProfile();
+        })
+        
+        qs('#doLogin',modal).addEventListener('click',()=>{
+          const key=qs('#loginId',modal).value.trim(); if(!key) return alert('Enter username or phone');
+          const found = users.find(u=>u.name.toLowerCase()===key.toLowerCase()||u.phone===key||u.id===key);
+          if(!found) return alert('No user found. Please register first.');
+          currentUser=found; saveAll(); modal.remove(); updateCurrentUI(); renderUsers(); renderRequests();
+        })
+      }
+
+      function openEditProfile(userId){
+        const u = userId?users.find(x=>x.id===userId):currentUser; if(!u) return alert('No user');
+        const modal=document.createElement('div');modal.className='modal-backdrop'; modal.innerHTML=`<div class="modal card">
+          <h3>✏️ Profile — ${u.name}</h3>
+          <input id="pName" value="${u.name}" placeholder="Full name" />
+          <input id="pPhone" value="${u.phone||''}" placeholder="Phone number" />
+          <textarea id="pAbout" style="min-height:100px" placeholder="About / Bio">${u.about||''}</textarea>
+          <div style="display:flex;justify-content:space-between;margin-top:12px">
+            <button class="btn" id="saveProfile">💾 Save</button>
+            <button class="small-action" id="closeM">Close</button>
+          </div>
+        </div>`; qs('#modalRoot').appendChild(modal);
+        qs('#closeM',modal).addEventListener('click',()=>modal.remove());
+        modal.addEventListener('click',e=>{ if(e.target === modal) modal.remove() });
+        
+        qs('#saveProfile',modal).addEventListener('click',()=>{
+          u.name = qs('#pName',modal).value.trim(); u.phone = qs('#pPhone',modal).value.trim(); u.about = qs('#pAbout',modal).value.trim();
+          if(!u.name) return alert('Name cannot be empty');
+          users = users.map(x=>x.id===u.id?u:x); 
+          if(currentUser && currentUser.id===u.id) currentUser=u;
+          saveAll(); modal.remove(); renderUsers(); updateCurrentUI();
+        })
+      }
+
+      function openProfileModal(user){
+        const modal=document.createElement('div');modal.className='modal-backdrop'; modal.innerHTML=`<div class="modal card">
+          <div style="display:flex;gap:16px;align-items:center">
+            <div class="avatar" style="background:${user.avatarColor};width:72px;height:72px;font-size:28px">${user.name.slice(0,2).toUpperCase()}</div>
+            <div><h3 style="margin:0">${user.name}</h3><div class="small">${user.about||user.phone||'No bio'}</div></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px">
+            ${currentUser && currentUser.id !== user.id ? `<button class="btn" id="startChat">💬 Message</button>` : ''}
+            <button class="small-action" id="closeQ">Close</button>
+          </div>
+        </div>`; qs('#modalRoot').appendChild(modal);
+        qs('#closeQ',modal).addEventListener('click',()=>modal.remove());
+        modal.addEventListener('click',e=>{ if(e.target === modal) modal.remove() });
+        const chatBtn = qs('#startChat',modal);
+        if(chatBtn) chatBtn.addEventListener('click',()=>{modal.remove(); startPrivateChat(user.id) });
+      }
+
+      /* Friend Requests - Updated to use Users module */
+      function sendFriendRequest(toId){ 
+        if(!currentUser) return alert('Please login or register first'); 
+        
+        const result = Users.sendFriendRequest(currentUser.id, toId);
+        
+        if(!result.ok) return alert(result.msg);
+        
+        // Reload data
+        reqs = DB.load(KEY.REQS, []);
+        renderRequests();
+        alert('✅ ' + result.msg);
+      }
+
+      function acceptRequest(fromId){ 
+        if(!currentUser) return alert('Login first');
+        
+        // Find request ID
+        const request = reqs.find(r => r.from === fromId && r.to === currentUser.id);
+        if(!request) return alert('Request not found');
+        
+        const result = Users.acceptFriendRequest(request.id);
+        
+        if(!result.ok) return alert(result.msg);
+        
+        // Reload data
+        users = DB.load(KEYS.USERS, []);
+        currentUser = DB.load(KEYS.CURRENT_USER);
+        reqs = DB.load(KEYS.REQUESTS, []);
+        
+        renderUsers();
+        renderRequests();
+        alert('✅ ' + result.msg);
+      }
+
+      function rejectRequest(fromId){ 
+        const request = reqs.find(r => r.from === fromId && r.to === currentUser.id);
+        if(!request) return;
+        
+        Users.rejectFriendRequest(request.id);
+        
+        reqs = DB.load(KEYS.REQUESTS, []);
+        renderRequests();
+      }
+
+      function isFriend(u1,u2){
+        return Users.areFriends(u1, u2);
+      }
+
+      /* Chat */
+      function startPrivateChat(otherId){ 
+        if(!currentUser) return alert('Please login first');
+        activeConv = {type:'private', id:convIdFor(currentUser.id,otherId), other:otherId}; 
+        renderChatArea(); 
+      }
+      
+      function startGroupChat(groupId){ 
+        if(!currentUser) return alert('Please login first');
+        activeConv = {type:'group', id:`group_${groupId}`, groupId}; 
+        renderChatArea(); 
+      }
+
+      function renderChatArea(){ 
+        chatArea.innerHTML=''; 
+        if(!activeConv){ 
+          chatTitle.textContent='No conversation selected'; 
+          chatSubtitle.textContent='Select someone to chat with'; 
+          return;
+        }
+        
+        if(activeConv.type==='private'){
+          const ids = activeConv.id.split('_').slice(1); 
+          const other = ids.find(i=>i!==currentUser.id);
+          const otherUser = users.find(u=>u.id===other) || {name:'Unknown'}; 
+          
+          // Show profile picture in chat header
+          let headerHTML = '';
+          if (otherUser.avatar) {
+            headerHTML = `<div class="avatar" style="width:48px;height:48px;margin-right:12px;cursor:pointer" onclick="viewUserAvatar('${otherUser.id}')">
+              <img src="${otherUser.avatar}" alt="${otherUser.name}">
+            </div>`;
+          } else {
+            headerHTML = `<div class="avatar" style="width:48px;height:48px;margin-right:12px;background:${otherUser.avatarColor}">${otherUser.name.slice(0,2).toUpperCase()}</div>`;
+          }
+          
+          const chatHeader = document.querySelector('.chat-header');
+          if(chatHeader) {
+            chatHeader.innerHTML = `<div style="display:flex;align-items:center">
+              ${headerHTML}
+              <div>
+                <div id="chatTitle" style="font-size:18px;font-weight:600">💬 ${otherUser.name}</div>
+                <div class="small" id="chatSubtitle">${otherUser.about||otherUser.phone||'Private conversation'}</div>
+              </div>
+            </div>`;
+          }
+          
+          addCallButtons(other);
+        } else {
+          const gid = activeConv.groupId; 
+          const g = groups.find(x=>x.id===gid) || {name:'Unknown',members:[]}; 
+          chatTitle.textContent='👥 ' + g.name; 
+          chatSubtitle.textContent=`Group • ${g.members.length} members`;
+          
+          // Add call button for group
+          addGroupCallButton(gid);
+        }
+        
+        const conversationMessages = msgs.filter(m=>m.convId===activeConv.id).sort((a,b)=>new Date(a.time)-new Date(b.time));
+        
+        if(conversationMessages.length === 0){
+          const empty = document.createElement('div');
+          empty.style.cssText = 'text-align:center;padding:40px;color:var(--muted)';
+          empty.textContent = '👋 Start the conversation by sending a message!';
+          chatArea.appendChild(empty);
+        } else {
+          conversationMessages.forEach(m=>{
+            const user = users.find(u=>u.id===m.from) || {name:'?'};
+            const isMine = m.from === currentUser.id;
+            
+            const el = document.createElement('div'); 
+            el.className = 'message-row ' + (isMine?'mine':'');
+            
+            // Add avatar for received messages
+            if (!isMine && user.avatar) {
+              const avatar = document.createElement('div');
+              avatar.className = 'avatar';
+              avatar.style.width = '32px';
+              avatar.style.height = '32px';
+              avatar.style.cursor = 'pointer';
+              avatar.onclick = () => viewUserAvatar(user.id);
+              avatar.innerHTML = `<img src="${user.avatar}" alt="${user.name}">`;
+              el.appendChild(avatar);
+            } else if (!isMine) {
+              const avatar = document.createElement('div');
+              avatar.className = 'avatar';
+              avatar.style.width = '32px';
+              avatar.style.height = '32px';
+              avatar.style.background = user.avatarColor || '#6ee7b7';
+              avatar.textContent = user.name.slice(0,2).toUpperCase();
+              el.appendChild(avatar);
+            }
+            
+            const bubble = document.createElement('div'); 
+            bubble.className='bubble ' + (isMine? 'me':''); 
+            
+            // Handle different message types
+            if(m.type === 'image') {
+              bubble.innerHTML = `
+                <img src="${m.fileData}" alt="${m.fileName}" style="max-width:300px;max-height:300px;border-radius:8px;cursor:pointer" onclick="window.open('${m.fileData}')">
+                <div style="font-size:12px;margin-top:6px;opacity:0.8">${m.fileName} (${formatFileSize(m.fileSize)})</div>
+                <div class="meta">${user.name} • ${new Date(m.time).toLocaleTimeString()}</div>
+              `;
+            } else if(m.type === 'video') {
+              bubble.innerHTML = `
+                <video controls style="max-width:300px;max-height:300px;border-radius:8px">
+                  <source src="${m.fileData}" type="video/mp4">
+                  Your browser doesn't support video.
+                </video>
+                <div style="font-size:12px;margin-top:6px;opacity:0.8">${m.fileName} (${formatFileSize(m.fileSize)})</div>
+                <div class="meta">${user.name} • ${new Date(m.time).toLocaleTimeString()}</div>
+              `;
+            } else if(m.type === 'audio') {
+              bubble.innerHTML = `
+                <audio controls style="max-width:300px">
+                  <source src="${m.fileData}" type="audio/mpeg">
+                  Your browser doesn't support audio.
+                </audio>
+                <div style="font-size:12px;margin-top:6px;opacity:0.8">${m.fileName} (${formatFileSize(m.fileSize)})</div>
+                <div class="meta">${user.name} • ${new Date(m.time).toLocaleTimeString()}</div>
+              `;
+            } else if(m.type === 'file') {
+              const icon = getFileIcon(m.fileName);
+              bubble.innerHTML = `
+                <div style="display:flex;align-items:center;gap:10px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px">
+                  <div style="font-size:32px">${icon}</div>
+                  <div style="flex:1">
+                    <div style="font-weight:600">${m.fileName}</div>
+                    <div style="font-size:12px;opacity:0.8">${formatFileSize(m.fileSize)}</div>
+                  </div>
+                  <a href="${m.fileData}" download="${m.fileName}" class="btn secondary" style="font-size:12px;padding:6px 12px">📥 Download</a>
+                </div>
+                <div class="meta">${user.name} • ${new Date(m.time).toLocaleTimeString()}</div>
+              `;
+            } else {
+              // Regular text message
+              bubble.innerHTML = `<div>${escapeHtml(m.text)}</div><div class="meta">${user.name} • ${new Date(m.time).toLocaleTimeString()}</div>`;
+            }
+            
+            el.appendChild(bubble); 
+            chatArea.appendChild(el);
+          })
+        }
+        
+        chatArea.scrollTop = chatArea.scrollHeight;
+      }
+
+      // Add call buttons to chat header
+      function addCallButtons(userId) {
+        const existingButtons = document.querySelector('.call-buttons');
+        if(existingButtons) existingButtons.remove();
+        
+        const callButtons = document.createElement('div');
+        callButtons.className = 'call-buttons';
+        callButtons.style.cssText = 'display:flex;gap:8px;align-items:center';
+        
+        const btnCall = document.createElement('button');
+        btnCall.className = 'btn secondary';
+        btnCall.innerHTML = '📞 Call';
+        btnCall.onclick = () => initiateCall(userId, false);
+        
+        const btnVideoCall = document.createElement('button');
+        btnVideoCall.className = 'btn secondary';
+        btnVideoCall.innerHTML = '📹 Video';
+        btnVideoCall.onclick = () => initiateCall(userId, true);
+        
+        callButtons.appendChild(btnCall);
+        callButtons.appendChild(btnVideoCall);
+        
+        const chatHeader = document.querySelector('.chat-header');
+        if(chatHeader) chatHeader.appendChild(callButtons);
+      }
+
+      async function initiateCall(userId, isVideo) {
+        const otherUser = users.find(u => u.id === userId);
+        if(!otherUser) return alert('User not found');
+        
+        currentCall = {
+          to: userId,
+          from: currentUser.id,
+          isVideo: isVideo,
+          status: 'calling'
+        };
+        
+        // Show call modal
+        document.getElementById('callModal').style.display = 'flex';
+        document.getElementById('callIcon').textContent = isVideo ? '📹' : '📞';
+        document.getElementById('callTitle').textContent = `Calling ${otherUser.name}...`;
+        document.getElementById('callSubtitle').textContent = isVideo ? 'Video Call' : 'Voice Call';
+        document.getElementById('callStatus').textContent = '⏳ Requesting media permissions...';
+        
+        try {
+          // Get media stream
+          localStream = await navigator.mediaDevices.getUserMedia({
+            video: isVideo ? { width: 1280, height: 720 } : false,
+            audio: true
+          });
+          
+          document.getElementById('callStatus').textContent = '📞 Ringing...';
+          
+          if(isVideo) {
+            document.getElementById('videoContainer').style.display = 'block';
+            document.getElementById('localVideo').srcObject = localStream;
+            document.getElementById('btnToggleVideo').style.display = 'inline-block';
+          }
+          
+          document.getElementById('btnToggleMute').style.display = 'inline-block';
+          
+          // Create peer connection
+          peerConnection = new RTCPeerConnection(configuration);
+          
+          // Add local stream
+          localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
+          });
+          
+          // Handle remote stream
+          peerConnection.ontrack = (event) => {
+            const remoteStream = event.streams[0];
+            if(isVideo) {
+              document.getElementById('remoteVideo').srcObject = remoteStream;
+            } else {
+              document.getElementById('remoteAudio').srcObject = remoteStream;
+            }
+            document.getElementById('callStatus').textContent = '✅ Connected';
+            currentCall.status = 'connected';
+          };
+          
+          // Handle ICE candidates
+          peerConnection.onicecandidate = (event) => {
+            if(event.candidate) {
+              // In real app, send to other peer via signaling server
+              console.log('ICE Candidate:', event.candidate);
+            }
+          };
+          
+          // Simulate call for demo (in real app, send via WebSocket)
+          simulateIncomingCallForDemo(userId, isVideo);
+          
+        } catch(error) {
+          console.error('Error accessing media devices:', error);
+          document.getElementById('callStatus').textContent = '❌ Failed to access camera/microphone';
+          alert('Could not access camera/microphone. Please check permissions.');
+        }
+      }
+
+      // Simulate incoming call notification (for demo purposes)
+      function simulateIncomingCallForDemo(userId, isVideo) {
+        setTimeout(() => {
+          if(currentCall && currentCall.status === 'calling') {
+            // Simulate answer after 2 seconds
+            document.getElementById('callStatus').textContent = '✅ Call connected! (Demo mode)';
+            currentCall.status = 'connected';
+            
+            // In real app, this would happen when other peer accepts
+            alert('📞 Call simulation: In production, this would connect to the other user via WebRTC signaling server.');
+          }
+        }, 2000);
+      }
+
+      // Toggle video
+      document.getElementById('btnToggleVideo').onclick = function() {
+        if(!localStream) return;
+        const videoTrack = localStream.getVideoTracks()[0];
+        if(videoTrack) {
+          videoTrack.enabled = !videoTrack.enabled;
+          this.textContent = videoTrack.enabled ? '📹 Camera' : '📹 Camera Off';
+          this.style.background = videoTrack.enabled ? '' : '#ef4444';
+        }
+      };
+
+      // Toggle mute
+      document.getElementById('btnToggleMute').onclick = function() {
+        if(!localStream) return;
+        const audioTrack = localStream.getAudioTracks()[0];
+        if(audioTrack) {
+          audioTrack.enabled = !audioTrack.enabled;
+          this.textContent = audioTrack.enabled ? '🎤 Mute' : '🎤 Unmuted';
+          this.style.background = audioTrack.enabled ? '' : '#ef4444';
+        }
+      };
+
+      // End call
+      document.getElementById('btnEndCall').onclick = function() {
+        endCall();
+      };
+
+      function endCall() {
+        // Stop all tracks
+        if(localStream) {
+          localStream.getTracks().forEach(track => track.stop());
+          localStream = null;
+        }
+        
+        // Close peer connection
+        if(peerConnection) {
+          peerConnection.close();
+          peerConnection = null;
+        }
+        
+        // Hide modal
+        document.getElementById('callModal').style.display = 'none';
+        document.getElementById('videoContainer').style.display = 'none';
+        document.getElementById('btnToggleVideo').style.display = 'none';
+        document.getElementById('btnToggleMute').style.display = 'none';
+        
+        currentCall = null;
+      }
+
+      // Handle group calls
+      function addGroupCallButton(groupId) {
+        const existingButton = document.querySelector('.group-call-button');
+        if(existingButton) existingButton.remove();
+        
+        const btnGroupCall = document.createElement('button');
+        btnGroupCall.className = 'btn secondary group-call-button';
+        btnGroupCall.innerHTML = '📞 Group Call';
+        btnGroupCall.onclick = () => {
+          alert('🎥 Group calls require a signaling server. This feature will be available when you deploy with a backend (WebSocket server).');
+        };
+        
+        const chatHeader = document.querySelector('.chat-header');
+        if(chatHeader) chatHeader.appendChild(btnGroupCall);
+      }
+    });
+  </script>
+
+  <!-- Add RegentAI modal markup just before </body> -->
+  <div id="regentAiModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+    <div style="background:#181c2a;max-width:400px;width:95vw;border-radius:16px;box-shadow:0 8px 32px #000;padding:0 0 16px 0;display:flex;flex-direction:column;min-height:420px;max-height:90vh;">
+      <div style="display:flex;align-items:center;gap:10px;padding:18px 18px 10px 18px;">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;">🤖</div>
+        <div>
+          <div style="font-weight:600;font-size:18px;">RegentAI</div>
+          <div style="font-size:13px;color:#a3aed6;">Ask me anything about campus, study, or tech!</div>
+        </div>
+        <button onclick="closeRegentAiModal()" style="margin-left:auto;background:none;border:none;font-size:22px;color:#a3aed6;cursor:pointer;">&times;</button>
+      </div>
+      <div id="regentAiMessages" style="flex:1;overflow-y:auto;padding:0 18px 0 18px;display:flex;flex-direction:column;gap:12px;"></div>
+      <form id="regentAiForm" style="display:flex;gap:8px;padding:12px 18px 0 18px;">
+        <input id="regentAiInput" autocomplete="off" placeholder="Type your  question..." style="flex:1;padding:12px 14px;border-radius:8px;border:1px solid #353b50;background:#23263a;color:#fff;font-size:15px;" />
+        <button type="submit" style="background:linear-gradient(135deg,#8b5cf6,#4f46e5);color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:15px;font-weight:600;cursor:pointer;">Send</button>
+      </form>
+    </div>
+  </div>
+  <style>
+    .ai-msg-user {align-self:flex-end;background:#4f46e5;color:#fff;padding:10px 14px;border-radius:10px;max-width:80%;font-size:15px;}
+    .ai-msg-ai {align-self:flex-start;background:#23263a;color:#e0e7ef;padding:10px 14px;border-radius:10px;max-width:80%;font-size:15px;}
+    @media (max-width:600px) {
+      #regentAiModal > div {max-width:98vw;}
+    }
+  </style>
+  <script>
+    // RegentAI modal logic
+    function openRegentAiModal() {
+      document.getElementById('regentAiModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('regentAiInput').focus(), 200);
+    }
+
+    function closeRegentAiModal() {
+      document.getElementById('regentAiModal').style.display = 'none';
+    }
+    // Attach to button
+    document.getElementById('btnRegentAI').onclick = openRegentAiModal;
+    document.getElementById('regentAiForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const input = document.getElementById('regentAiInput');
+      const sendBtn = document.getElementById('regentAiForm').querySelector('button[type="submit"]');
+      const msg = input.value.trim();
+      if(!msg) return;
+      
+      // Add button ID if not exists
+      if(!sendBtn.id) sendBtn.id = 'regentAiSendBtn';
+      
+      // Disable button and show sending state
+      sendBtn.disabled = true;
+      sendBtn.classList.add('sending');
+      const originalText = sendBtn.textContent;
+      sendBtn.textContent = '...';
+      
+      addAiMessage(msg, 'user');
+      input.value = '';
+      addAiMessage('<span style="opacity:.6">RegentAI is typing...</span>', 'ai', true);
+      
+      let reply = await getFallbackAiReply(msg);
+      const shouldSearchExternal = reply === "🤖 I'm here to help with campus, study, or tech questions! Ask me about Regent University, people, events, or anything else you'd like to know.";
+      
+      if (shouldSearchExternal) {
+        reply = await searchExternalSources(msg);
+      }
+      
+      removeAiTyping();
+      addAiMessage(reply, 'ai');
+      
+      // Show success state
+      sendBtn.classList.remove('sending');
+      sendBtn.classList.add('success');
+      sendBtn.textContent = '✓ Sent';
+      
+      // Reset button
+      setTimeout(() => {
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('success');
+        sendBtn.textContent = originalText;
+      }, 1500);
+    };
+    function addAiMessage(text, who, isTyping) {
+      const box = document.getElementById('regentAiMessages');
+      const div = document.createElement('div');
+      div.className = who === 'user' ? 'ai-msg-user' : 'ai-msg-ai';
+      if(isTyping) div.style.opacity = '.7';
+      div.dataset.typing = isTyping ? '1' : '';
+      div.innerHTML = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+    function removeAiTyping() {
+      const box = document.getElementById('regentAiMessages');
+      const typing = box.querySelector('[data-typing="1"]');
+      if(typing) typing.remove();
+    }
+
+    // RegentAI Knowledge Base - Enhanced with courses information
+    window.RegentAI_KB = [
+      {
+        keywords: ['courses', 'programs', 'study', 'degree', 'what courses', 'what programs', 'majors', 'disciplines'],
+        a: `🎓 Regent University College of Science and Technology offers various programs including:\n\n<strong>Engineering & Technology:</strong>\n• Computer Engineering\n• Electrical & Electronics Engineering\n• Mechanical Engineering\n• Information Technology\n\n<strong>Business & Management:</strong>\n• Business Administration\n• Accounting\n• Marketing\n• Human Resource Management\n\n<strong>Sciences:</strong>\n• Computer Science\n• Applied Mathematics\n• Data Science\n\nFor the complete list of programs, admission requirements, and course details, please visit <a href="https://regent.edu.gh" target="_blank" style="color:#8b5cf6;font-weight:600;">regent.edu.gh</a> 📚`
+      }
+    ];
+
+    // Improved fallback to match keywords, not just exact regex
+    async function getFallbackAiReply(msg) {
+      if (window.RegentAI_KB) {
+        const lowerMsg = msg.toLowerCase();
+        for (const entry of RegentAI_KB) {
+          if (entry.keywords.some(keyword => lowerMsg.includes(keyword))) {
+            return entry.a;
+          }
+        }
+      }
+      const m = msg.toLowerCase();
+      if(m.includes('how are you')||m.includes('how r u')||m.includes('how do you do')) {
+        return "😊 I'm doing great, thank you for asking! Even though I'm not human, I'm here and ready to help you. How are you doing today?";
+      }
+      if(m.includes('fine')||m.includes('good')||m.includes('great')||m.includes('well')||m.includes('ok')||m.includes('okay')) {
+        return "😊 That's wonderful to hear! How can I assist you today? Feel free to ask me about Regent University, campus life, or anything else!";
+      }
+      if(m.includes('not good')||m.includes('bad')||m.includes('sad')||m.includes('not well')) {
+        return "😔 I'm sorry to hear that. I'm here if you need someone to talk to or if I can help with anything. What's on your mind?";
+      }
+      if(m.includes('hi')||m.includes('hello')||m.includes('hey')) return "👋 Hi there! How are you doing today? I'm RegentAI, your friendly campus assistant. Ask me anything!";
+      if(m.includes('who are you')||m.includes('what are you')) return "🤖 I'm RegentAI, your virtual assistant for Regent University! I'm here to help you with information about campus, people, events, and more. I can also search external sources if needed. How can I help you today?";
+      if(m.includes('thank')||m.includes('thanks')) return "😊 You're very welcome! Happy to help. Is there anything else you'd like to know?";
+      if(m.includes('bye')||m.includes('goodbye')||m.includes('see you')) return "👋 Goodbye! Take care and have a wonderful day. Feel free to come back anytime you need help!";
+      if(m.includes('project')) return "🚀 Try building a web chat app using LocalStorage! It's a great learning project.";
+      if(m.includes('club')) return "🎓 There are many clubs at Regent: Robotics, Coding, Debate, and more! Which one interests you?";
+      if(m.includes('exam')||m.includes('study')) return "📚 Study tip: Make a schedule, take regular breaks, and don't forget to stay hydrated! You've got this! 💪";
+      return "🤖 I'm here to help with campus, study, or tech questions! Ask me about Regent University, people, events, or anything else you'd like to know.";
+    }
+  </script>
+
+  <!-- Add Call Modal before </body> -->
+  <div id="callModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.9);align-items:center;justify-content:center;">
+    <div style="background:#1e293b;max-width:600px;width:95vw;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.8);padding:24px;text-align:center;">
+      <div style="font-size:64px;margin-bottom:16px" id="callIcon">📞</div>
+      <h2 id="callTitle" style="margin:0 0 8px 0;color:#fff">Calling...</h2>
+      <p id="callSubtitle" style="color:#94a3b8;margin:0 0 24px 0">Connecting...</p>
+      
+      <!-- Video elements -->
+      <div id="videoContainer" style="display:none;margin-bottom:20px">
+        <video id="remoteVideo" autoplay playsinline style="width:100%;max-height:400px;border-radius:12px;background:#000"></video>
+        <video id="localVideo" autoplay playsinline muted style="position:absolute;bottom:80px;right:40px;width:150px;height:100px;border-radius:8px;background:#000;border:2px solid #8b5cf6"></video>
+      </div>
+      
+      <!-- Audio element -->
+      <audio id="remoteAudio" autoplay></audio>
+      
+      <!-- Call controls -->
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button id="btnAcceptCall" class="btn" style="background:#10b981;display:none">✅ Accept</button>
+        <button id="btnToggleVideo" class="btn secondary" style="display:none">📹 Camera</button>
+        <button id="btnToggleMute" class="btn secondary" style="display:none">🎤 Mute</button>
+        <button id="btnEndCall" class="btn" style="background:#ef4444">❌ End Call</button>
+      </div>
+      
+      <div id="callStatus" style="margin-top:16px;font-size:13px;color:#94a3b8"></div>
+    </div>
+  </div>
+
+  <script>
+  // WebRTC Call System
+  let peerConnection = null;
+  let localStream = null;
+  let currentCall = null;
+
+  const configuration = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
+    ]
+  };
+
+  /* File/Video Sharing */
+  const fileInput = document.querySelector('#fileInput');
+  const btnAttach = document.querySelector('#btnAttach');
+
+  if(btnAttach && fileInput) {
+    btnAttach.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', async function(e) {
+      const files = Array.from(e.target.files);
+      if(!files.length) return;
+      if(!activeConv) return alert('Please select a conversation first');
+      if(!currentUser) return alert('Please login first');
+      
+      for(const file of files) {
+        // Check file size (max 5MB for LocalStorage)
+        if(file.size > 5 * 1024 * 1024) {
+          alert(`File "${file.name}" is too large. Max size: 5MB`);
+          continue;
+        }
+        
+        // Show uploading indicator
+        const uploadingMsg = {
+          id: uid('m'),
+          convId: activeConv.id,
+          from: currentUser.id,
+          text: `📤 Uploading ${file.name}...`,
+          time: timeNow(),
+          type: 'uploading'
+        };
+        msgs.push(uploadingMsg);
+        renderChatArea();
+        
+        // Read file as base64
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          // Remove uploading message
+          msgs = msgs.filter(m => m.id !== uploadingMsg.id);
+          
+          // Determine file type
+          let fileType = 'file';
+          if(file.type.startsWith('image/')) fileType = 'image';
+          if(file.type.startsWith('video/')) fileType = 'video';
+          if(file.type.startsWith('audio/')) fileType = 'audio';
+          
+          // Create message with file
+          const msg = {
+            id: uid('m'),
+            convId: activeConv.id,
+            from: currentUser.id,
+            text: file.name,
+            time: timeNow(),
+            type: fileType,
+            fileData: event.target.result,
+            fileName: file.name,
+            fileSize: file.size
+          };
+          
+          msgs.push(msg);
+          saveAll();
+          renderChatArea();
+        };
+        reader.readAsDataURL(file);
+      }
+      
+      fileInput.value = ''; // Reset input
+    });
+  }
+
+  /* Utility functions */
+  function formatFileSize(bytes) {
+    if(bytes < 1024) return bytes + ' B';
+    if(bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function getFileIcon(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const icons = {
+      pdf: '📄', doc: '📝', docx: '📝', txt: '📝',
+      xls: '📊', xlsx: '📊', csv: '📊',
+      ppt: '📽️', pptx: '📽️',
+      zip: '🗜️', rar: '🗜️', '7z': '🗜️',
+      jpg: '🖼️', jpeg: '🖼️', png: '🖼️', gif: '🖼️',
+      mp4: '🎥', avi: '🎥', mov: '🎥',
+      mp3: '🎵', wav: '🎵', flac: '🎵',
+      html: '🌐', css: '🎨', js: '⚡', json: '📋'
+    };
+    return icons[ext] || '📎';
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Call modal animations
+  const callModalStyle = document.createElement('style');
+  callModalStyle.textContent = `
+    #callModal {
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    #callIcon {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    #localVideo {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+  `;
+  document.head.appendChild(callModalStyle);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,228 @@
+/* Chat page specific styles */
+.chat-page {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Message animations */
+@keyframes messageSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.message-row {
+  animation: messageSlide 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+/* Typing indicator animation */
+.typing-indicator .dot {
+  animation: typingBounce 1.4s infinite ease-in-out;
+}
+
+.typing-indicator .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingBounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Voice recording animation */
+.btn.recording {
+  animation: recordPulse 1s infinite;
+}
+
+@keyframes recordPulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+/* Chat bubble hover effect */
+.bubble {
+  transition: transform 0.2s;
+}
+
+.bubble:hover {
+  transform: translateY(-2px);
+}
+
+/* Message status indicators */
+.message-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.message-status.sent::before {
+  content: '✓';
+}
+
+.message-status.delivered::before {
+  content: '✓✓';
+}
+
+.message-status.read::before {
+  content: '✓✓';
+  color: var(--accent);
+}
+
+/* File attachment preview */
+.attachment-preview {
+  max-width: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.attachment-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Voice message player */
+.voice-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+}
+
+.voice-message button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.voice-waveform {
+  flex: 1;
+  height: 32px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, rgba(255,255,255,0.1) 50%);
+  border-radius: 4px;
+}
+
+/* Online status indicator */
+.online-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--success);
+  border: 2px solid var(--bg);
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.online-indicator.offline {
+  background: var(--muted);
+}
+
+/* Chat search highlight */
+.search-highlight {
+  background: rgba(245, 158, 11, 0.3);
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+/* Emoji picker placeholder */
+.emoji-picker {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  background: linear-gradient(180deg, rgba(15,23,36,0.98), rgba(11,18,32,0.98));
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 8px;
+}
+
+/* Mentions in messages */
+.mention {
+  color: var(--accent);
+  font-weight: 600;
+  background: rgba(79, 70, 229, 0.1);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+/* Link preview */
+.link-preview {
+  margin-top: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent);
+}
+
+.link-preview-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.link-preview-description {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Message reactions */
+.message-reactions {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.reaction {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.reaction:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.reaction.active {
+  background: rgba(79, 70, 229, 0.2);
+  border: 1px solid var(--accent);
+}

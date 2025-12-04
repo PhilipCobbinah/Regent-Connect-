@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Call</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    .call-page { height: 100vh; overflow: hidden; background: linear-gradient(180deg, #0a0e1a 0%, #050810 100%); display: flex; align-items: center; justify-content: center; }
+    .call-ui { width: 90%; max-width: 800px; background: linear-gradient(180deg,rgba(15,23,36,0.95),rgba(11,18,32,0.95)); border-radius: 24px; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.06); text-align: center; }
+    
+    .call-header { margin-bottom: 32px; }
+    .avatar-lg { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg,#eab308,#ef4444); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 48px; border: 5px solid rgba(255,255,255,0.1); margin-bottom: 16px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    .call-header h2 { margin: 0; font-size: 28px; margin-bottom: 8px; }
+    
+    .call-status { font-size: 16px; color: var(--muted); margin-top: 8px; }
+    .call-status.connected { color: var(--success); }
+    
+    .video-container { background: #000; border-radius: 16px; min-height: 400px; margin: 24px 0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .video-placeholder { color: var(--muted); font-size: 18px; }
+    .local-video { position: absolute; bottom: 16px; right: 16px; width: 180px; height: 120px; background: linear-gradient(135deg,rgba(79,70,229,0.3),rgba(6,182,212,0.3)); border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--muted); }
+    
+    .call-controls { display: flex; gap: 16px; justify-content: center; margin: 24px 0; }
+    .call-controls button { width: 64px; height: 64px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; transition: all .2s; background: rgba(255,255,255,0.08); color: white; }
+    .call-controls button:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
+    .call-controls button.active { background: var(--accent); }
+    .call-controls button.danger { background: #ef4444; }
+    .call-controls button.danger:hover { background: #dc2626; }
+    
+    .call-duration { font-size: 24px; font-weight: 600; color: var(--success); margin: 16px 0; font-variant-numeric: tabular-nums; }
+    
+    .call-footer { margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.02); border-radius: 12px; font-size: 13px; color: var(--muted); }
+    
+    .participants { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 16px 0; }
+    .participant { padding: 8px 16px; background: rgba(255,255,255,0.04); border-radius: 999px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    .participant .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+  </style>
+</head>
+<body class="call-page">
+  <div id="callUI" class="call-ui">
+    <div class="call-header">
+      <div class="avatar-lg" id="callAvatar">?</div>
+      <h2 id="callName">Calling...</h2>
+      <div id="callStatus" class="call-status">🔄 Connecting...</div>
+      <div id="callDuration" class="call-duration" style="display:none">00:00</div>
+    </div>
+
+    <div id="participants" class="participants" style="display:none"></div>
+
+    <div id="callVideoContainer" class="video-container">
+      <div class="video-placeholder" id="videoPlaceholder">📞 Audio Call</div>
+      <div class="local-video" id="localVideo" style="display:none">📷 You (Camera Off)</div>
+    </div>
+
+    <div class="call-controls">
+      <button id="toggleMic" title="Microphone" class="active">🎙</button>
+      <button id="toggleCam" title="Camera">📷</button>
+      <button id="toggleScreen" title="Share Screen">🖥️</button>
+      <button id="endCall" class="danger" title="End Call">📵</button>
+    </div>
+
+    <div class="call-footer">
+      <p>📞 Call simulation — Real voice/video calls require WebRTC signaling & STUN/TURN servers</p>
+      <p style="margin-top:8px;font-size:12px">This is a demo interface. Click "End Call" to return.</p>
+    </div>
+  </div>
+
+  <script>
+  /* Database helpers */
+  const DB = {
+    load(key, defaultVal){try{const v=localStorage.getItem(key);return v?JSON.parse(v):defaultVal}catch(e){return defaultVal}},
+    save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+  }
+  const KEY = {USERS:'rc_users',CUR:'rc_currentUser'}
+  
+  let currentUser = DB.load(KEY.CUR,null);
+  let users = DB.load(KEY.USERS,[]);
+  
+  // Call state
+  let micActive = true;
+  let camActive = false;
+  let screenActive = false;
+  let callStartTime = null;
+  let durationInterval = null;
+  
+  /* Parse URL parameters */
+  const params = new URLSearchParams(location.search);
+  const userId = params.get('userId');
+  const groupId = params.get('groupId');
+  const isGroupCall = !!groupId;
+  
+  /* Initialize call UI */
+  function initCall(){
+    if(isGroupCall){
+      document.getElementById('callName').textContent = 'Group Call';
+      document.getElementById('callAvatar').textContent = '👥';
+      showParticipants();
+    } else if(userId){
+      const user = users.find(u => u.id === userId) || {name:'Friend', avatarColor:'#6ee7b7'};
+      document.getElementById('callName').textContent = user.name;
+      document.getElementById('callAvatar').textContent = user.name.slice(0,2).toUpperCase();
+      document.getElementById('callAvatar').style.background = user.avatarColor;
+    } else {
+      document.getElementById('callName').textContent = 'Unknown Caller';
+    }
+    
+    // Simulate connection
+    setTimeout(() => {
+      document.getElementById('callStatus').textContent = '✅ Connected';
+      document.getElementById('callStatus').classList.add('connected');
+      startCallDuration();
+    }, 2000);
+  }
+  
+  /* Show participants for group call */
+  function showParticipants(){
+    const container = document.getElementById('participants');
+    container.style.display = 'flex';
+    
+    // Simulate 3 participants
+    const participantNames = ['You', 'Philip', 'Nana', 'Akosua'];
+    participantNames.slice(0, 3).forEach(name => {
+      const div = document.createElement('div');
+      div.className = 'participant';
+      div.innerHTML = `<span class="status-dot"></span>${name}`;
+      container.appendChild(div);
+    });
+  }
+  
+  /* Call duration timer */
+  function startCallDuration(){
+    callStartTime = Date.now();
+    document.getElementById('callDuration').style.display = 'block';
+    
+    durationInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+      const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+      const secs = (elapsed % 60).toString().padStart(2, '0');
+      document.getElementById('callDuration').textContent = `${mins}:${secs}`;
+    }, 1000);
+  }
+  
+  /* Toggle microphone */
+  document.getElementById('toggleMic').addEventListener('click', (e) => {
+    micActive = !micActive;
+    const btn = e.currentTarget;
+    if(micActive){
+      btn.classList.add('active');
+      btn.textContent = '🎙';
+    } else {
+      btn.classList.remove('active');
+      btn.textContent = '🎙';
+      btn.style.textDecoration = 'line-through';
+    }
+  });
+  
+  /* Toggle camera */
+  document.getElementById('toggleCam').addEventListener('click', (e) => {
+    camActive = !camActive;
+    const btn = e.currentTarget;
+    const placeholder = document.getElementById('videoPlaceholder');
+    const localVideo = document.getElementById('localVideo');
+    
+    if(camActive){
+      btn.classList.add('active');
+      placeholder.textContent = '📹 Video Call';
+      localVideo.style.display = 'flex';
+      localVideo.textContent = '📷 You';
+      localVideo.style.background = 'linear-gradient(135deg,rgba(79,70,229,0.5),rgba(6,182,212,0.5))';
+    } else {
+      btn.classList.remove('active');
+      placeholder.textContent = '📞 Audio Call';
+      localVideo.style.display = 'none';
+    }
+  });
+  
+  /* Toggle screen share */
+  document.getElementById('toggleScreen').addEventListener('click', (e) => {
+    screenActive = !screenActive;
+    const btn = e.currentTarget;
+    const placeholder = document.getElementById('videoPlaceholder');
+    
+    if(screenActive){
+      btn.classList.add('active');
+      placeholder.textContent = '🖥️ Screen Sharing Active';
+    } else {
+      btn.classList.remove('active');
+      placeholder.textContent = camActive ? '📹 Video Call' : '📞 Audio Call';
+    }
+  });
+  
+  /* End call */
+  document.getElementById('endCall').addEventListener('click', () => {
+    if(durationInterval) clearInterval(durationInterval);
+    
+    // Show ending animation
+    document.getElementById('callStatus').textContent = '📵 Call Ended';
+    document.getElementById('callStatus').classList.remove('connected');
+    
+    setTimeout(() => {
+      // Return to appropriate page
+      if(isGroupCall){
+        window.location.href = 'groups.html?id=' + groupId;
+      } else if(userId){
+        window.location.href = 'chat.html';
+      } else {
+        window.location.href = 'dashboard.html';
+      }
+    }, 1500);
+  });
+  
+  /* Initialize */
+  initCall();
+  
+  /* Handle page close */
+  window.addEventListener('beforeunload', () => {
+    if(durationInterval) clearInterval(durationInterval);
+  });
+  
+  console.log('📞 Call page loaded successfully!');
+  </script>
+</body>
+</html>

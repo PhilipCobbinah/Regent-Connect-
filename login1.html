@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Login / Register</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#4f46e5;--success:#10b981}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    html,body{height:100%;background:linear-gradient(180deg,#071126 0%, #071b2a 100%);color:#e6eef8}
+    .auth-page{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+    .auth-container{width:100%;max-width:440px}
+    .brand{text-align:center;margin-bottom:32px}
+    .logo{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;color:white;margin-bottom:16px}
+    .brand h1{font-size:28px;margin-bottom:8px}
+    .tag{color:var(--muted);font-size:14px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;padding:32px;box-shadow:0 8px 24px rgba(2,6,23,0.7);border:1px solid rgba(255,255,255,0.04)}
+    .card h2{font-size:22px;margin-bottom:24px}
+    form label{display:block;margin-bottom:16px;font-size:14px;font-weight:500}
+    form input{width:100%;padding:12px;margin-top:6px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff;font-size:14px}
+    form input:focus{outline:none;border-color:var(--accent)}
+    .row{display:flex;align-items:center}
+    .row.between{justify-content:space-between;margin-bottom:20px}
+    .checkbox{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}
+    .checkbox input{width:auto;margin:0}
+    a{color:var(--accent);text-decoration:none;font-size:13px}
+    a:hover{text-decoration:underline}
+    .btn{width:100%;padding:12px;border-radius:10px;border:none;background:var(--accent);color:white;font-weight:600;cursor:pointer;transition:background .2s}
+    .btn:hover{background:#4338ca}
+    .auth-footer{text-align:center;margin-top:24px;font-size:13px;color:var(--muted)}
+    .error-msg{background:#ef4444;color:white;padding:12px;border-radius:8px;margin-bottom:16px;font-size:14px;animation:slideIn .3s}
+    .success-msg{background:var(--success);color:white;padding:12px;border-radius:8px;margin-bottom:16px;font-size:14px;animation:slideIn .3s}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+  </style>
+</head>
+<body class="auth-page">
+  <main class="auth-container">
+    <div class="brand">
+      <div class="logo">RC</div>
+      <h1>Regent Connect</h1>
+      <p class="tag">Chat. Learn. Connect.</p>
+    </div>
+
+    <section class="auth-cards">
+      <div class="card login-card" id="loginCard">
+        <h2>Welcome back</h2>
+        <div id="loginError"></div>
+        <form id="loginForm">
+          <label>Username, Email or Phone
+            <input type="text" id="loginIdentifier" placeholder="Enter your identifier" required autofocus>
+          </label>
+          <label>Password
+            <input type="password" id="loginPassword" placeholder="Enter password" required>
+          </label>
+          <div class="row between">
+            <label class="checkbox">
+              <input type="checkbox" id="remember"> Remember me
+            </label>
+            <a href="#" id="showRegister">Create account</a>
+          </div>
+          <button type="submit" class="btn primary">Sign in</button>
+        </form>
+      </div>
+
+      <div class="card register-card" id="registerCard" hidden>
+        <h2>Create account</h2>
+        <div id="registerError"></div>
+        <form id="registerForm">
+          <label>Full name
+            <input type="text" id="regName" placeholder="Enter your full name" required>
+          </label>
+          <label>Phone or Email
+            <input type="text" id="regIdentifier" placeholder="+233 or email@example.com" required>
+          </label>
+          <label>Password
+            <input type="password" id="regPassword" placeholder="Create password (min 6 chars)" required>
+          </label>
+          <label>Bio (optional)
+            <input type="text" id="regBio" placeholder="Tell us about yourself">
+          </label>
+          <div class="row between">
+            <a href="#" id="showLogin">Back to login</a>
+            <button type="submit" class="btn primary">Register</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <footer class="auth-footer">
+      <small>By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy</a>.</small>
+    </footer>
+  </main>
+
+  <script>
+    /* ====== Database helpers (shared with chat.html) ====== */
+    const DB = {
+      load(key, defaultVal){try{const v=localStorage.getItem(key);return v?JSON.parse(v):defaultVal}catch(e){return defaultVal}},
+      save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+    };
+    const KEY = {USERS:'rc_users',CUR:'rc_currentUser',REQS:'rc_reqs',MSGS:'rc_msgs',GROUPS:'rc_groups'};
+
+    /* Utilities */
+    function uid(prefix='u'){return prefix+Math.random().toString(36).slice(2,9)}
+    function randomColor(){ 
+      const colors=['#ef4444','#f97316','#06b6d4','#10b981','#8b5cf6','#ef6b8a','#f59e0b','#eab308']; 
+      return colors[Math.floor(Math.random()*colors.length)] 
+    }
+
+    /* Seed data if needed */
+    function seed(){
+      let users = DB.load(KEY.USERS,[]);
+      if(users.length===0){
+        users = [
+          {id:uid(),name:'Philip',phone:'+233201234567',password:'demo123',about:'Level 300 — CS',avatarColor:'#ef4444',friends:[]},
+          {id:uid(),name:'Nana',phone:'+233245000123',password:'demo123',about:'Robotics Club',avatarColor:'#f97316',friends:[]},
+          {id:uid(),name:'Akosua',phone:'+233244999888',password:'demo123',about:'STEMAID',avatarColor:'#06b6d4',friends:[]},
+          {id:'bot_ai',name:'Regent AI',phone:'',password:'',about:'Simulated assistant',avatarColor:'#4f46e5',friends:[]}
+        ];
+        DB.save(KEY.USERS,users);
+      }
+      if(!DB.load(KEY.MSGS)) DB.save(KEY.MSGS,[]);
+      if(!DB.load(KEY.REQS)) DB.save(KEY.REQS,[]);
+      if(!DB.load(KEY.GROUPS)) DB.save(KEY.GROUPS,[]);
+    }
+    seed();
+
+    /* Error/Success display */
+    function showError(containerId, message){
+      const container = document.getElementById(containerId);
+      container.innerHTML = `<div class="error-msg">❌ ${message}</div>`;
+      setTimeout(()=>container.innerHTML='', 5000);
+    }
+
+    function showSuccess(containerId, message){
+      const container = document.getElementById(containerId);
+      container.innerHTML = `<div class="success-msg">✅ ${message}</div>`;
+    }
+
+    /* Toggle forms */
+    document.getElementById('showRegister').addEventListener('click', (e)=>{
+      e.preventDefault();
+      document.getElementById('loginCard').hidden = true;
+      document.getElementById('registerCard').hidden = false;
+      document.getElementById('regName').focus();
+    });
+
+    document.getElementById('showLogin').addEventListener('click', (e)=>{
+      e.preventDefault();
+      document.getElementById('loginCard').hidden = false;
+      document.getElementById('registerCard').hidden = true;
+      document.getElementById('loginIdentifier').focus();
+    });
+
+    /* Login handler */
+    document.getElementById('loginForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const identifier = document.getElementById('loginIdentifier').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const remember = document.getElementById('remember').checked;
+
+      if(!identifier || !password){
+        return showError('loginError', 'Please fill all fields');
+      }
+
+      let users = DB.load(KEY.USERS,[]);
+      const user = users.find(u=>
+        u.name.toLowerCase()===identifier.toLowerCase() ||
+        u.phone===identifier ||
+        u.id===identifier
+      );
+
+      if(!user){
+        return showError('loginError', 'User not found. Please register first.');
+      }
+
+      // Simple password check (in production, use proper hashing)
+      if(user.password && user.password !== password){
+        return showError('loginError', 'Incorrect password');
+      }
+
+      // Login successful
+      DB.save(KEY.CUR, user);
+      if(remember){
+        localStorage.setItem('rc_remember', 'true');
+      }
+
+      showSuccess('loginError', 'Login successful! Redirecting...');
+      setTimeout(()=>{
+        window.location.href = 'chat.html';
+      }, 1000);
+    });
+
+    /* Register handler */
+    document.getElementById('registerForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const identifier = document.getElementById('regIdentifier').value.trim();
+      const password = document.getElementById('regPassword').value.trim();
+      const bio = document.getElementById('regBio').value.trim();
+
+      if(!name || !identifier || !password){
+        return showError('registerError', 'Please fill required fields');
+      }
+
+      if(password.length < 6){
+        return showError('registerError', 'Password must be at least 6 characters');
+      }
+
+      let users = DB.load(KEY.USERS,[]);
+
+      // Check if user already exists
+      const exists = users.find(u=>
+        u.name.toLowerCase()===name.toLowerCase() ||
+        u.phone===identifier
+      );
+
+      if(exists){
+        return showError('registerError', 'User with this name or phone already exists');
+      }
+
+      // Create new user
+      const newUser = {
+        id: uid(),
+        name: name,
+        phone: identifier.includes('@') ? '' : identifier,
+        email: identifier.includes('@') ? identifier : '',
+        password: password,
+        about: bio,
+        avatarColor: randomColor(),
+        friends: []
+      };
+
+      users.push(newUser);
+      DB.save(KEY.USERS, users);
+      DB.save(KEY.CUR, newUser);
+
+      showSuccess('registerError', 'Account created! Redirecting...');
+      setTimeout(()=>{
+        window.location.href = 'chat.html';
+      }, 1500);
+    });
+
+    /* Check if already logged in */
+    const currentUser = DB.load(KEY.CUR, null);
+    if(currentUser && localStorage.getItem('rc_remember')==='true'){
+      window.location.href = 'chat.html';
+    }
+
+    console.log('🔐 Regent Connect Login page loaded');
+    console.log('💡 Demo credentials: Philip / demo123');
+  </script>
+</body>
+</html>

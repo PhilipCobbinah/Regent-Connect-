@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Settings</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/themes.css">
+  <style>
+    .settings-page { height: 100vh; overflow: hidden; }
+    .app-header { background: linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .app-header .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg,var(--accent),#06b6d4); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 20px; }
+    
+    .layout { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 64px); }
+    .app-sidebar { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-right: 1px solid rgba(255,255,255,0.04); padding: 16px; overflow-y: auto; }
+    
+    .settings-main { padding: 24px; overflow-y: auto; max-width: 800px; }
+    .card { background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border-radius: 12px; padding: 24px; box-shadow: 0 6px 20px rgba(2,6,23,0.6); margin-bottom: 20px; }
+    .card h3 { margin: 0 0 20px 0; font-size: 18px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    
+    .setting-item { padding: 16px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .setting-item:last-child { border-bottom: none; }
+    .setting-label { flex: 1; }
+    .setting-title { font-weight: 600; margin-bottom: 4px; }
+    .setting-desc { font-size: 13px; color: var(--muted); }
+    
+    .row { display: flex; gap: 16px; flex-wrap: wrap; }
+    .row label { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 16px; background: rgba(255,255,255,0.02); border-radius: 8px; transition: background .2s; }
+    .row label:hover { background: rgba(255,255,255,0.04); }
+    .row input[type="radio"] { cursor: pointer; }
+    
+    label.checkbox { display: flex; align-items: center; gap: 12px; padding: 12px; cursor: pointer; border-radius: 8px; transition: background .2s; margin-bottom: 8px; }
+    label.checkbox:hover { background: rgba(255,255,255,0.02); }
+    label.checkbox input { cursor: pointer; width: 20px; height: 20px; }
+    
+    input[type="number"], input[type="text"], select { padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: #fff; width: 100%; margin-top: 8px; }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+    
+    .btn { padding: 12px 24px; border-radius: 10px; border: none; background: var(--accent); color: white; cursor: pointer; transition: all .2s; font-size: 14px; font-weight: 600; margin-right: 12px; margin-top: 12px; }
+    .btn:hover { background: #4338ca; transform: translateY(-1px); }
+    .btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.06); }
+    .btn.secondary:hover { background: rgba(255,255,255,0.02); }
+    .btn.danger { background: #ef4444; }
+    .btn.danger:hover { background: #dc2626; }
+    
+    .theme-preview { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-top: 16px; }
+    .theme-option { padding: 16px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: all .2s; text-align: center; }
+    .theme-option:hover { transform: translateY(-2px); }
+    .theme-option.active { border-color: var(--accent); }
+    
+    @media(max-width:900px){ .layout { grid-template-columns: 1fr; } .app-sidebar { display: none; } }
+  </style>
+</head>
+<body class="settings-page">
+  <div class="app-header">
+    <div class="brand">
+      <div class="logo">⚙️</div>
+      <h1 style="margin:0;font-size:18px">Settings</h1>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn secondary" onclick="location.href='dashboard.html'" style="padding:8px 16px">Dashboard</button>
+      <button class="btn secondary" onclick="location.href='profile.html'" style="padding:8px 16px">Profile</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="app-sidebar">
+      <div>
+        <h3 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase">QUICK NAVIGATION</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="#theme" style="padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;text-decoration:none;color:inherit;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">🎨 Theme</a>
+          <a href="#privacy" style="padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;text-decoration:none;color:inherit;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">🔒 Privacy</a>
+          <a href="#notifications" style="padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;text-decoration:none;color:inherit;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">🔔 Notifications</a>
+          <a href="#data" style="padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;text-decoration:none;color:inherit;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">💾 Data & Storage</a>
+          <a href="#account" style="padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;text-decoration:none;color:inherit;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">⚠️ Account</a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="settings-main">
+      <section class="card" id="theme">
+        <h3>🎨 Appearance & Theme</h3>
+        <div class="setting-item">
+          <div class="setting-label">
+            <div class="setting-title">Theme Mode</div>
+            <div class="setting-desc">Choose your preferred color scheme</div>
+          </div>
+        </div>
+        <div class="row">
+          <label><input type="radio" name="theme" value="dark" checked> Dark (Default)</label>
+          <label><input type="radio" name="theme" value="light"> Light</label>
+          <label><input type="radio" name="theme" value="blue"> Blue</label>
+          <label><input type="radio" name="theme" value="purple"> Purple</label>
+        </div>
+      </section>
+
+      <section class="card" id="privacy">
+        <h3>🔒 Privacy & Security</h3>
+        <label class="checkbox">
+          <input type="checkbox" id="optShowProfile">
+          <div>
+            <div class="setting-title">Profile Visibility</div>
+            <div class="setting-desc">Show profile to non-friends</div>
+          </div>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="optReadReceipts" checked>
+          <div>
+            <div class="setting-title">Read Receipts</div>
+            <div class="setting-desc">Show blue ticks when you read messages</div>
+          </div>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="optTypingIndicator" checked>
+          <div>
+            <div class="setting-title">Typing Indicators</div>
+            <div class="setting-desc">Let others know when you're typing</div>
+          </div>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="optLastSeen" checked>
+          <div>
+            <div class="setting-title">Last Seen</div>
+            <div class="setting-desc">Show when you were last active</div>
+          </div>
+        </label>
+      </section>
+
+      <section class="card" id="notifications">
+        <h3>🔔 Notifications</h3>
+        <label class="checkbox">
+          <input type="checkbox" id="optNotifications" checked>
+          <div>
+            <div class="setting-title">Push Notifications</div>
+            <div class="setting-desc">Receive notifications for new messages</div>
+          </div>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="optSounds" checked>
+          <div>
+            <div class="setting-title">Notification Sounds</div>
+            <div class="setting-desc">Play sound for new messages</div>
+          </div>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="optGroupNotifs" checked>
+          <div>
+            <div class="setting-title">Group Notifications</div>
+            <div class="setting-desc">Receive notifications from groups</div>
+          </div>
+        </label>
+      </section>
+
+      <section class="card" id="data">
+        <h3>💾 Data & Storage</h3>
+        <label class="checkbox">
+          <input type="checkbox" id="optAutoDownloadMedia" checked>
+          <div>
+            <div class="setting-title">Auto-Download Media</div>
+            <div class="setting-desc">Download images and videos on Wi-Fi</div>
+          </div>
+        </label>
+        <div class="setting-item">
+          <div class="setting-label">
+            <div class="setting-title">Media Size Limit</div>
+            <div class="setting-desc">Maximum file size for auto-download (MB)</div>
+          </div>
+        </div>
+        <input id="mediaLimit" type="number" min="1" max="2000" value="50">
+        
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06)">
+          <div class="setting-title">Storage Usage</div>
+          <div style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div style="padding:16px;background:rgba(255,255,255,0.02);border-radius:8px;text-align:center">
+              <div style="font-size:24px;font-weight:700;color:var(--accent)" id="storageMessages">0</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px">Messages</div>
+            </div>
+            <div style="padding:16px;background:rgba(255,255,255,0.02);border-radius:8px;text-align:center">
+              <div style="font-size:24px;font-weight:700;color:var(--accent)" id="storageGroups">0</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px">Groups</div>
+            </div>
+            <div style="padding:16px;background:rgba(255,255,255,0.02);border-radius:8px;text-align:center">
+              <div style="font-size:24px;font-weight:700;color:var(--accent)" id="storageStatus">0</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px">Status</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="account">
+        <h3>⚠️ Account Management</h3>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <button id="exportData" class="btn secondary" style="width:100%">📥 Export My Data</button>
+          <button id="clearCache" class="btn secondary" style="width:100%">🗑️ Clear Cache</button>
+          <button id="deleteAll" class="btn danger" style="width:100%">❌ Delete Account</button>
+        </div>
+        <div style="margin-top:16px;padding:16px;background:rgba(239,68,68,0.1);border-radius:8px;border-left:4px solid #ef4444">
+          <div style="font-weight:600;margin-bottom:8px">⚠️ Warning</div>
+          <div style="font-size:13px;color:var(--muted)">Deleting your account will permanently remove all your data including messages, groups, and friends. This action cannot be undone.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+  /* Database helpers */
+  const DB = {
+    load(key, defaultVal){try{const v=localStorage.getItem(key);return v?JSON.parse(v):defaultVal}catch(e){return defaultVal}},
+    save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+  }
+  const KEY = {USERS:'rc_users',CUR:'rc_currentUser',MSGS:'rc_msgs',GROUPS:'rc_groups',STATUS:'rc_status',SETTINGS:'rc_settings'}
+  
+  let currentUser = DB.load(KEY.CUR,null);
+  let settings = DB.load(KEY.SETTINGS,{theme:'dark',showProfile:false,readReceipts:true,typingIndicator:true,lastSeen:true,notifications:true,sounds:true,groupNotifs:true,autoDownload:true,mediaLimit:50});
+  
+  if(!currentUser){ window.location.href = 'login.html'; }
+  
+  /* Load settings */
+  function loadSettings(){
+    document.getElementById('optShowProfile').checked = settings.showProfile;
+    document.getElementById('optReadReceipts').checked = settings.readReceipts;
+    document.getElementById('optTypingIndicator').checked = settings.typingIndicator;
+    document.getElementById('optLastSeen').checked = settings.lastSeen;
+    document.getElementById('optNotifications').checked = settings.notifications;
+    document.getElementById('optSounds').checked = settings.sounds;
+    document.getElementById('optGroupNotifs').checked = settings.groupNotifs;
+    document.getElementById('optAutoDownloadMedia').checked = settings.autoDownload;
+    document.getElementById('mediaLimit').value = settings.mediaLimit;
+    
+    document.querySelectorAll('input[name="theme"]').forEach(r => {
+      if(r.value === settings.theme) r.checked = true;
+    });
+    
+    // Apply theme
+    document.documentElement.setAttribute('data-theme', settings.theme);
+  }
+  
+  /* Save settings */
+  function saveSettings(){
+    settings.showProfile = document.getElementById('optShowProfile').checked;
+    settings.readReceipts = document.getElementById('optReadReceipts').checked;
+    settings.typingIndicator = document.getElementById('optTypingIndicator').checked;
+    settings.lastSeen = document.getElementById('optLastSeen').checked;
+    settings.notifications = document.getElementById('optNotifications').checked;
+    settings.sounds = document.getElementById('optSounds').checked;
+    settings.groupNotifs = document.getElementById('optGroupNotifs').checked;
+    settings.autoDownload = document.getElementById('optAutoDownloadMedia').checked;
+    settings.mediaLimit = parseInt(document.getElementById('mediaLimit').value);
+    
+    DB.save(KEY.SETTINGS, settings);
+  }
+  
+  /* Auto-save on change */
+  document.querySelectorAll('input[type="checkbox"], input[type="number"]').forEach(input => {
+    input.addEventListener('change', saveSettings);
+  });
+  
+  /* Theme selection */
+  document.querySelectorAll('input[name="theme"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      settings.theme = e.target.value;
+      document.documentElement.setAttribute('data-theme', settings.theme);
+      saveSettings();
+    });
+  });
+  
+  /* Storage stats */
+  function updateStorageStats(){
+    const msgs = DB.load(KEY.MSGS,[]);
+    const groups = DB.load(KEY.GROUPS,[]);
+    const status = DB.load(KEY.STATUS,[]);
+    
+    document.getElementById('storageMessages').textContent = msgs.length;
+    document.getElementById('storageGroups').textContent = groups.length;
+    document.getElementById('storageStatus').textContent = status.length;
+  }
+  
+  /* Export data */
+  document.getElementById('exportData').addEventListener('click', () => {
+    const data = {
+      users: DB.load(KEY.USERS,[]),
+      messages: DB.load(KEY.MSGS,[]),
+      groups: DB.load(KEY.GROUPS,[]),
+      status: DB.load(KEY.STATUS,[]),
+      settings: settings,
+      exportDate: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `regent-connect-export-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    alert('✅ Data exported successfully!');
+  });
+  
+  /* Clear cache */
+  document.getElementById('clearCache').addEventListener('click', () => {
+    if(!confirm('Clear all cached data? This will remove old messages and media.')) return;
+    
+    // Keep essential data, clear cache
+    alert('✅ Cache cleared! (Demo: In production, this would clear media cache)');
+  });
+  
+  /* Delete account */
+  document.getElementById('deleteAll').addEventListener('click', () => {
+    if(!confirm('⚠️ Are you ABSOLUTELY sure you want to delete your account?\n\nThis will permanently delete:\n• All your messages\n• All your groups\n• All your friends\n• All your status updates\n• Your profile\n\nThis action CANNOT be undone!')) return;
+    
+    if(!confirm('Last warning: Type YES in the next dialog to confirm deletion')) return;
+    
+    const confirmation = prompt('Type YES to confirm account deletion:');
+    if(confirmation !== 'YES') return alert('Account deletion cancelled');
+    
+    // Clear all user data
+    localStorage.clear();
+    alert('Account deleted. Goodbye!');
+    window.location.href = 'index.html';
+  });
+  
+  /* Initialize */
+  loadSettings();
+  updateStorageStats();
+  
+  console.log('⚙️ Settings page loaded successfully!');
+  </script>
+</body>
+</html>

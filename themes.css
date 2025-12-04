@@ -1,0 +1,355 @@
+/* ============================================================
+   themes.css – Theme System
+   Multiple color schemes for Regent Connect
+   Use App.setTheme('themeName') to switch themes
+   ============================================================ */
+
+/* Default Theme (Dark) */
+:root {
+  --bg: #0a0e1a;
+  --bg-light: #111827;
+  --bg-dark: #050810;
+  --surface: #1f2937;
+  --surface-light: #374151;
+  --surface-dark: #1a1f2e;
+  --muted: #9ca3af;
+  --muted-light: #d1d5db;
+  --accent: #4f46e5;
+  --accent-600: #4338ca;
+  --accent-light: #6366f1;
+  --accent-dark: #3730a3;
+  --success: #10b981;
+  --success-light: #34d399;
+  --error: #ef4444;
+  --error-light: #f87171;
+  --warning: #f59e0b;
+  --warning-light: #fbbf24;
+  --info: #3b82f6;
+  --info-light: #60a5fa;
+  --text: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  
+  /* Effects */
+  --shadow: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.6);
+  --glow: 0 0 20px rgba(79, 70, 229, 0.3);
+  --blur: blur(10px);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg: #f9fafb;
+  --bg-light: #ffffff;
+  --bg-dark: #f3f4f6;
+  --surface: #ffffff;
+  --surface-light: #f9fafb;
+  --surface-dark: #f3f4f6;
+  --muted: #6b7280;
+  --muted-light: #9ca3af;
+  --accent: #4f46e5;
+  --accent-600: #4338ca;
+  --accent-light: #6366f1;
+  --accent-dark: #3730a3;
+  --success: #059669;
+  --success-light: #10b981;
+  --error: #dc2626;
+  --error-light: #ef4444;
+  --warning: #d97706;
+  --warning-light: #f59e0b;
+  --info: #2563eb;
+  --info-light: #3b82f6;
+  --text: #111827;
+  --text-secondary: #374151;
+  --text-tertiary: #6b7280;
+  
+  /* Effects */
+  --shadow: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+  --glow: 0 0 20px rgba(79, 70, 229, 0.15);
+}
+
+/* Dark Theme (Alternative) */
+[data-theme="dark"] {
+  --bg: #0a0e1a;
+  --bg-light: #111827;
+  --bg-dark: #050810;
+  --surface: #1f2937;
+  --surface-light: #374151;
+  --surface-dark: #1a1f2e;
+  --muted: #9ca3af;
+  --muted-light: #d1d5db;
+  --accent: #4f46e5;
+  --accent-600: #4338ca;
+  --accent-light: #6366f1;
+  --accent-dark: #3730a3;
+  --success: #10b981;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --text: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+}
+
+/* Blue Theme */
+[data-theme="blue"] {
+  --bg: #0c1528;
+  --bg-light: #152340;
+  --bg-dark: #050b16;
+  --surface: #1e3a5f;
+  --surface-light: #2c4f7c;
+  --surface-dark: #152847;
+  --muted: #94a9c9;
+  --muted-light: #c3d5eb;
+  --accent: #3b82f6;
+  --accent-600: #2563eb;
+  --accent-light: #60a5fa;
+  --accent-dark: #1d4ed8;
+  --success: #06b6d4;
+  --success-light: #22d3ee;
+  --error: #f43f5e;
+  --error-light: #fb7185;
+  --warning: #f59e0b;
+  --warning-light: #fbbf24;
+  --info: #06b6d4;
+  --info-light: #22d3ee;
+  --text: #e0f2fe;
+  --text-secondary: #bae6fd;
+  --text-tertiary: #7dd3fc;
+  
+  --shadow: 0 8px 24px rgba(0,20,60,0.5);
+  --shadow-lg: 0 20px 60px rgba(0,20,60,0.7);
+  --glow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Purple Theme */
+[data-theme="purple"] {
+  --bg: #1a0d2e;
+  --bg-light: #2d1b4e;
+  --bg-dark: #0f0821;
+  --surface: #3d2667;
+  --surface-light: #4f3578;
+  --surface-dark: #2a1a4a;
+  --muted: #b8a4d4;
+  --muted-light: #d8c9eb;
+  --accent: #8b5cf6;
+  --accent-600: #7c3aed;
+  --accent-light: #a78bfa;
+  --accent-dark: #6d28d9;
+  --success: #10b981;
+  --success-light: #34d399;
+  --error: #f472b6;
+  --error-light: #f9a8d4;
+  --warning: #fbbf24;
+  --warning-light: #fcd34d;
+  --info: #a78bfa;
+  --info-light: #c4b5fd;
+  --text: #f3e8ff;
+  --text-secondary: #e9d5ff;
+  --text-tertiary: #d8b4fe;
+  
+  --shadow: 0 8px 24px rgba(90,20,90,0.5);
+  --shadow-lg: 0 20px 60px rgba(90,20,90,0.7);
+  --glow: 0 0 20px rgba(139, 92, 246, 0.4);
+}
+
+/* Green Theme */
+[data-theme="green"] {
+  --bg: #0a1f0f;
+  --bg-light: #16301a;
+  --bg-dark: #051408;
+  --surface: #1a4222;
+  --surface-light: #266e2e;
+  --surface-dark: #143019;
+  --muted: #86c89a;
+  --muted-light: #b8e2c3;
+  --accent: #10b981;
+  --accent-600: #059669;
+  --accent-light: #34d399;
+  --accent-dark: #047857;
+  --success: #22c55e;
+  --success-light: #4ade80;
+  --error: #ef4444;
+  --error-light: #f87171;
+  --warning: #eab308;
+  --warning-light: #facc15;
+  --info: #14b8a6;
+  --info-light: #2dd4bf;
+  --text: #d1fae5;
+  --text-secondary: #a7f3d0;
+  --text-tertiary: #6ee7b7;
+  
+  --shadow: 0 8px 24px rgba(0,40,20,0.5);
+  --shadow-lg: 0 20px 60px rgba(0,40,20,0.7);
+  --glow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+/* High Contrast Theme (Accessibility) */
+[data-theme="high-contrast"] {
+  --bg: #000000;
+  --bg-light: #1a1a1a;
+  --bg-dark: #000000;
+  --surface: #1a1a1a;
+  --surface-light: #2d2d2d;
+  --surface-dark: #0d0d0d;
+  --muted: #b3b3b3;
+  --muted-light: #e6e6e6;
+  --accent: #ffff00;
+  --accent-600: #e6e600;
+  --accent-light: #ffff66;
+  --accent-dark: #cccc00;
+  --success: #00ff00;
+  --success-light: #66ff66;
+  --error: #ff0000;
+  --error-light: #ff6666;
+  --warning: #ff9900;
+  --warning-light: #ffb366;
+  --info: #00ccff;
+  --info-light: #66e0ff;
+  --text: #ffffff;
+  --text-secondary: #ffffff;
+  --text-tertiary: #cccccc;
+  
+  --shadow: 0 0 0 2px #ffffff;
+  --shadow-lg: 0 0 0 4px #ffffff;
+  --glow: 0 0 10px #ffff00;
+}
+
+/* Smooth theme transitions */
+* {
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease;
+}
+
+/* Prevent transition on page load */
+.preload * {
+  transition: none !important;
+}
+
+/* Theme-specific adjustments */
+[data-theme="light"] body {
+  background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
+}
+
+[data-theme="dark"] body,
+body {
+  background: linear-gradient(180deg, #0a0e1a 0%, #050810 100%);
+}
+
+[data-theme="blue"] body {
+  background: linear-gradient(180deg, #0c1528 0%, #050b16 100%);
+}
+
+[data-theme="purple"] body {
+  background: linear-gradient(180deg, #1a0d2e 0%, #0f0821 100%);
+}
+
+[data-theme="green"] body {
+  background: linear-gradient(180deg, #0a1f0f 0%, #051408 100%);
+}
+
+[data-theme="high-contrast"] body {
+  background: #000000;
+}
+
+/* Card adjustments per theme */
+[data-theme="light"] .card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+[data-theme="high-contrast"] .card {
+  background: #1a1a1a;
+  border: 2px solid #ffffff;
+}
+
+/* Button adjustments */
+[data-theme="high-contrast"] .btn.primary {
+  background: #ffff00;
+  color: #000000;
+  border: 2px solid #ffffff;
+}
+
+[data-theme="high-contrast"] .btn.secondary {
+  border: 2px solid #ffffff;
+  color: #ffffff;
+}
+
+/* Focus states for accessibility */
+[data-theme="high-contrast"] *:focus {
+  outline: 3px solid #ffff00;
+  outline-offset: 2px;
+}
+
+/* Code/pre blocks theming */
+pre, code {
+  background: var(--surface-dark);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+[data-theme="light"] pre,
+[data-theme="light"] code {
+  background: var(--surface-dark);
+  border: 1px solid #e5e7eb;
+}
+
+/* Selection colors */
+::selection {
+  background: var(--accent);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--accent);
+  color: white;
+}
+
+/* Theme preview (for settings page) */
+.theme-preview {
+  width: 100%;
+  height: 80px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.theme-preview:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.theme-preview.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.theme-preview-dark {
+  background: linear-gradient(180deg, #0a0e1a 0%, #050810 100%);
+}
+
+.theme-preview-light {
+  background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
+}
+
+.theme-preview-blue {
+  background: linear-gradient(180deg, #0c1528 0%, #050b16 100%);
+}
+
+.theme-preview-purple {
+  background: linear-gradient(180deg, #1a0d2e 0%, #0f0821 100%);
+}
+
+.theme-preview-green {
+  background: linear-gradient(180deg, #0a1f0f 0%, #051408 100%);
+}
+
+.theme-preview-high-contrast {
+  background: #000000;
+  border: 2px solid #ffffff;
+}

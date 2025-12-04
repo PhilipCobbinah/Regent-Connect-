@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Regent Connect — Dashboard</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#4f46e5;--success:#10b981}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    html,body{height:100%;background:linear-gradient(180deg,#071126 0%, #071b2a 100%);color:#e6eef8}
+    .dashboard-page{min-height:100vh}
+    
+    /* Header */
+    .app-header{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04)}
+    .app-header .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700;color:white}
+    .app-header h1{font-size:20px}
+    .header-actions{display:flex;gap:12px;align-items:center}
+    
+    /* Layout */
+    .layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 73px)}
+    .app-sidebar{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-right:1px solid rgba(255,255,255,0.04);padding:20px}
+    .main-content{padding:24px;max-width:1400px}
+    
+    /* Sidebar nav */
+    .nav-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+    .nav-item{padding:12px;border-radius:8px;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:10px}
+    .nav-item:hover,.nav-item.active{background:rgba(255,255,255,0.04)}
+    .nav-item.active{border-left:3px solid var(--accent)}
+    
+    /* Cards */
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:20px;box-shadow:0 6px 20px rgba(2,6,23,0.6);margin-bottom:20px}
+    .welcome-card h2{font-size:28px;margin-bottom:8px}
+    .muted{color:var(--muted);font-size:14px}
+    
+    /* Search */
+    .search-card input{width:100%;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff;font-size:15px}
+    .search-card input:focus{outline:none;border-color:var(--accent)}
+    
+    /* Grid layout for chats/contacts */
+    .search-and-chats{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .chats-column,.right-column{display:flex;flex-direction:column;gap:20px}
+    .card h3{font-size:18px;margin-bottom:16px;color:#fff}
+    .card h4{font-size:16px;color:var(--muted)}
+    
+    /* Lists */
+    .list{list-style:none;max-height:400px;overflow:auto;padding-right:6px}
+    .list::-webkit-scrollbar{width:6px}
+    .list::-webkit-scrollbar-track{background:transparent}
+    .list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+    .list-item{padding:12px;border-radius:8px;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+    .list-item:hover{background:rgba(255,255,255,0.04)}
+    .avatar{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#eab308,#ef4444);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+    .list-item-content{flex:1}
+    .list-item-name{font-weight:600;margin-bottom:4px}
+    .list-item-meta{font-size:13px;color:var(--muted)}
+    .badge{background:var(--accent);color:white;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:600}
+    
+    /* Activity stream */
+    .activity-stream ul{max-height:200px}
+    .activity-item{padding:10px;border-left:3px solid rgba(255,255,255,0.1);margin-bottom:10px;font-size:14px}
+    
+    /* Buttons */
+    .btn{background:var(--accent);padding:10px 16px;border-radius:10px;border:none;color:white;cursor:pointer;transition:background .2s;display:inline-block;text-decoration:none;text-align:center;width:100%;margin-top:12px}
+    .btn:hover{background:#4338ca}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+    .btn.secondary:hover{background:rgba(255,255,255,0.02)}
+    
+    /* RegentAI Global button */
+    .global-ai{position:fixed;bottom:24px;right:24px;z-index:999}
+    .global-ai-btn{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#06b6d4);border:none;color:white;font-size:24px;cursor:pointer;box-shadow:0 8px 24px rgba(79,70,229,0.4);transition:transform .2s}
+    .global-ai-btn:hover{transform:scale(1.1)}
+    
+    /* AI Modal */
+    .ai-modal{position:fixed;bottom:100px;right:24px;width:380px;max-width:calc(100vw - 48px);background:linear-gradient(180deg,rgba(15,23,36,0.98),rgba(11,18,32,0.98));border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.06);z-index:1000;max-height:500px;display:flex;flex-direction:column}
+    .ai-modal-header{padding:16px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center}
+    .ai-modal-header strong{font-size:16px}
+    .ai-modal-header button{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:20px}
+    .ai-modal-body{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+    .ai-message{padding:10px 14px;border-radius:10px;max-width:85%;line-height:1.4}
+    .ai-message.user{background:linear-gradient(180deg,var(--accent),#3b82f6);color:white;align-self:flex-end}
+    .ai-message.bot{background:rgba(255,255,255,0.04);align-self:flex-start}
+    .ai-form{display:flex;gap:8px;padding:16px;border-top:1px solid rgba(255,255,255,0.06)}
+    .ai-form input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff}
+    .ai-form input:focus{outline:none;border-color:var(--accent)}
+    .ai-form button{padding:10px 16px;border-radius:8px;border:none;background:var(--accent);color:white;cursor:pointer}
+    
+    /* Responsive */
+    @media(max-width:1024px){
+      .layout{grid-template-columns:1fr}
+      .app-sidebar{border-right:none;border-bottom:1px solid rgba(255,255,255,0.04)}
+      .search-and-chats{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body class="dashboard-page">
+  <div id="appRoot">
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo">RC</div>
+        <h1>Regent Connect</h1>
+      </div>
+      <div class="header-actions">
+        <button class="btn secondary" id="btnProfile">Profile</button>
+        <button class="btn secondary" id="btnLogout">Logout</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="app-sidebar">
+        <ul class="nav-list">
+          <li class="nav-item active" data-page="dashboard">
+            <span>🏠</span> Dashboard
+          </li>
+          <li class="nav-item" data-page="chat">
+            <span>💬</span> Chat
+          </li>
+          <li class="nav-item" data-page="groups">
+            <span>👥</span> Groups
+          </li>
+          <li class="nav-item" data-page="contacts">
+            <span>👤</span> Contacts
+          </li>
+          <li class="nav-item" data-page="settings">
+            <span>⚙️</span> Settings
+          </li>
+        </ul>
+      </aside>
+
+      <main class="main-content">
+        <section class="welcome-card card">
+          <h2>Hello, <span id="userDisplayName">Guest</span></h2>
+          <p class="muted">Here are your chats, friends and groups.</p>
+        </section>
+
+        <section class="search-and-chats">
+          <div class="search-card card">
+            <input id="globalSearch" placeholder="🔍 Search chats, messages, contacts..." />
+          </div>
+
+          <div class="chats-column">
+            <div class="card chats-list">
+              <h3>Recent Chats</h3>
+              <ul id="chatsList" class="list"></ul>
+            </div>
+
+            <div class="card contacts-list">
+              <h3>Friends</h3>
+              <ul id="friendsList" class="list"></ul>
+            </div>
+          </div>
+
+          <div class="right-column">
+            <div class="card active-chat-preview" id="activePreview">
+              <h4>💬 Open a chat to preview</h4>
+              <p class="muted" style="margin-top:12px">Select a conversation from the list to see recent messages</p>
+            </div>
+
+            <div class="card groups-list">
+              <h3>Groups <span class="badge" id="groupsCount">0</span></h3>
+              <ul id="groupsList" class="list"></ul>
+              <button class="btn" id="btnCreateGroup">+ Create Group</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="activity-stream card">
+          <h3>Recent Activity</h3>
+          <ul id="activityList" class="list muted"></ul>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Global RegentAI floating button -->
+  <div id="globalRegentAI" class="global-ai">
+    <button id="globalAiOpen" class="global-ai-btn" title="Open RegentAI">🤖</button>
+  </div>
+
+  <!-- RegentAI quick modal -->
+  <div id="regentAiModal" class="ai-modal" hidden>
+    <div class="ai-modal-header">
+      <strong>🤖 RegentAI Assistant</strong>
+      <button id="closeAiModal">✕</button>
+    </div>
+    <div id="aiModalBody" class="ai-modal-body">
+      <div class="ai-message bot">Hi! I can help you find contacts, create groups, or answer questions about Regent Connect. What would you like to do?</div>
+    </div>
+    <form id="aiModalForm" class="ai-form">
+      <input id="aiModalInput" placeholder="Ask RegentAI..." autocomplete="off">
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script>
+    /* ====== Database helpers ====== */
+    const DB = {
+      load(key, defaultVal){try{const v=localStorage.getItem(key);return v?JSON.parse(v):defaultVal}catch(e){return defaultVal}},
+      save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+    };
+    const KEY = {USERS:'rc_users',CUR:'rc_currentUser',REQS:'rc_reqs',MSGS:'rc_msgs',GROUPS:'rc_groups'};
+
+    /* Utilities */
+    function uid(prefix='u'){return prefix+Math.random().toString(36).slice(2,9)}
+    function timeAgo(isoString){
+      const seconds = Math.floor((new Date() - new Date(isoString)) / 1000);
+      if(seconds < 60) return 'just now';
+      if(seconds < 3600) return Math.floor(seconds/60) + 'm ago';
+      if(seconds < 86400) return Math.floor(seconds/3600) + 'h ago';
+      return Math.floor(seconds/86400) + 'd ago';
+    }
+
+    /* Load data */
+    let currentUser = DB.load(KEY.CUR, null);
+    let users = DB.load(KEY.USERS, []);
+    let msgs = DB.load(KEY.MSGS, []);
+    let groups = DB.load(KEY.GROUPS, []);
+    let reqs = DB.load(KEY.REQS, []);
+
+    /* Check authentication */
+    if(!currentUser){
+      window.location.href = 'login.html';
+    }
+
+    /* Render functions */
+    function renderRecentChats(){
+      const chatsList = document.getElementById('chatsList');
+      chatsList.innerHTML = '';
+      
+      // Get unique conversations
+      const convs = {};
+      msgs.forEach(m => {
+        if(!convs[m.convId]) convs[m.convId] = {lastMsg: m, unread: 0};
+        else if(new Date(m.time) > new Date(convs[m.convId].lastMsg.time)) convs[m.convId].lastMsg = m;
+      });
+      
+      const sorted = Object.values(convs).sort((a,b)=> new Date(b.lastMsg.time) - new Date(a.lastMsg.time)).slice(0,5);
+      
+      if(sorted.length === 0){
+        chatsList.innerHTML = '<li class="muted" style="padding:20px;text-align:center">No chats yet. Start a conversation!</li>';
+        return;
+      }
+      
+      sorted.forEach(conv => {
+        const m = conv.lastMsg;
+        const other = m.convId.startsWith('p_') ? 
+          users.find(u => m.convId.includes(u.id) && u.id !== currentUser.id) :
+          {name: groups.find(g=>m.convId.includes(g.id))?.name || 'Group', avatarColor:'#8b5cf6'};
+        
+        if(!other) return;
+        
+        const li = document.createElement('li');
+        li.className = 'list-item';
+        li.innerHTML = `
+          <div class="avatar" style="background:${other.avatarColor || '#06b6d4'}">${other.name.slice(0,2).toUpperCase()}</div>
+          <div class="list-item-content">
+            <div class="list-item-name">${other.name}</div>
+            <div class="list-item-meta">${m.text.slice(0,40)}${m.text.length>40?'...':''}</div>
+          </div>
+          <div class="list-item-meta">${timeAgo(m.time)}</div>
+        `;
+        li.addEventListener('click', () => window.location.href = 'chat.html');
+        chatsList.appendChild(li);
+      });
+    }
+
+    function renderFriends(){
+      const friendsList = document.getElementById('friendsList');
+      friendsList.innerHTML = '';
+      
+      const friends = users.filter(u => currentUser.friends && currentUser.friends.includes(u.id));
+      
+      if(friends.length === 0){
+        friendsList.innerHTML = '<li class="muted" style="padding:20px;text-align:center">No friends yet. Send requests!</li>';
+        return;
+      }
+      
+      friends.slice(0,5).forEach(friend => {
+        const li = document.createElement('li');
+        li.className = 'list-item';
+        li.innerHTML = `
+          <div class="avatar" style="background:${friend.avatarColor || '#10b981'}">${friend.name.slice(0,2).toUpperCase()}</div>
+          <div class="list-item-content">
+            <div class="list-item-name">${friend.name}</div>
+            <div class="list-item-meta">${friend.about || friend.phone || '—'}</div>
+          </div>
+        `;
+        li.addEventListener('click', () => window.location.href = 'chat.html');
+        friendsList.appendChild(li);
+      });
+    }
+
+    function renderGroups(){
+      const groupsList = document.getElementById('groupsList');
+      const groupsCount = document.getElementById('groupsCount');
+      groupsList.innerHTML = '';
+      groupsCount.textContent = groups.length;
+      
+      if(groups.length === 0){
+        groupsList.innerHTML = '<li class="muted" style="padding:20px;text-align:center">No groups yet</li>';
+        return;
+      }
+      
+      groups.slice(0,4).forEach(g => {
+        const li = document.createElement('li');
+        li.className = 'list-item';
+        li.innerHTML = `
+          <div class="avatar" style="background:#8b5cf6">${g.name.slice(0,2).toUpperCase()}</div>
+          <div class="list-item-content">
+            <div class="list-item-name">${g.name}</div>
+            <div class="list-item-meta">${g.members.length} members</div>
+          </div>
+        `;
+        li.addEventListener('click', () => window.location.href = 'chat.html');
+        groupsList.appendChild(li);
+      });
+    }
+
+    function renderActivity(){
+      const activityList = document.getElementById('activityList');
+      const activities = [];
+      
+      // Recent messages
+      msgs.slice(-5).reverse().forEach(m => {
+        const user = users.find(u=>u.id===m.from);
+        activities.push({time: m.time, text: `${user?.name || 'Someone'} sent a message`});
+      });
+      
+      // Recent friend requests
+      reqs.filter(r=>r.to===currentUser.id).slice(-3).forEach(r => {
+        const user = users.find(u=>u.id===r.from);
+        activities.push({time: r.time, text: `${user?.name || 'Someone'} sent you a friend request`});
+      });
+      
+      activities.sort((a,b) => new Date(b.time) - new Date(a.time));
+      
+      if(activities.length === 0){
+        activityList.innerHTML = '<li style="padding:20px;text-align:center">No recent activity</li>';
+        return;
+      }
+      
+      activities.slice(0,5).forEach(act => {
+        const li = document.createElement('li');
+        li.className = 'activity-item';
+        li.textContent = `${act.text} • ${timeAgo(act.time)}`;
+        activityList.appendChild(li);
+      });
+    }
+
+    /* Initialize */
+    document.getElementById('userDisplayName').textContent = currentUser.name || 'You';
+    renderRecentChats();
+    renderFriends();
+    renderGroups();
+    renderActivity();
+
+    /* Navigation */
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const page = item.dataset.page;
+        if(page === 'chat') window.location.href = 'chat.html';
+        if(page === 'dashboard') window.location.href = 'dashboard.html';
+      });
+    });
+
+    /* Header actions */
+    document.getElementById('btnProfile').addEventListener('click', () => {
+      alert('Profile editing - integrate with chat.html profile modal');
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      if(confirm('Logout?')){
+        localStorage.removeItem('rc_remember');
+        DB.save(KEY.CUR, null);
+        window.location.href = 'login.html';
+      }
+    });
+
+    document.getElementById('btnCreateGroup').addEventListener('click', () => {
+      window.location.href = 'chat.html';
+    });
+
+    /* Search */
+    document.getElementById('globalSearch').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      // Simple filter - in production, implement full search
+      console.log('Searching for:', query);
+    });
+
+    /* RegentAI Modal */
+    document.getElementById('globalAiOpen').addEventListener('click', () => {
+      document.getElementById('regentAiModal').hidden = false;
+      document.getElementById('aiModalInput').focus();
+    });
+
+    document.getElementById('closeAiModal').addEventListener('click', () => {
+      document.getElementById('regentAiModal').hidden = true;
+    });
+
+    document.getElementById('aiModalForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('aiModalInput');
+      const query = input.value.trim();
+      if(!query) return;
+      
+      // Add user message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'ai-message user';
+      userMsg.textContent = query;
+      document.getElementById('aiModalBody').appendChild(userMsg);
+      
+      // Simulate AI response
+      setTimeout(() => {
+        const botMsg = document.createElement('div');
+        botMsg.className = 'ai-message bot';
+        botMsg.textContent = generateAIResponse(query);
+        document.getElementById('aiModalBody').appendChild(botMsg);
+        document.getElementById('aiModalBody').scrollTop = document.getElementById('aiModalBody').scrollHeight;
+      }, 600);
+      
+      input.value = '';
+      document.getElementById('aiModalBody').scrollTop = document.getElementById('aiModalBody').scrollHeight;
+    });
+
+    function generateAIResponse(query){
+      const low = query.toLowerCase();
+      if(low.includes('friend') || low.includes('contact')) return `You have ${currentUser.friends?.length || 0} friends. Visit the Contacts section to manage them.`;
+      if(low.includes('group')) return `You're in ${groups.length} groups. Click "Create Group" to start a new one.`;
+      if(low.includes('message') || low.includes('chat')) return `You have ${msgs.filter(m=>m.convId.includes(currentUser.id)).length} messages. Open the Chat section to view them.`;
+      if(low.includes('help')) return 'I can help you navigate Regent Connect, find contacts, manage groups, or answer questions about features.';
+      return `I understand you asked about "${query}". How can I assist you with Regent Connect today?`;
+    }
+
+    console.log('📊 Regent Connect Dashboard loaded successfully!');
+  </script>
+</body>
+</html>
