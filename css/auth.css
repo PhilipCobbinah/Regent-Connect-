@@ -1,0 +1,164 @@
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.brand {
+  text-align: center;
+}
+
+.brand .logo {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 4px 12px rgba(79, 70, 229, 0.4));
+}
+
+.brand h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand .tag {
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+.auth-cards {
+  position: relative;
+}
+
+.auth-cards .card {
+  width: 100%;
+}
+
+.auth-cards h2 {
+  font-size: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.auth-cards form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-cards label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.auth-cards input[type="text"],
+.auth-cards input[type="password"],
+.auth-cards input[type="email"] {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-primary);
+  font-size: 15px;
+  transition: all 0.2s;
+}
+
+.auth-cards input:focus {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.auth-cards label.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.auth-cards label.checkbox input {
+  cursor: pointer;
+}
+
+.auth-cards .btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.auth-footer {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.auth-footer a {
+  color: var(--accent);
+}
+
+/* AI Toggle Button */
+.ai-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+}
+
+.ai-toggle button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--accent), #06b6d4);
+  color: white;
+  border-radius: 999px;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+  transition: all 0.3s;
+}
+
+.ai-toggle button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.6);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .brand h1 {
+    font-size: 28px;
+  }
+
+  .brand .tag {
+    font-size: 14px;
+  }
+
+  .auth-cards h2 {
+    font-size: 20px;
+  }
+
+  .ai-toggle {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .ai-toggle button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}

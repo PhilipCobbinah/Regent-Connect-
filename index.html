@@ -234,6 +234,87 @@
       .btn {width:100%;max-width:350px;justify-content:center;}
       .features h2 {font-size:2rem;}
       .logo-container img {height:80px;width:80px;}
+      body, html {
+        min-width:0;
+        min-height:100vh;
+        overflow-x:hidden;
+        overscroll-behavior:auto;
+        touch-action:manipulation;
+        height:auto;
+      }
+      .hero {
+        min-height:80vh;
+        padding:30px 5px;
+      }
+      .features {
+        padding:60px 5px;
+      }
+      .landing-footer {
+        padding:30px 5px;
+        font-size:0.95rem;
+      }
+      #regentAiModal {
+        align-items:flex-end;
+        justify-content:center;
+        padding-bottom:0;
+      }
+      #regentAiModal > div {
+        position:fixed;
+        bottom:0;
+        left:0;
+        right:0;
+        max-width:100vw;
+        width:100vw;
+        min-width:0;
+        border-radius:12px 12px 0 0;
+        padding:0;
+        margin:0;
+        box-sizing:border-box;
+        height:auto;
+        max-height:90vh;
+        overflow-y:auto;
+        /* Ensure modal content is always visible and scrollable */
+      }
+      #regentAiMessages {
+        min-height:220px;
+        max-height:40vh;
+        padding:12px;
+        font-size:15px;
+        overflow-y:auto;
+      }
+      #regentAiForm {
+        flex-direction:column;
+        gap:8px;
+        padding:12px;
+        position:sticky;
+        bottom:0;
+        background:#1e293b;
+        z-index:2;
+      }
+      /* Ensure body and html are scrollable */
+      body, html {
+        min-width:0;
+        min-height:100vh;
+        overflow-x:hidden;
+        overscroll-behavior:auto;
+        touch-action:manipulation;
+        height:auto;
+      }
+      /* Prevent modal from blocking scroll */
+      #regentAiModal {
+        overflow-y:auto;
+      }
+    }
+    @media (max-width:480px) {
+      .hero h1 {font-size:1.5rem;}
+      .features h2 {font-size:1.2rem;}
+      .features-subtitle {font-size:1rem;}
+      .feature-card {padding:18px 8px;}
+      .feature-icon {font-size:2.2rem;}
+      .landing-footer {font-size:0.85rem;}
+      #regentAiModal > div {padding:0;}
+      #regentAiMessages {font-size:14px;}
+      #regentAiInput {font-size:14px;}
     }
   </style>
 </head>
@@ -324,10 +405,14 @@
       <!-- Messages -->
       <div id="regentAiMessages" style="flex:1;overflow-y:auto;padding:25px;display:flex;flex-direction:column;gap:15px;background:#0f172a;min-height:400px;"></div>
       
-      <!-- Input -->
+      <!-- Input and Image Upload -->
       <form id="regentAiForm" style="display:flex;gap:12px;padding:20px;border-top:1px solid rgba(139,92,246,0.2);background:#1e293b;">
-        <input id="regentAiInput" autocomplete="off" placeholder="Ask me anything about Regent..." style="flex:1;padding:14px 18px;border-radius:14px;border:2px solid rgba(139,92,246,0.3);background:#0f172a;color:#fff;font-size:15px;transition:all 0.2s;" onfocus="this.style.borderColor='#8b5cf6';this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.1)'" onblur="this.style.borderColor='rgba(139,92,246,0.3)';this.style.boxShadow='none'" />
+        <input id="regentAiInput" autocomplete="off" placeholder="Ask me anything about Regent or attach an image..." style="flex:1;padding:14px 18px;border-radius:14px;border:2px solid rgba(139,92,246,0.3);background:#0f172a;color:#fff;font-size:15px;transition:all 0.2s;" onfocus="this.style.borderColor='#8b5cf6';this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.1)'" onblur="this.style.borderColor='rgba(139,92,246,0.3)';this.style.boxShadow='none'" />
         <button type="submit" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;border:none;border-radius:14px;padding:0 28px;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 15px rgba(139,92,246,0.3);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(139,92,246,0.5)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(139,92,246,0.3)'">Send</button>
+        <label for="regentAiImageInput" style="display:inline-flex;align-items:center;cursor:pointer;margin-left:8px;">
+          <span class="btn ai" style="padding:0 12px;font-size:22px;" title="Attach image for AI">➕</span>
+          <input type="file" id="regentAiImageInput" accept="image/*" style="display:none">
+        </label>
       </form>
     </div>
   </div>
@@ -371,6 +456,8 @@
     #regentAiMessages::-webkit-scrollbar-thumb:hover {background:rgba(139,92,246,0.5);}
   </style>
   
+  <!-- Add Tesseract.js CDN before your script -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <script src="js/db.js"></script>
   <script>
     // RegentAI Knowledge Base (same as before)
@@ -388,10 +475,6 @@
         a: `🚀 <strong>Aseda Kofi Ayeh-Bampoe</strong> is an outstanding Computer Engineering student at Regent University. His team won 2nd place at Ghana Digital & Innovation Week for a solar tracking system. He was Hult Prize National runner-up and co-developed RoboServe, ODUMGYA, and Smart Irrigation System. Son of Mr. Samuel Ayeh-Bampoe.`
       },
       {
-        q: /who\s+is\s+(the\s+)?(acting\s+)?president\s+(at|of)\s+regent/i,
-        a: `🏛️ The <strong>Acting President</strong> of Regent University Ghana (as of Nov 2025) is <strong>Nana Yaw Boadi Appiah</strong>. The founding president and current Chancellor is <strong>Rev. Prof. Emmanuel Kingsley Larbi</strong>.`
-      },
-      {
         q: /who\s+(founded|created|started)\s+regent/i,
         a: `📜 <strong>Rev. Professor Emmanuel Kingsley Larbi</strong> founded Regent University College of Science and Technology, Ghana. The university was registered in September 2003, accredited in 2004, and began lectures in January 2005.`
       },
@@ -406,7 +489,196 @@
       {
         q: /regent\s+connect/i,
         a: `💬 <strong>Regent Connect</strong> is the official campus chat platform for Regent University Ghana, featuring real-time messaging, group collaboration, file sharing, and RegentAI assistant. Built by Philip Cobbinah.`
-      }
+      },
+      {
+        q: /who\s+is\s+the\s+chancellor\s+of\s+regent\s+university\s+college\s+of\s+science\s+and\s+technology/i,
+        a: `🎓 <strong>Rev. Prof. Emmanuel Kingsley Kwabena Larbi</strong> is the Chancellor of Regent University College of Science and Technology in Accra, Ghana.<br>
+        <ul style="margin:10px 0 0 15px;text-align:left;">
+          <li><strong>Pioneering Role:</strong> He founded the university in 2004 and was also the founding President of Central University College in Ghana.</li>
+          <li><strong>Academic Background:</strong> He holds a PhD in Theology from the University of Edinburgh.</li>
+          <li><strong>Recent Recognition:</strong> In September 2023, he received the Prestigious Annual Predecessors Award (Education Category) for his contributions to higher education in Ghana.</li>
+          <li><strong>Leadership Team:</strong> He works alongside other university leaders, including Prof. Ofori Asamoah, the current President of the institution.</li>
+          <li><strong>Note on Similar Names:</strong> While Gordon Robertson is the Chancellor of Regent University in Virginia, USA, Rev. Prof. Emmanuel Kingsley Larbi remains the Chancellor of the Regent University College of Science and Technology in Accra, Ghana.</li>
+        </ul>
+        <br>As of 2025, Prof. Larbi continues to serve as both the Founder and Chancellor of the institution.`
+      },
+      {
+        q: /who\s+is\s+(the\s+)?hod\s+(of\s+)?(the\s+)?computing\s+department\s+(at|of)?\s*regent\s+university\s+college\s+of\s+science\s+and\s+technology/i,
+        a: `
+              <li><strong>Department of Engineering:</strong> Led by Eng. David Laud Fiase (HoD), offering Computer Engineering programs.</li>
+              <li><strong>President of the University:</strong> Prof. Ernest Ofori Asamoah.</li>
+            </ul>
+          </li>
+        </ul>`
+      },
+      {
+        q: /who\s+is\s+(the\s+)?hod\s+(of\s+)?(the\s+)?theology\s+department\s+(at|of)?\s*regent\s+university\s+college\s+of\s+science\s+and\s+technology/i,
+        a: `📖 <strong>Rev. Canon Patrick Okaijah-Bortier, PhD</strong> is the Head of the Department (HoD) of Theology at Regent University College of Science and Technology in Accra, Ghana, as of 2025.<br>
+      <ul style="margin:10px 0 0 15px;text-align:left;">
+        <li><strong>Faculty:</strong> The Theology department is part of the Faculty of Arts and Sciences (FAS), led by Dean Prof. Desmond Ayim Aboagye.</li>
+        <li><strong>Department Focus:</strong> Provides an intellectually stimulating environment for theological exploration and spiritual growth.</li>
+        <li><strong>Academic Programs:</strong>
+          <ul>
+            <li><strong>BSc in Theology with Management (Hons):</strong> Blends academic rigor with practical leadership for ministry.</li>
+            <li><strong>Master of Theology (MTh):</strong> Prepares students for advanced research, teaching, and leadership in religious contexts.</li>
+            <li><strong>Master of Divinity (MDiv):</strong> Covers biblical studies, pastoral care, and ethics.</li>
+          </ul>
+        </li>
+        <li><strong>Note:</strong> Corné Bekker is Dean of the School of Divinity at Regent University in Virginia, USA. Rev. Canon Patrick Okaijah-Bortier is the primary leadership contact for Theology in Accra, Ghana.</li>
+      </ul>`
+      },
+      {
+        q: /who\s+is\s+(mr\.?\s*)?attah\s+opoku/i,
+        a: `👨‍🏫 <strong>Mr. Kwadwo Opoku Attah (Mr. Attah Opoku / Poku)</strong> is the Acting Head of the Department (HoD) of Computing at Regent University College of Science and Technology as of 2025.<br>
+    <ul style="margin:10px 0 0 15px;text-align:left;">
+      <li><strong>Role:</strong> Leads the department’s academic initiatives and represents Regent University in national events such as the Huawei ICT Competition.</li>
+      <li><strong>Faculty:</strong> The Computing Department is part of the Faculty of Engineering, Computing, and Allied Sciences (FECAS).</li>
+      <li><strong>Related Academic Leadership:</strong>
+        <ul>
+          <li><strong>Department of Informatics:</strong> Oversees programs in Computer Science and Information Systems Sciences.</li>
+          <li><strong>Department of Engineering:</strong> Led by Eng. David Laud Fiase (HoD), offering Computer Engineering.</li>
+          <li><strong>President of the University:</strong> Prof. Ernest Ofori Asamoah.</li>
+        </ul>
+      </li>
+    </ul>
+    <br>Mr. Attah Opoku is recognized for his dedication to teaching, academic leadership, and student mentorship within the university community.`
+      },
+      // --- FAQ Section ---
+      {
+        keywords: [
+          "requirements for wassce applicants",
+          "wassce admission requirements",
+          "admission requirements",
+          "core subjects",
+          "elective subjects"
+        ],
+        a: `📝 <strong>WASSCE Admission Requirements:</strong><br>
+        You must have credit passes (A1–C6) in six subjects: three core subjects (English, Mathematics, and Integrated Science) and three relevant elective subjects.`
+      },
+      {
+        keywords: [
+          "apply as mature student",
+          "mature student",
+          "mature entrance exam",
+          "mature admission"
+        ],
+        a: `👤 <strong>Mature Student Admission:</strong><br>
+        Yes, you can apply as a mature student if you are at least 25 years old. You must pass the Mature Students Entrance Examination, which includes General Paper, Mathematics, English, and IT Appreciation.`
+      },
+      {
+        keywords: [
+          "how do i apply for admission",
+          "admission application",
+          "apply for admission",
+          "application process"
+        ],
+        a: `📝 <strong>How to Apply for Admission:</strong><br>
+        Applications are done online through the University Payment Portal. After payment, fill the form and submit it to the Admissions Office at McCarthy Hill with two passport-sized photos.`
+      },
+      {
+        keywords: [
+          "pay school fees using mobile money",
+          "mobile money payment",
+          "school fees payment",
+          "pay fees"
+        ],
+        a: `💵 <strong>Paying School Fees via Mobile Money:</strong><br>
+        You can pay via the university's mobile money portal. Enter your Student ID to confirm your name, enter the amount, and confirm the transaction.<br>
+        <span style="color:#ef4444;">Note:</span> Students are strictly advised not to pay fees to any individual staff member.`
+      },
+      {
+        keywords: [
+          "refund policy",
+          "withdraw refund",
+          "fees refund",
+          "withdrawal refund"
+        ],
+        a: `🔄 <strong>Refund Policy:</strong><br>
+        If you withdraw within the first week of payment, you get a 60% refund. In the second week, it is 40%. No refunds are given after the second week of payment.`
+      },
+      {
+        keywords: [
+          "outstanding fees",
+          "unpaid fees",
+          "debt",
+          "fees not paid"
+        ],
+        a: `⚠️ <strong>Outstanding Fees:</strong><br>
+        You will not be permitted to register for courses, attend lectures, or access services like the library and Cybercampus. You also cannot receive official transcripts or degree certificates until the debt is cleared.`
+      },
+      {
+        keywords: [
+          "study modes",
+          "morning mode",
+          "evening mode",
+          "weekend mode",
+          "study options"
+        ],
+        a: `📚 <strong>Study Modes:</strong><br>
+        Regent offers Morning, Evening, and Weekend modes. Once you choose a mode (e.g., Morning), you must typically remain in that status for the duration of the 4-year programme.`
+      },
+      {
+        keywords: [
+          "performance evaluation",
+          "course evaluation",
+          "assessment",
+          "grading"
+        ],
+        a: `📝 <strong>Course Performance Evaluation:</strong><br>
+        Evaluation is based on a mix of continuous assessment (essays, term tests) and final examinations. A single piece of work cannot count for the entire final mark.`
+      },
+      {
+        keywords: [
+          "defer programme",
+          "programme deferment",
+          "can i defer",
+          "deferral"
+        ],
+        a: `⏸️ <strong>Programme Deferment:</strong><br>
+        Yes, but you must apply in advance to the Dean of Students. First-year students must generally complete their first year before deferring, except on medical grounds.`
+      },
+      {
+        keywords: [
+          "dress code",
+          "student dress code",
+          "regent blazer",
+          "id badge",
+          "engineering overall"
+        ],
+        a: `👔 <strong>Student Dress Code:</strong><br>
+        Students are identified by the Regent Ghana branded Blazer and ID badge. Engineering students may also wear Blue Overalls in practical or internship settings.`
+      },
+      {
+        keywords: [
+          "lost id card",
+          "lost id",
+          "lost badge",
+          "lost blazer"
+        ],
+        a: `🆔 <strong>Lost ID Card:</strong><br>
+        Report the loss to the Director of Student Affairs immediately. Loaning your ID or blazer to a non-student is a disciplinary offense.`
+      },
+      {
+        keywords: [
+          "university location",
+          "campus location",
+          "where is regent",
+          "address"
+        ],
+        a: `📍 <strong>University Location:</strong><br>
+        The main campus is located at No. 1 Regent University Avenue, McCarthy Hill, Accra.`
+      },
+      {
+        keywords: [
+          "ai for assignments",
+          "can i use ai",
+          "ai usage",
+          "ai ethics",
+          "ai in exams"
+        ],
+        a: `🤖 <strong>AI Usage for Assignments:</strong><br>
+        According to university integrity standards, using AI to replace assigned reading or for translation in written exams is considered cheating. Always check with your specific Head of Department (HOD) for modern AI usage policies in 2025.`
+      },
     ];
 
     function openRegentAiModal() {
@@ -422,24 +694,59 @@
       document.getElementById('regentAiModal').style.display = 'none';
     }
     
-    document.getElementById('openRegentAiBtn').onclick = openRegentAiModal;
-    
-    document.getElementById('regentAiForm').onsubmit = async function(e) {
-      e.preventDefault();
-      const input = document.getElementById('regentAiInput');
-      const msg = input.value.trim();
-      if(!msg) return;
-      
-      addAiMessage(msg, 'user');
-      input.value = '';
-      
-      addAiMessage('<span style="opacity:.7;">RegentAI is thinking...</span>', 'ai', true);
-      await new Promise(r => setTimeout(r, 1000));
-      
-      let reply = getAiReply(msg);
-      removeAiTyping();
-      addAiMessage(reply, 'ai');
-    };
+    // Ensure DOM is loaded before attaching event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('openRegentAiBtn').onclick = openRegentAiModal;
+
+      let attachedImageText = null;
+
+      document.getElementById('regentAiImageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        addAiMessage('🖼️ Image attached. Ready to send with your prompt.', 'ai', true);
+
+        Tesseract.recognize(file, 'eng').then(({ data: { text } }) => {
+          removeAiTyping();
+          attachedImageText = text && text.trim() ? text.trim() : null;
+          if (attachedImageText) {
+            addAiMessage(`📝 <strong>Image text extracted and attached.</strong><br><pre style="white-space:pre-wrap;background:#181c2a;padding:10px;border-radius:8px;color:#8b5cf6;">${attachedImageText}</pre><br>
+            <span style="color:#a3aed6;">Now type your prompt and press Send.</span>`, 'ai');
+          } else {
+            addAiMessage('⚠️ No readable text found in the image. You can still send your prompt.', 'ai');
+          }
+        }).catch(() => {
+          removeAiTyping();
+          attachedImageText = null;
+          addAiMessage('⚠️ Error processing image. Please try a clearer image.', 'ai');
+        });
+        e.target.value = '';
+      });
+
+      document.getElementById('regentAiForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const input = document.getElementById('regentAiInput');
+        const msg = input.value.trim();
+        if (!msg && !attachedImageText) return;
+
+        // Show user message and attached image text if present
+        let userMsg = msg;
+        if (attachedImageText) {
+          userMsg += (userMsg ? "\n\n" : "") + "[Attached Image Text]\n" + attachedImageText;
+        }
+        addAiMessage(msg || '[Image attached]', 'user');
+        input.value = '';
+
+        addAiMessage('<span style="opacity:.7;">RegentAI is thinking...</span>', 'ai', true);
+        await new Promise(r => setTimeout(r, 1000));
+
+        let reply = getAiReply(userMsg);
+        removeAiTyping();
+        addAiMessage(reply, 'ai');
+
+        // Reset attached image text after sending
+        attachedImageText = null;
+      };
+    });
     
     function addAiMessage(text, who, isTyping = false) {
       const box = document.getElementById('regentAiMessages');
@@ -457,16 +764,193 @@
     }
     
     function getAiReply(msg) {
-      // Use knowledge base from profile.html
       const m = msg.toLowerCase();
-      
+
+      // --- Knowledge base lookup (regex match) ---
+      for (const entry of window.RegentAI_KB) {
+        if (entry.q && entry.q.test && entry.q.test(m)) return entry.a;
+        if (entry.keywords && entry.keywords.some(kw => m.includes(kw))) return entry.a;
+      }
+
+      // --- Math calculation support with step-by-step explanations ---
+      // 1. Basic arithmetic (already supported)
+      try {
+        const mathMatch = msg.match(/(?:what\s+is|calculate)?\s*([-+*/().\d\s]+)=?\s*\??$/i);
+        if (mathMatch) {
+          const expr = mathMatch[1].replace(/[^-+*/().\d\s]/g, '');
+          if (/^[\d\s+\-*/().]+$/.test(expr)) {
+            // eslint-disable-next-line no-eval
+            const result = eval(expr);
+            if (!isNaN(result)) {
+              return `🧮 <strong>Calculation:</strong><br>
+                <span style="color:#a3aed6;">Step 1:</span> Parse the expression: <code>${expr.trim()}</code><br>
+                <span style="color:#a3aed6;">Step 2:</span> Apply arithmetic operations.<br>
+                <span style="color:#a3aed6;">Step 3:</span> Final answer: <span style="color:#8b5cf6;font-weight:700;">${result}</span>`;
+            }
+          }
+        }
+      } catch (e) {
+        return "⚠️ Sorry, I couldn't calculate that. Please check your expression.";
+      }
+
+      // 2. Unit conversions
+      if (/convert\s+(\d+(\.\d+)?)\s*mb\s+to\s+gb/i.test(m)) {
+        const val = parseFloat(m.match(/convert\s+(\d+(\.\d+)?)\s*mb\s+to\s+gb/i)[1]);
+        const gb = val / 1024;
+        return `🔄 <strong>Unit Conversion:</strong><br>
+          <span style="color:#a3aed6;">Step 1:</span> 1 GB = 1024 MB<br>
+          <span style="color:#a3aed6;">Step 2:</span> ${val} MB ÷ 1024 = <span style="color:#8b5cf6;font-weight:700;">${gb.toFixed(4)} GB</span>`;
+      }
+      if (/convert\s+(\d+(\.\d+)?)\s*degrees?\s*celsius\s+to\s+fahrenheit/i.test(m)) {
+        const val = parseFloat(m.match(/convert\s+(\d+(\.\d+)?)\s*degrees?\s*celsius\s+to\s+fahrenheit/i)[1]);
+        const f = val * 9/5 + 32;
+        return `🌡️ <strong>Temperature Conversion:</strong><br>
+          <span style="color:#a3aed6;">Step 1:</span> Use formula F = C × 9/5 + 32<br>
+          <span style="color:#a3aed6;">Step 2:</span> ${val} × 9/5 + 32 = <span style="color:#8b5cf6;font-weight:700;">${f.toFixed(2)} °F</span>`;
+      }
+
+      // 3. GPA/CGPA calculation (simple weighted average)
+      if (/calculate\s+(my\s+)?cgpa/i.test(m)) {
+        // Example: "Calculate my CGPA if I have 3 'A's (4.0) in 3-credit courses and 2 'B's (3.0) in 2-credit courses."
+        const aMatch = m.match(/(\d+)\s*['"]?a['"]?\s*\(?([0-9.]+)?\)?\s*in\s*(\d+)[-\s]?credit/);
+        const bMatch = m.match(/(\d+)\s*['"]?b['"]?\s*\(?([0-9.]+)?\)?\s*in\s*(\d+)[-\s]?credit/);
+        if (aMatch && bMatch) {
+          const aCount = parseInt(aMatch[1]), aGrade = parseFloat(aMatch[2]||4.0), aCredit = parseInt(aMatch[3]);
+          const bCount = parseInt(bMatch[1]), bGrade = parseFloat(bMatch[2]||3.0), bCredit = parseInt(bMatch[3]);
+          const totalPoints = aCount*aGrade*aCredit + bCount*bGrade*bCredit;
+          const totalCredits = aCount*aCredit + bCount*bCredit;
+          const cgpa = totalPoints / totalCredits;
+          return `🎓 <strong>CGPA Calculation:</strong><br>
+            <span style="color:#a3aed6;">Step 1:</span> Total points = (${aCount} × ${aGrade} × ${aCredit}) + (${bCount} × ${bGrade} × ${bCredit}) = ${totalPoints}<br>
+            <span style="color:#a3aed6;">Step 2:</span> Total credits = (${aCount} × ${aCredit}) + (${bCount} × ${bCredit}) = ${totalCredits}<br>
+            <span style="color:#a3aed6;">Step 3:</span> CGPA = Total points ÷ Total credits = <span style="color:#8b5cf6;font-weight:700;">${cgpa.toFixed(2)}</span>`;
+        }
+      }
+
+      // 4. Probability (binomial)
+      if (/probability\s+of\s+exactly\s+(\d+)\s+success(es)?\s+in\s+(\d+)\s+trial(s)?\s+if\s+p\s*=\s*([0-9.]+)/i.test(m)) {
+        const match = m.match(/probability\s+of\s+exactly\s+(\d+)\s+success(es)?\s+in\s+(\d+)\s+trial(s)?\s+if\s+p\s*=\s*([0-9.]+)/i);
+        const k = parseInt(match[1]), n = parseInt(match[3]), p = parseFloat(match[5]);
+        // Binomial formula: P(X=k) = C(n,k) * p^k * (1-p)^(n-k)
+        function factorial(x){return x<=1?1:x*factorial(x-1);}
+        function binom(n,k){return factorial(n)/(factorial(k)*factorial(n-k));}
+        const prob = binom(n,k)*Math.pow(p,k)*Math.pow(1-p,n-k);
+        return `🎲 <strong>Binomial Probability:</strong><br>
+          <span style="color:#a3aed6;">Step 1:</span> Use formula P(X=k) = C(n,k) × p<sup>k</sup> × (1-p)<sup>n-k</sup><br>
+          <span style="color:#a3aed6;">Step 2:</span> C(${n},${k}) = ${binom(n,k)}<br>
+          <span style="color:#a3aed6;">Step 3:</span> P = ${binom(n,k)} × ${p}<sup>${k}</sup> × ${(1-p).toFixed(2)}<sup>${n-k}</sup><br>
+          <span style="color:#a3aed6;">Step 4:</span> Final probability = <span style="color:#8b5cf6;font-weight:700;">${prob.toFixed(4)}</span>`;
+      }
+
+      // 5. Standard deviation (sample)
+      if (/standard deviation.*dataset.*\[(.+)\]/i.test(m)) {
+        const nums = m.match(/standard deviation.*dataset.*\[(.+)\]/i)[1].split(',').map(x=>parseFloat(x));
+        const mean = nums.reduce((a,b)=>a+b,0)/nums.length;
+        const variance = nums.reduce((a,b)=>a+Math.pow(b-mean,2),0)/(nums.length-1);
+        const stddev = Math.sqrt(variance);
+        return `📊 <strong>Standard Deviation Calculation:</strong><br>
+          <span style="color:#a3aed6;">Step 1:</span> Find mean: (${nums.join(' + ')}) / ${nums.length} = ${mean.toFixed(2)}<br>
+          <span style="color:#a3aed6;">Step 2:</span> Find squared differences, sum = ${nums.map(x=>`(${x}-${mean.toFixed(2)})²`).join(' + ')}<br>
+          <span style="color:#a3aed6;">Step 3:</span> Variance = sum / (${nums.length}-1) = ${variance.toFixed(2)}<br>
+          <span style="color:#a3aed6;">Step 4:</span> Standard deviation = √variance = <span style="color:#8b5cf6;font-weight:700;">${stddev.toFixed(2)}</span>`;
+      }
+
+      // 6. Break-even analysis
+      if (/break[- ]?even.*fixed\s*costs.*(\d+).*variable\s*cost.*(\d+).*selling\s*price.*(\d+)/i.test(m)) {
+        const match = m.match(/fixed\s*costs.*?(\d+).*variable\s*cost.*?(\d+).*selling\s*price.*?(\d+)/i);
+        const fixed = parseFloat(match[1]), variable = parseFloat(match[2]), price = parseFloat(match[3]);
+        const bep = fixed/(price-variable);
+        return `📈 <strong>Break-Even Point Calculation:</strong><br>
+          <span style="color:#a3aed6;">Step 1:</span> Break-even point = Fixed Costs ÷ (Selling Price - Variable Cost)<br>
+          <span style="color:#a3aed6;">Step 2:</span> BEP = ${fixed} ÷ (${price} - ${variable}) = <span style="color:#8b5cf6;font-weight:700;">${bep.toFixed(2)} units</span>`;
+      }
+
+      // 7. Financial math (future value, compound interest)
+      if (/future value.*investment.*(\d+).*interest.*(\d+)%.*compounded\s*monthly.*(\d+)\s*years?/i.test(m)) {
+        const match = m.match(/investment.*?(\d+).*interest.*?(\d+)%.*compounded\s*monthly.*?(\d+)\s*years?/i);
+        const principal = parseFloat(match[1]), rate = parseFloat(match[2])/100, years = parseInt(match[3]);
+        const n = 12, t = years;
+        const fv = principal * Math.pow(1 + rate/n, n*t);
+        return `💰 <strong>Future Value Calculation:</strong><br>
+          <span style="color:#a3aed6;">Step 1:</span> Use formula FV = P × (1 + r/n)<sup>n×t</sup><br>
+          <span style="color:#a3aed6;">Step 2:</span> FV = ${principal} × (1 + ${rate}/12)<sup>${n*years}</sup><br>
+          <span style="color:#a3aed6;">Step 3:</span> Final value = <span style="color:#8b5cf6;font-weight:700;">GH₵${fv.toFixed(2)}</span>`;
+      }
+
+      // 8. Set theory (intersection/union)
+      if (/find\s+(the\s+)?(intersection|union)\s+of\s+sets?\s*a\s*and\s*b/i.test(m)) {
+        // Example: "Given sets A = [1,2,3], B = [2,3,4], find the intersection and union"
+        const aMatch = msg.match(/a\s*=\s*\[([^\]]+)\]/i);
+        const bMatch = msg.match(/b\s*=\s*\[([^\]]+)\]/i);
+        if (aMatch && bMatch) {
+          const A = aMatch[1].split(',').map(x=>x.trim()), B = bMatch[1].split(',').map(x=>x.trim());
+          const intersection = A.filter(x=>B.includes(x));
+          const union = Array.from(new Set([...A,...B]));
+          return `🔗 <strong>Set Theory:</strong><br>
+            <span style="color:#a3aed6;">Step 1:</span> Intersection: Elements in both A and B = [${intersection.join(', ')}]<br>
+            <span style="color:#a3aed6;">Step 2:</span> Union: All unique elements from A and B = [${union.join(', ')}]`;
+        }
+      }
+
+      // 9. Boolean logic simplification (basic)
+      if (/simplify\s+the\s+boolean\s+expression\s*[:\-]?\s*(.+)/i.test(m)) {
+        // For demonstration, just echo the expression and say "Simplification coming soon"
+        const expr = m.match(/simplify\s+the\s+boolean\s+expression\s*[:\-]?\s*(.+)/i)[1];
+        return `🔢 <strong>Boolean Logic:</strong><br>
+          <span style="color:#a3aed6;">Expression:</span> ${expr}<br>
+          <span style="color:#ef4444;">Note:</span> Step-by-step Boolean simplification is coming soon.`;
+      }
+
+      // 10. Permutations (arrangements)
+      if (/number of ways to arrange the letters in the word ['"]?([a-z]+)['"]?/i.test(m)) {
+        const word = m.match(/number of ways to arrange the letters in the word ['"]?([a-z]+)['"]?/i)[1];
+        function factorial(x){return x<=1?1:x*factorial(x-1);}
+        const freq = {};
+        for (const c of word) freq[c] = (freq[c]||0)+1;
+        const total = factorial(word.length);
+        const denom = Object.values(freq).reduce((a,b)=>a*factorial(b),1);
+        const arrangements = total/denom;
+        return `🔠 <strong>Permutations:</strong><br>
+          <span style="color:#a3aed6;">Step 1:</span> Total letters = ${word.length}<br>
+          <span style="color:#a3aed6;">Step 2:</span> Frequency of each letter: ${JSON.stringify(freq)}<br>
+          <span style="color:#a3aed6;">Step 3:</span> Number of arrangements = ${word.length}! / (${Object.values(freq).map(x=>x+'!').join(' × ')}) = <span style="color:#8b5cf6;font-weight:700;">${arrangements}</span>`;
+      }
+
+      // 11. Pigeonhole Principle (basic explanation)
+      if (/pigeonhole principle.*group of (\d+) people.*born in the same month/i.test(m)) {
+        const n = parseInt(m.match(/group of (\d+) people/i)[1]);
+        if (n > 12) {
+          return `🕳️ <strong>Pigeonhole Principle:</strong><br>
+            <span style="color:#a3aed6;">Step 1:</span> There are 12 months in a year.<br>
+            <span style="color:#a3aed6;">Step 2:</span> If you have ${n} people, by the Pigeonhole Principle, at least two must share a birth month.<br>
+            <span style="color:#a3aed6;">Step 3:</span> Since ${n} > 12, at least two people were born in the same month.`;
+        }
+      }
+
+      // 12. Complex number conversion
+      if (/convert\s+the\s+complex\s+number\s+([0-9.\-]+)\s*\+\s*([0-9.\-]+)i\s+to\s+polar\s+form/i.test(m)) {
+        const match = m.match(/convert\s+the\s+complex\s+number\s+([0-9.\-]+)\s*\+\s*([0-9.\-]+)i\s+to\s+polar\s+form/i);
+        const re = parseFloat(match[1]), im = parseFloat(match[2]);
+        const r = Math.sqrt(re*re + im*im);
+        const theta = Math.atan2(im, re) * 180 / Math.PI;
+        return `🧮 <strong>Complex Number to Polar Form:</strong><br>
+          <span style="color:#a3aed6;">Step 1:</span> r = √(${re}² + ${im}²) = ${r.toFixed(2)}<br>
+          <span style="color:#a3aed6;">Step 2:</span> θ = arctan(${im}/${re}) = ${theta.toFixed(2)}°<br>
+          <span style="color:#a3aed6;">Step 3:</span> Polar form: <span style="color:#8b5cf6;font-weight:700;">${r.toFixed(2)} ∠ ${theta.toFixed(2)}°</span>`;
+      }
+
+      // 13. General fallback for math
+      if (/derivative|integral|matrix|eigenvalue|eigenvector|newton-raphson|differential|solve|inverse/i.test(m)) {
+        return "🧮 Sorry, I can only help with basic calculations, conversions, probability, statistics, and simple set theory. For advanced math (calculus, matrices, differential equations), please use a specialized tool or ask your lecturer for step-by-step guidance.";
+      }
+
       if(m.includes('philip') && m.includes('cobbinah')) {
         return `🎓 <strong>Philip Cobbinah</strong> is a highly accomplished student leader and innovator at Regent University Ghana. He co-developed "RoboServe", serves as Vice SRC President, Enactus Team Lead, and represented Ghana at the Enactus World Cup 2025.`;
       }
       if(m.includes('hi')||m.includes('hello')) return "👋 Hello! How can I help you today?";
       if(m.includes('thank')) return "😊 You're welcome! Happy to help!";
       if(m.includes('bye')) return "👋 Goodbye! Have a great day!";
-      
+
       return "🤖 I can help with questions about Regent University, students, campus life, and more. Try asking about specific people or topics!";
     }
     
@@ -477,6 +961,28 @@
     document.getElementById('regentAiModal').onclick = function(e) {
       if(e.target === this) closeRegentAiModal();
     };
+    
+    // Image upload for AI (OCR demo)
+    document.getElementById('regentAiImageInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      addAiMessage('🖼️ Image attached. Ready to send with your prompt.', 'ai', true);
+
+      Tesseract.recognize(file, 'eng').then(({ data: { text } }) => {
+        removeAiTyping();
+        attachedImageText = text && text.trim() ? text.trim() : null;
+        if (attachedImageText) {
+          addAiMessage(`📝 <strong>Image text extracted and attached.</strong><br><pre style="white-space:pre-wrap;background:#181c2a;padding:10px;border-radius:8px;color:#8b5cf6;">${attachedImageText}</pre><br>
+          <span style="color:#a3aed6;">Now type your prompt and press Send.</span>`, 'ai');
+        } else {
+          addAiMessage('⚠️ No readable text found in the image. You can still send your prompt.', 'ai');
+        }
+      }).catch(() => {
+        removeAiTyping();
+        attachedImageText = null;
+        addAiMessage('⚠️ Error processing image. Please try a clearer image.', 'ai');
+      });
+    });
   </script>
 </body>
 </html>

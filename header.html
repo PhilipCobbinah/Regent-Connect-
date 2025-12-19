@@ -1,13 +1,170 @@
+
 <header class="site-header">
   <div class="header-left">
     <a href="dashboard.html" class="brand">
-      <img src="assets/icons/logo.svg" alt="logo" class="logo-small">
+      <div class="logo-small">RC</div>
       <span>Regent Connect</span>
     </a>
   </div>
   <div class="header-right">
-    <a href="notifications.html" class="icon-btn" title="Notifications">🔔<span id="notifBadge" class="badge hidden">0</span></a>
-    <a href="profile.html" title="Profile">Profile</a>
-    <a href="settings.html" title="Settings">Settings</a>
+    <a href="status.html" class="header-link" title="Status">
+      <span class="status-dot">🟢</span> Status
+    </a>
+    <a href="notifications.html" class="icon-btn" title="Notifications">
+      🔔
+      <span id="notifBadge" class="badge hidden">0</span>
+    </a>
+    <a href="ai.html" class="icon-btn" title="RegentAI">🤖</a>
+    <a href="profile.html" class="header-link" title="Profile">Profile</a>
+    <a href="settings.html" class="icon-btn" title="Settings">⚙️</a>
   </div>
 </header>
+
+<style>
+.site-header {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  backdrop-filter: blur(10px);
+}
+
+.header-left .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s;
+}
+
+.header-left .brand:hover {
+  opacity: 0.8;
+}
+
+.logo-small {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  font-size: 16px;
+}
+
+.brand span {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-link, .icon-btn {
+  text-decoration: none;
+  color: inherit;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  position: relative;
+}
+
+.header-link:hover, .icon-btn:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.icon-btn {
+  font-size: 20px;
+  padding: 8px 12px;
+}
+
+.status-dot {
+  font-size: 12px;
+}
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-weight: 600;
+  min-width: 18px;
+  text-align: center;
+}
+
+.badge.hidden {
+  display: none;
+}
+
+@media(max-width: 768px) {
+  .site-header {
+    padding: 10px 16px;
+  }
+  
+  .header-link span,
+  .brand span {
+    display: none;
+  }
+  
+  .header-right {
+    gap: 8px;
+  }
+  
+  .header-link, .icon-btn {
+    padding: 8px;
+  }
+}
+</style>
+
+<script>
+// Update notification badge
+(function updateNotificationBadge() {
+  try {
+    const KEY = {REQS:'rc_reqs', CUR:'rc_currentUser', NOTIFS:'rc_notifs'};
+    const DB = {
+      load(key, defaultVal){
+        try{
+          const v=localStorage.getItem(key);
+          return v?JSON.parse(v):defaultVal;
+        }catch(e){
+          return defaultVal;
+        }
+      }
+    };
+    
+    const currentUser = DB.load(KEY.CUR, null);
+    if(!currentUser) return;
+    
+    const reqs = DB.load(KEY.REQS, []);
+    const notifs = DB.load(KEY.NOTIFS, []);
+    
+    // Count unread notifications
+    const unreadCount = reqs.filter(r => r.to === currentUser.id).length + 
+                       notifs.filter(n => !n.read).length;
+    
+    const badge = document.getElementById('notifBadge');
+    if(badge && unreadCount > 0) {
+      badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+      badge.classList.remove('hidden');
+    }
+  } catch(e) {
+    console.error('Error updating notification badge:', e);
+  }
+})();
+</script>
