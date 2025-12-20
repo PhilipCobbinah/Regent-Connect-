@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Past Questions — Regent University College of Science and Technology</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <style>
+    body {
+      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+      background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
+      color:#fff;
+      margin:0;
+      min-height:100vh;
+    }
+    .navbar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:#181c2a;
+      padding:12px 24px;
+      box-shadow:0 2px 12px rgba(139,92,246,0.07);
+      position:sticky;
+      top:0;
+      z-index:100;
+    }
+    .navbar .logo {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-decoration:none;
+    }
+    .navbar .logo img {
+      height:48px;
+      width:48px;
+      border-radius:12px;
+      background:#fff;
+      box-shadow:0 2px 8px rgba(139,92,246,0.12);
+    }
+    .navbar .logo span {
+      font-size:1.3rem;
+      font-weight:700;
+      color:#fbbf24;
+      letter-spacing:0.5px;
+    }
+    .navbar .nav-links {
+      display:flex;
+      gap:22px;
+    }
+    .navbar .nav-links a {
+      color:#a3aed6;
+      text-decoration:none;
+      font-weight:600;
+      font-size:1rem;
+      transition:color 0.2s;
+      padding:6px 0;
+      border-bottom:2px solid transparent;
+    }
+    .navbar .nav-links a.active,
+    .navbar .nav-links a:hover {
+      color:#fbbf24;
+      border-bottom:2px solid #fbbf24;
+    }
+    .pq-header {
+      text-align:center;
+      padding:40px 10px 20px 10px;
+      background:linear-gradient(135deg,#fbbf24,#f59e42);
+      color:#1e293b;
+    }
+    .pq-header h1 {
+      margin:0 0 10px 0;
+      font-size:2.5rem;
+      font-weight:800;
+    }
+    .pq-header p {
+      font-size:1.2rem;
+      color:#1e293b;
+      margin-bottom:0;
+    }
+    .pq-content {
+      max-width:900px;
+      margin:40px auto 0 auto;
+      background:#181c2a;
+      border-radius:16px;
+      padding:30px 20px;
+      box-shadow:0 8px 32px rgba(139,92,246,0.15);
+    }
+    .pq-section {
+      margin-bottom:32px;
+    }
+    .pq-section h2 {
+      color:#fbbf24;
+      font-size:1.3rem;
+      margin-bottom:10px;
+      font-weight:700;
+    }
+    .pq-list {
+      list-style:disc inside;
+      color:#a3aed6;
+      margin:0 0 0 15px;
+      padding:0;
+    }
+    .pq-list a {
+      color:#8b5cf6;
+      text-decoration:underline;
+      font-weight:500;
+      transition:color 0.2s;
+    }
+    .pq-list a:hover {
+      color:#fbbf24;
+    }
+    .pq-footer {
+      text-align:center;
+      color:#8b95a8;
+      font-size:0.95rem;
+      margin:40px 0 10px 0;
+    }
+    .pq-programmes {
+      margin-bottom: 32px;
+    }
+    .pq-programmes h3 {
+      color: #8b5cf6;
+      margin: 18px 0 8px 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .pq-programmes ul {
+      margin: 0 0 10px 18px;
+      color: #a3aed6;
+      font-size: 1rem;
+      padding-left: 0;
+    }
+    .pq-programmes li {
+      margin-bottom: 3px;
+    }
+    .pq-section-actions {
+      display: flex;
+      gap: 14px;
+      margin: 14px 0 0 0;
+      flex-wrap: wrap;
+    }
+    .pq-action-btn {
+      background: linear-gradient(135deg,#8b5cf6,#fbbf24);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .pq-action-btn.upload {
+      background: linear-gradient(135deg,#06b6d4,#8b5cf6);
+    }
+    .pq-action-btn:hover {
+      filter: brightness(1.08);
+      color: #181c2a;
+    }
+    @media (max-width:600px) {
+      .navbar {flex-direction:column;align-items:flex-start;padding:10px 8px;}
+      .navbar .logo img {height:38px;width:38px;}
+      .navbar .logo span {font-size:1.05rem;}
+      .navbar .nav-links {gap:12px;}
+      .pq-content {padding:15px 5px;}
+      .pq-header h1 {font-size:1.5rem;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar with Logo -->
+  <nav class="navbar">
+    <a href="index.html" class="logo">
+      <img src="assets/icons/logo-regent.png" alt="Regent Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🎓%3C/text%3E%3C/svg%3E'">
+      <span>Regent Connect</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="chat.html">Chat</a>
+      <a href="past-questions.html" class="active">Past Questions</a>
+      <a href="auth.html">Login</a>
+    </div>
+  </nav>
+  <div class="pq-header">
+    <h1>Regent University Past Questions</h1>
+    <p>Browse and download past exam questions for various programmes and levels.</p>
+    <a href="index.html" style="color:#fff;background:#8b5cf6;padding:8px 18px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;margin-top:18px;">← Back to Home</a>
+  </div>
+  <div class="pq-content">
+    <!-- Filter Buttons and Search Bar -->
+    <div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:32px;flex-wrap:wrap;">
+      <!-- Programme Filter -->
+      <select id="pqProgrammeFilter" style="padding:12px 10px;border-radius:8px;border:1px solid #353b50;background:#10172a;color:#fff;font-size:1.05rem;min-width:170px;">
+        <option value="">All Programmes</option>
+        <option value="applied electronics">Applied Electronics & Systems Engineering</option>
+        <option value="computer science">Computer Science</option>
+        <option value="information systems">Information Systems Sciences</option>
+        <option value="accounting">Accounting with Information Systems</option>
+        <option value="banking">Banking and Finance</option>
+        <option value="bba">BBA (eCommerce Option)</option>
+        <option value="economics">Economics with Computing</option>
+        <option value="management">Management with Computing</option>
+      </select>
+      <!-- Year Filter -->
+      <select id="pqYearFilter" style="padding:12px 10px;border-radius:8px;border:1px solid #353b50;background:#10172a;color:#fff;font-size:1.05rem;min-width:120px;">
+        <option value="">All Years</option>
+        <!-- Years 2011-2025 -->
+        <option value="2011">2011</option>
+        <option value="2012">2012</option>
+        <option value="2013">2013</option>
+        <option value="2014">2014</option>
+        <option value="2015">2015</option>
+        <option value="2016">2016</option>
+        <option value="2017">2017</option>
+        <option value="2018">2018</option>
+        <option value="2019">2019</option>
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+      </select>
+      <!-- Search Bar -->
+      <input id="pqSearchInput" type="text" placeholder="Search by programme, course, year, or title..." style="padding:12px 16px;border-radius:8px;border:1px solid #353b50;background:#10172a;color:#fff;font-size:1.1rem;width:100%;max-width:400px;">
+      <button id="pqSearchBtn" class="pq-action-btn" style="padding:12px 24px;">🔍 Search</button>
+    </div>
+    <!-- Past Questions by Programme -->
+    <div class="pq-section">
+      <h2>BSc (Hons) Computer Science</h2>
+      <ul class="pq-list" style="margin-top:18px;">
+        <li>
+          <a href="#" class="pq-course-link" data-title="CS101: Introduction to Computing" data-year="2023" data-program="BSc (Hons) Computer Science" data-link="past-questions/CS101-Intro-to-Computing-2023.pdf">CS101: Introduction to Computing (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="CS201: Data Structures" data-year="2022" data-program="BSc (Hons) Computer Science" data-link="past-questions/CS201-Data-Structures-2022.pdf">CS201: Data Structures (2022)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="CS310: Artificial Intelligence" data-year="2023" data-program="BSc (Hons) Computer Science" data-link="past-questions/CS310-Artificial-Intelligence-2023.pdf">CS310: Artificial Intelligence (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="CS320: Software Engineering" data-year="2023" data-program="BSc (Hons) Computer Science" data-link="past-questions/CS320-Software-Engineering-2023.pdf">CS320: Software Engineering (2023)</a>
+        </li>
+        <!-- Add more as needed -->
+      </ul>
+    </div>
+    <div class="pq-section">
+      <h2>BSc (Hons) Information Systems Sciences</h2>
+      <ul class="pq-list" style="margin-top:18px;">
+        <li>
+          <a href="#" class="pq-course-link" data-title="IS201: Database Systems" data-year="2023" data-program="BSc (Hons) Information Systems Sciences" data-link="past-questions/IS201-Database-Systems-2023.pdf">IS201: Database Systems (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="IS220: Internet Programming" data-year="2023" data-program="BSc (Hons) Information Systems Sciences" data-link="past-questions/IS220-Internet-Programming-2023.pdf">IS220: Internet Programming (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="IS310: Network Management" data-year="2023" data-program="BSc (Hons) Information Systems Sciences" data-link="past-questions/IS310-Network-Management-2023.pdf">IS310: Network Management (2023)</a>
+        </li>
+        <!-- Add more as needed -->
+      </ul>
+    </div>
+    <div class="pq-section">
+      <h2>BEng (Hons) Applied Electronics &amp; Systems Engineering</h2>
+      <ul class="pq-list" style="margin-top:18px;">
+        <li>
+          <a href="#" class="pq-course-link" data-title="ENG110: Electrical Principles" data-year="2023" data-program="BEng (Hons) Applied Electronics & Systems Engineering" data-link="past-questions/ENG110-Electrical-Principles-2023.pdf">ENG110: Electrical Principles (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="ENG210: Telecommunications" data-year="2023" data-program="BEng (Hons) Applied Electronics & Systems Engineering" data-link="past-questions/ENG210-Telecommunications-2023.pdf">ENG210: Telecommunications (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="ENG230: Instrumentation" data-year="2023" data-program="BEng (Hons) Applied Electronics & Systems Engineering" data-link="past-questions/ENG230-Instrumentation-2023.pdf">ENG230: Instrumentation (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="ENG240: Computer Engineering" data-year="2023" data-program="BEng (Hons) Applied Electronics & Systems Engineering" data-link="past-questions/ENG240-Computer-Engineering-2023.pdf">ENG240: Computer Engineering (2023)</a>
+        </li>
+        <!-- Add more as needed -->
+      </ul>
+    </div>
+    <div class="pq-section">
+      <h2>BSc (Hons) Accounting with Information Systems</h2>
+      <ul class="pq-list" style="margin-top:18px;">
+        <li>
+          <a href="#" class="pq-course-link" data-title="ACC101: Financial Reporting" data-year="2023" data-program="BSc (Hons) Accounting with Information Systems" data-link="past-questions/ACC101-Financial-Reporting-2023.pdf">ACC101: Financial Reporting (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="ACC210: Taxation" data-year="2023" data-program="BSc (Hons) Accounting with Information Systems" data-link="past-questions/ACC210-Taxation-2023.pdf">ACC210: Taxation (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="ACC220: Auditing" data-year="2023" data-program="BSc (Hons) Accounting with Information Systems" data-link="past-questions/ACC220-Auditing-2023.pdf">ACC220: Auditing (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="ACC230: Cost Accounting" data-year="2023" data-program="BSc (Hons) Accounting with Information Systems" data-link="past-questions/ACC230-Cost-Accounting-2023.pdf">ACC230: Cost Accounting (2023)</a>
+        </li>
+        <!-- Add more as needed -->
+      </ul>
+    </div>
+    <div class="pq-section">
+      <h2>BSc (Hons) Banking and Finance</h2>
+      <ul class="pq-list" style="margin-top:18px;">
+        <li>
+          <a href="#" class="pq-course-link" data-title="FIN201: Investment" data-year="2023" data-program="BSc (Hons) Banking and Finance" data-link="past-questions/FIN201-Investment-2023.pdf">FIN201: Investment (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="FIN210: Financial Management" data-year="2023" data-program="BSc (Hons) Banking and Finance" data-link="past-questions/FIN210-Financial-Management-2023.pdf">FIN210: Financial Management (2023)</a>
+        </li>
+        <!-- Add more as needed -->
+      </ul>
+    </div>
+    <div class="pq-section">
+      <h2>BBA (eCommerce Option)</h2>
+      <ul class="pq-list" style="margin-top:18px;">
+        <li>
+          <a href="#" class="pq-course-link" data-title="BBA301: E-Commerce Marketing" data-year="2023" data-program="BBA (eCommerce Option)" data-link="past-questions/BBA301-ECommerce-Marketing-2023.pdf">BBA301: E-Commerce Marketing (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="BBA320: Web Programming" data-year="2023" data-program="BBA (eCommerce Option)" data-link="past-questions/BBA320-Web-Programming-2023.pdf">BBA320: Web Programming (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="BBA340: Strategic Management" data-year="2023" data-program="BBA (eCommerce Option)" data-link="past-questions/BBA340-Strategic-Management-2023.pdf">BBA340: Strategic Management (2023)</a>
+        </li>
+        <!-- Add more as needed -->
+      </ul>
+    </div>
+    <div class="pq-section">
+      <h2>BSc (Hons) Economics with Computing</h2>
+      <ul class="pq-list" style="margin-top:18px;">
+        <li>
+          <a href="#" class="pq-course-link" data-title="ECN201: Economic Theory" data-year="2023" data-program="BSc (Hons) Economics with Computing" data-link="past-questions/ECN201-Economic-Theory-2023.pdf">ECN201: Economic Theory (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="ECN220: Computational Tools" data-year="2023" data-program="BSc (Hons) Economics with Computing" data-link="past-questions/ECN220-Computational-Tools-2023.pdf">ECN220: Computational Tools (2023)</a>
+        </li>
+        <!-- Add more as needed -->
+      </ul>
+    </div>
+    <div class="pq-section">
+      <h2>BSc (Hons) Management with Computing</h2>
+      <ul class="pq-list" style="margin-top:18px;">
+        <li>
+          <a href="#" class="pq-course-link" data-title="MGT201: Business Management" data-year="2023" data-program="BSc (Hons) Management with Computing" data-link="past-questions/MGT201-Business-Management-2023.pdf">MGT201: Business Management (2023)</a>
+        </li>
+        <li>
+          <a href="#" class="pq-course-link" data-title="MGT220: IT Applications" data-year="2023" data-program="BSc (Hons) Management with Computing" data-link="past-questions/MGT220-IT-Applications-2023.pdf">MGT220: IT Applications (2023)</a>
+        </li>
+        <!-- Add more as needed -->
+      </ul>
+    </div>
+    <div style="color:#fbbf24;font-size:1.05rem;margin-top:30px;">
+      Can't find your course? Email <a href="mailto:info@regent.edu.gh" style="color:#8b5cf6;">info@regent.edu.gh</a> to request more past questions.
+    </div>
+  </div>
+  <div class="pq-footer">
+    &copy; 2024 Regent University College of Science and Technology. For educational use only.
+  </div>
+  <!-- Modal for viewing past question image and details -->
+  <div id="pqModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;">
+    <div id="pqModalContent" style="background:#181c2a;border-radius:18px;max-width:95vw;max-height:90vh;padding:0;box-shadow:0 8px 40px #000a;display:flex;flex-direction:column;align-items:center;overflow:hidden;position:relative;">
+      <button id="pqModalClose" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:2rem;color:#fff;cursor:pointer;z-index:2;">&times;</button>
+      <div id="pqModalHeader" style="padding:24px 24px 10px 24px;text-align:center;width:100%;">
+        <h2 id="pqModalTitle" style="margin:0 0 8px 0;color:#fbbf24;font-size:1.5rem;"></h2>
+        <div id="pqModalMeta" style="color:#a3aed6;font-size:1.05rem;"></div>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;max-width:90vw;max-height:60vh;">
+        <img id="pqModalImg" src="" alt="Past Question" style="max-width:90vw;max-height:60vh;border-radius:12px;box-shadow:0 2px 18px #0008;">
+      </div>
+    </div>
+  </div>
+  <!-- Modal for Uploading Past Questions -->
+  <div id="pqUploadModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;">
+    <div style="background:#181c2a;border-radius:18px;max-width:95vw;max-height:95vh;padding:0;box-shadow:0 8px 40px #000a;display:flex;flex-direction:column;align-items:center;overflow:hidden;position:relative;">
+      <button id="pqUploadModalBack" style="position:absolute;top:10px;left:10px;background:none;border:none;font-size:2rem;color:#fff;cursor:pointer;z-index:2;" title="Back">&#8592;</button>
+      <button id="pqUploadModalClose" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:2rem;color:#fff;cursor:pointer;z-index:2;">&times;</button>
+      <div style="padding:24px 24px 10px 24px;text-align:center;width:100%;">
+        <h2 id="pqUploadModalTitle" style="margin:0 0 8px 0;color:#8b5cf6;font-size:1.5rem;">Upload Past Question</h2>
+        <div id="pqUploadModalMeta" style="color:#a3aed6;font-size:1.05rem;margin-bottom:10px;"></div>
+      </div>
+      <form id="pqUploadForm" style="display:flex;flex-direction:column;align-items:center;gap:18px;padding:20px 24px 32px 24px;width:100%;max-width:400px;">
+        <input type="file" id="pqUploadFile" accept="image/*" style="color:#fff;font-size:1rem;" required>
+        <input type="text" id="pqUploadYear" placeholder="Year (e.g. 2023)" style="padding:10px;border-radius:8px;border:1px solid #353b50;background:#10172a;color:#fff;width:100%;" required>
+        <input type="text" id="pqUploadLevel" placeholder="Level (e.g. 100, 200, 300)" style="padding:10px;border-radius:8px;border:1px solid #353b50;background:#10172a;color:#fff;width:100%;" required>
+        <button type="submit" class="pq-action-btn upload" style="width:100%;">Upload</button>
+        <div id="pqUploadPreview" style="margin-top:10px;display:none;">
+          <img src="" alt="Preview" style="max-width:220px;max-height:220px;border-radius:10px;box-shadow:0 2px 12px #0008;">
+        </div>
+        <div id="pqUploadMsg" style="color:#10b981;font-size:1.05rem;margin-top:8px;display:none;"></div>
+      </form>
+    </div>
+  </div>
+  <!-- Modal for viewing all past questions under a program -->
+  <div id="pqProgramModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;">
+    <div style="background:#181c2a;border-radius:18px;max-width:95vw;max-height:95vh;padding:0;box-shadow:0 8px 40px #000a;display:flex;flex-direction:column;align-items:center;overflow:hidden;position:relative;">
+      <button id="pqProgramModalClose" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:2rem;color:#fff;cursor:pointer;z-index:2;">&times;</button>
+      <div style="padding:24px 24px 10px 24px;text-align:center;width:100%;">
+        <h2 id="pqProgramModalTitle" style="margin:0 0 8px 0;color:#fbbf24;font-size:1.5rem;"></h2>
+        <div id="pqProgramModalMeta" style="color:#a3aed6;font-size:1.05rem;"></div>
+      </div>
+      <div id="pqProgramModalList" style="flex:1;overflow-y:auto;width:100%;max-width:600px;padding:0 24px 24px 24px;">
+        <!-- Past questions will be injected here -->
+      </div>
+    </div>
+  </div>
+  <!-- Modal for viewing and uploading for a specific course -->
+  <div id="pqCourseModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;">
+    <div style="background:#181c2a;border-radius:18px;max-width:95vw;max-height:95vh;padding:0;box-shadow:0 8px 40px #000a;display:flex;flex-direction:column;align-items:center;overflow:hidden;position:relative;">
+      <button id="pqCourseModalClose" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:2rem;color:#fff;cursor:pointer;z-index:2;">&times;</button>
+      <div style="padding:24px 24px 10px 24px;text-align:center;width:100%;">
+        <h2 id="pqCourseModalTitle" style="margin:0 0 8px 0;color:#fbbf24;font-size:1.5rem;"></h2>
+        <div id="pqCourseModalMeta" style="color:#a3aed6;font-size:1.05rem;"></div>
+      </div>
+      <div id="pqCourseModalImageBox" style="display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;padding-bottom:24px;">
+        <img id="pqCourseModalImg" src="" alt="Past Question" style="max-width:80vw;max-height:60vh;border-radius:12px;box-shadow:0 2px 18px #0008;">
+      </div>
+      <div id="pqCourseModalActions" style="display:flex;flex-direction:column;align-items:center;gap:18px;width:100%;max-width:400px;padding:0 0 24px 0;">
+        <a id="pqCourseViewBtn" class="pq-action-btn" href="#" target="_blank" style="width:90%;margin:0 auto 0 auto;text-align:center;">View Past Question</a>
+        <button id="pqCourseUploadBtn" class="pq-action-btn upload" style="width:90%;margin:0 auto 0 auto;">Upload Past Question</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Modal logic for viewing past question images
+    function showPastQuestionModal({title, meta, imgSrc, program}) {
+      document.getElementById('pqModalTitle').textContent = title || '';
+      document.getElementById('pqModalMeta').innerHTML = (program ? `<div style="margin-bottom:4px;">Programme: <span style="color:#fbbf24;">${program}</span></div>` : '') + (meta || '');
+      document.getElementById('pqModalImg').src = imgSrc || '';
+      document.getElementById('pqModal').style.display = 'flex';
+    }
+    document.getElementById('pqModalClose').onclick = function() {
+      document.getElementById('pqModal').style.display = 'none';
+      document.getElementById('pqModalImg').src = '';
+    };
+    document.getElementById('pqModal').onclick = function(e) {
+      if (e.target === this) this.style.display = 'none';
+    };
+
+    // Upload Past Question Modal logic
+    function showUploadPastQuestionModal({course}) {
+      document.getElementById('pqUploadModalTitle').textContent = 'Upload Past Question';
+      document.getElementById('pqUploadModalMeta').textContent = course ? 'Course: ' + course : '';
+      document.getElementById('pqUploadForm').reset();
+      document.getElementById('pqUploadPreview').style.display = 'none';
+      document.getElementById('pqUploadMsg').style.display = 'none';
+      document.getElementById('pqUploadModal').style.display = 'flex';
+    }
+    document.getElementById('pqUploadModalClose').onclick = function() {
+      document.getElementById('pqUploadModal').style.display = 'none';
+    };
+    document.getElementById('pqUploadModal').onclick = function(e) {
+      if (e.target === this) this.style.display = 'none';
+    };
+
+    // Show image preview on file select
+    document.getElementById('pqUploadFile').onchange = function(e) {
+      const file = e.target.files[0];
+      const preview = document.getElementById('pqUploadPreview');
+      const img = preview.querySelector('img');
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          img.src = ev.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.style.display = 'none';
+      }
+    };
+
+    // Handle upload form submit (demo: just show success, no backend)
+    document.getElementById('pqUploadForm').onsubmit = function(e) {
+      e.preventDefault();
+      const file = document.getElementById('pqUploadFile').files[0];
+      const year = document.getElementById('pqUploadYear').value.trim();
+      const level = document.getElementById('pqUploadLevel').value.trim();
+      const msg = document.getElementById('pqUploadMsg');
+      if (!file || !year || !level) {
+        msg.textContent = "Please fill all fields and select an image.";
+        msg.style.color = "#f87171";
+        msg.style.display = "block";
+        return;
+      }
+      msg.textContent = "✅ Past question uploaded successfully! (Demo only)";
+      msg.style.color = "#10b981";
+      msg.style.display = "block";
+      setTimeout(() => {
+        document.getElementById('pqUploadModal').style.display = 'none';
+      }, 1500);
+    };
+
+    // Modal logic for viewing all past questions under a program
+    function showProgramPastQuestionsModal({program, questions}) {
+      document.getElementById('pqProgramModalTitle').textContent = program || '';
+      document.getElementById('pqProgramModalMeta').textContent = 'All available past questions';
+      const listDiv = document.getElementById('pqProgramModalList');
+      listDiv.innerHTML = '';
+      if (questions && questions.length) {
+        const ul = document.createElement('ul');
+        ul.style.listStyle = 'none';
+        ul.style.padding = '0';
+        ul.style.margin = '0';
+        questions.forEach(q => {
+          const li = document.createElement('li');
+          li.style.marginBottom = '18px';
+          li.style.background = '#23263a';
+          li.style.borderRadius = '8px';
+          li.style.padding = '16px';
+          li.style.boxShadow = '0 2px 12px #0004';
+          li.style.display = 'flex';
+          li.style.flexDirection = 'column';
+          li.style.alignItems = 'flex-start';
+
+          // Title
+          const title = document.createElement('div');
+          title.style.fontWeight = '700';
+          title.style.fontSize = '1.1rem';
+          title.style.color = '#8b5cf6';
+          title.textContent = q.title;
+          li.appendChild(title);
+
+          // Year/Meta
+          if (q.year) {
+            const meta = document.createElement('div');
+            meta.style.color = '#fbbf24';
+            meta.style.fontSize = '1rem';
+            meta.style.margin = '4px 0 8px 0';
+            meta.textContent = 'Year: ' + q.year;
+            li.appendChild(meta);
+          }
+
+          // View button
+          const viewBtn = document.createElement('a');
+          viewBtn.textContent = 'View';
+          viewBtn.className = 'pq-action-btn';
+          viewBtn.style.marginRight = '10px';
+          viewBtn.style.marginTop = '6px';
+          viewBtn.style.padding = '8px 18px';
+          viewBtn.style.fontSize = '1em';
+          viewBtn.style.textDecoration = 'none';
+          viewBtn.style.display = 'inline-block';
+          viewBtn.target = '_blank';
+          viewBtn.href = q.link;
+          li.appendChild(viewBtn);
+
+          ul.appendChild(li);
+        });
+        listDiv.appendChild(ul);
+      } else {
+        listDiv.innerHTML = '<div style="color:#f87171;font-size:1.1rem;text-align:center;margin-top:30px;">No past questions available for this programme.</div>';
+      }
+      document.getElementById('pqProgramModal').style.display = 'flex';
+    }
+    document.getElementById('pqProgramModalClose').onclick = function() {
+      document.getElementById('pqProgramModal').style.display = 'none';
+      document.getElementById('pqProgramModalList').innerHTML = '';
+    };
+    document.getElementById('pqProgramModal').onclick = function(e) {
+      if (e.target === this) this.style.display = 'none';
+    };
+
+    // Show course modal with view/upload for a specific course
+    function showCourseModal({title, year, program, link}) {
+      document.getElementById('pqCourseModalTitle').textContent = title || '';
+      document.getElementById('pqCourseModalMeta').innerHTML =
+        (program ? `<div style="margin-bottom:4px;">Programme: <span style="color:#fbbf24;">${program}</span></div>` : '') +
+        (year ? `Year: ${year}` : '');
+
+      // Hide image by default
+      document.getElementById('pqCourseModalImageBox').style.display = 'none';
+      document.getElementById('pqCourseModalImg').src = '';
+
+      var viewBtn = document.getElementById('pqCourseViewBtn');
+      viewBtn.href = link || '#';
+      viewBtn.style.display = link ? '' : 'none';
+      document.getElementById('pqCourseModal').style.display = 'flex';
+
+      // Store for back navigation from upload modal
+      window._pqUploadBackData = {title, year, program, link};
+
+      // Set up upload button to open upload modal for this course
+      var uploadBtn = document.getElementById('pqCourseUploadBtn');
+      uploadBtn.onclick = function() {
+        document.getElementById('pqCourseModal').style.display = 'none';
+        showUploadPastQuestionModal({course: title, program: program, year: year, link: link});
+      };
+
+      // Show image and details when "View Past Question" is clicked
+      viewBtn.onclick = function(e) {
+        e.preventDefault();
+        // Only show image if it's an image file, otherwise show PDF icon
+        let imgSrc = '';
+        if (/\.(jpg|jpeg|png|webp)$/i.test(link)) {
+          imgSrc = link;
+        } else if (/\.(pdf)$/i.test(link)) {
+          imgSrc = 'assets/icons/pdf-icon.png'; // Placeholder for PDF
+        } else {
+          imgSrc = '';
+        }
+        if (imgSrc) {
+          document.getElementById('pqCourseModalImg').src = imgSrc;
+          document.getElementById('pqCourseModalImageBox').style.display = 'flex';
+        } else {
+          document.getElementById('pqCourseModalImageBox').style.display = 'none';
+        }
+        // Optionally, scroll to image
+        setTimeout(() => {
+          document.getElementById('pqCourseModalImg').scrollIntoView({behavior: "smooth", block: "center"});
+        }, 100);
+      };
+    }
+    document.getElementById('pqCourseModalClose').onclick = function() {
+      document.getElementById('pqCourseModal').style.display = 'none';
+      document.getElementById('pqCourseModalImageBox').style.display = 'none';
+      document.getElementById('pqCourseModalImg').src = '';
+    };
+    document.getElementById('pqCourseModal').onclick = function(e) {
+      if (e.target === this) {
+        document.getElementById('pqCourseModal').style.display = 'none';
+        document.getElementById('pqCourseModalImageBox').style.display = 'none';
+        document.getElementById('pqCourseModalImg').src = '';
+      }
+    };
+
+    // Attach click handlers to each course link
+    document.addEventListener('DOMContentLoaded', function() {
+      // View Past Questions button: show first image/pdf in section
+      document.querySelectorAll('.pq-action-btn:not(.upload)').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const section = btn.closest('.pq-section');
+          const imgLink = section.querySelector('.pq-list a[href$=".jpg"], .pq-list a[href$=".jpeg"], .pq-list a[href$=".png"], .pq-list a[href$=".webp"], .pq-list a[href$=".pdf"]');
+          if (imgLink) {
+            let imgSrc = '';
+            if (/\.(pdf)$/i.test(imgLink.href)) {
+              imgSrc = 'assets/icons/pdf-icon.png'; // Placeholder for PDF
+            } else {
+              imgSrc = imgLink.href;
+            }
+            const title = section.querySelector('h2') ? section.querySelector('h2').textContent : '';
+            const meta = imgLink.textContent.match(/\((\d{4})\)/) ? 'Year: ' + imgLink.textContent.match(/\((\d{4})\)/)[1] : '';
+            showPastQuestionModal({title, meta, imgSrc});
+          }
+        });
+      });
+      // Clicking on a particular course (list item) shows its image/year/title/program
+      document.querySelectorAll('.pq-list a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          if (/\.(jpg|jpeg|png|webp|pdf)$/i.test(link.href)) {
+            e.preventDefault();
+            const section = link.closest('.pq-section');
+            const title = link.textContent.replace(/\s*\(\d{4}\)/, '').trim();
+            const meta = link.textContent.match(/\((\d{4})\)/) ? 'Year: ' + link.textContent.match(/\((\d{4})\)/)[1] : '';
+            let imgSrc = '';
+            if (/\.(pdf)$/i.test(link.href)) {
+              imgSrc = 'assets/icons/pdf-icon.png'; // Placeholder for PDF
+            } else {
+              imgSrc = link.href;
+            }
+            // Get the program name from the section's h2
+            const program = section && section.querySelector('h2') ? section.querySelector('h2').textContent : '';
+            showPastQuestionModal({title, meta, imgSrc, program});
+          }
+        });
+      });
+      document.querySelectorAll('.pq-course-link').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          showCourseModal({
+            title: link.getAttribute('data-title'),
+            year: link.getAttribute('data-year'),
+            program: link.getAttribute('data-program'),
+            link: link.getAttribute('data-link')
+          });
+        });
+      });
+    });
+
+    // Search/filter logic for past questions
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('pqSearchInput');
+      const searchBtn = document.getElementById('pqSearchBtn');
+      const programmeFilter = document.getElementById('pqProgrammeFilter');
+      const yearFilter = document.getElementById('pqYearFilter');
+      const allSections = Array.from(document.querySelectorAll('.pq-section'));
+      // const allProgrammes = document.querySelector('.pq-programmes'); // removed as per previous instructions
+
+      function normalize(str) {
+        return (str || '').toLowerCase().replace(/\s+/g, ' ').trim();
+      }
+
+      function searchPastQuestions() {
+        const query = normalize(searchInput.value);
+        const progVal = normalize(programmeFilter.value);
+        const yearVal = yearFilter.value;
+
+        allSections.forEach(section => {
+          const sectionTitle = normalize(section.querySelector('h2')?.textContent);
+          let showSection = true;
+
+          // Programme filter
+          if (progVal) {
+            // Match by keywords in section title
+            showSection = sectionTitle.includes(progVal);
+          }
+
+          // Year filter
+          if (showSection && yearVal) {
+            // Only show if any li contains the year
+            let foundYear = false;
+            section.querySelectorAll('.pq-list li').forEach(li => {
+              if (li.textContent.includes(yearVal)) foundYear = true;
+            });
+            showSection = foundYear;
+          }
+
+          // Search query filter
+          if (showSection && query) {
+            let found = false;
+            // Match by section title
+            if (sectionTitle.includes(query)) found = true;
+            // Match by course title or year in the list
+            section.querySelectorAll('.pq-list li').forEach(li => {
+              const liText = normalize(li.textContent);
+              if (liText.includes(query)) found = true;
+            });
+            // Match by year (e.g. 2023)
+            if (/^\d{4}$/.test(query)) {
+              section.querySelectorAll('.pq-list li').forEach(li => {
+                if (li.textContent.includes(query)) found = true;
+              });
+            }
+            showSection = found;
+          }
+
+          section.style.display = showSection ? '' : 'none';
+        });
+      }
+
+      searchBtn.onclick = searchPastQuestions;
+      searchInput.onkeyup = function(e) {
+        if (e.key === 'Enter') searchPastQuestions();
+        if (!searchInput.value) searchPastQuestions();
+      };
+      programmeFilter.onchange = searchPastQuestions;
+      yearFilter.onchange = searchPastQuestions;
+    });
+  </script>
+
+  <!-- RegentAI Chat Bot Button (fixed at bottom right) -->
+  <a href="auth.html" id="openRegentAiBtn" style="
+    position:fixed;
+    bottom:32px;
+    right:32px;
+    z-index:9999;
+    background:linear-gradient(135deg,#8b5cf6,#06b6d4);
+    color:#fff;
+    border:none;
+    border-radius:50px;
+    padding:16px 28px;
+    font-size:1.25rem;
+    font-weight:700;
+    box-shadow:0 8px 32px rgba(139,92,246,0.25);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    transition:box-shadow 0.2s,transform 0.2s;
+    text-decoration:none;
+  " title="Chat with RegentAI">
+    🤖 RegentAI
+  </a>
+
+  <!-- Modal for RegentAI chat (hidden by default) -->
+  <div id="regentAiModal" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:10000;
+    background:rgba(0,0,0,0.95);
+    align-items:center;
+    justify-content:center;
+  ">
+    <div style="
+      background:#181c2a;
+      border-radius:16px;
+      padding:24px;
+      max-width:90vw;
+      width:400px;
+      box-shadow:0 8px 40px rgba(0,0,0,0.3);
+      position:relative;
+    ">
+      <button id="closeRegentAiModal" style="
+        position:absolute;
+        top:12px;
+        right:12px;
+        background:none;
+        border:none;
+        color:#fff;
+        font-size:1.5rem;
+        cursor:pointer;
+      ">&times;</button>
+      <h2 style="
+        margin:0 0 12px 0;
+        color:#fbbf24;
+        font-size:1.5rem;
+        text-align:center;
+      ">RegentAI Chat</h2>
+      <div id="regentAiMessages" style="
+        max-height:60vh;
+        overflow-y:auto;
+        margin-bottom:16px;
+        padding-right:8px;
+      ">
+        <!-- Messages will be injected here by JavaScript -->
+      </div>
+      <div style="display:flex;gap:10px;">
+        <input id="regentAiInput" type="text" placeholder="Ask me anything..." style="
+          flex:1;
+          padding:12px;
+          border-radius:8px;
+          border:1px solid #353b50;
+          background:#10172a;
+          color:#fff;
+          font-size:1rem;
+        ">
+        <button id="sendRegentAiBtn" class="pq-action-btn" style="
+          padding:12px 18px;
+          font-size:1rem;
+          border-radius:8px;
+          flex-shrink:0;
+        ">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // RegentAI chat functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      var regentAiModal = document.getElementById('regentAiModal');
+      var openRegentAiBtn = document.getElementById('openRegentAiBtn');
+      var closeRegentAiModal = document.getElementById('closeRegentAiModal');
+      var regentAiInput = document.getElementById('regentAiInput');
+      var sendRegentAiBtn = document.getElementById('sendRegentAiBtn');
+      var regentAiMessages = document.getElementById('regentAiMessages');
+
+      // Open RegentAI modal
+      openRegentAiBtn.onclick = function() {
+        regentAiModal.style.display = 'flex';
+        setTimeout(() => { regentAiInput.focus(); }, 300);
+      };
+
+      // Close RegentAI modal
+      closeRegentAiModal.onclick = function() {
+        regentAiModal.style.display = 'none';
+      };
+      regentAiModal.onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+      };
+
+      // Send message to RegentAI (demo functionality)
+      sendRegentAiBtn.onclick = function() {
+        var userInput = regentAiInput.value.trim();
+        if (!userInput) return;
+        appendMessage('You', userInput, true);
+        regentAiInput.value = '';
+
+        // Demo response (replace with real AI response logic)
+        setTimeout(() => {
+          appendMessage('RegentAI', 'This is a demo response. Replace with real AI logic.', false);
+        }, 1000);
+      };
+
+      // Append message to chat
+      function appendMessage(sender, text, isUser) {
+        var msgDiv = document.createElement('div');
+        msgDiv.style.marginBottom = '12px';
+        msgDiv.style.display = 'flex';
+        msgDiv.style.flexDirection = isUser ? 'row-reverse' : 'row';
+        msgDiv.style.alignItems = 'flex-start';
+
+        var textDiv = document.createElement('div');
+        textDiv.style.maxWidth = '80%';
+        textDiv.style.wordWrap = 'break-word';
+        textDiv.style.padding = '10px 14px';
+        textDiv.style.borderRadius = '12px';
+        textDiv.style.background = isUser ? '#06b6d4' : '#23263a';
+        textDiv.style.color = isUser ? '#fff' : '#a3aed6';
+        textDiv.textContent = text;
+
+        msgDiv.appendChild(textDiv);
+        regentAiMessages.appendChild(msgDiv);
+        regentAiMessages.scrollTop = regentAiMessages.scrollHeight;
+      }
+    });
+  </script>
+</body>
+</html>

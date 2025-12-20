@@ -331,7 +331,8 @@
       <div class="cta-buttons">
         <a href="auth.html" class="btn primary">🚀 Get Started</a>
         <a href="chat.html" class="btn secondary">💬 View Demo</a>
-        <button type="button" class="btn ai" id="openRegentAiBtn">🤖 RegentAI Assistant</button>
+        <a href="auth.html" class="btn ai" id="openRegentAiBtn">🤖 RegentAI Assistant</a>
+        <a href="past-questions.html" class="btn secondary" style="background:linear-gradient(135deg,#fbbf24,#f59e42);color:#fff;border:none;">📚 Access Past Questions</a>
       </div>
     </div>
   </header>
@@ -379,6 +380,11 @@
         <div class="feature-icon">📸</div>
         <h3>Profile Pictures</h3>
         <p>Upload and customize your profile with photos, just like social media.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📚</div>
+        <h3>Access Past Questions</h3>
+        <p>Browse and download past exam questions for Regent University courses. <a href="past-questions.html" style="color:#fbbf24;text-decoration:underline;">View Past Questions</a></p>
       </div>
     </div>
   </section>
@@ -696,7 +702,8 @@
     
     // Ensure DOM is loaded before attaching event listeners
     document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('openRegentAiBtn').onclick = openRegentAiModal;
+      // Remove the modal open handler for RegentAI button since it's now a link
+      // document.getElementById('openRegentAiBtn').onclick = openRegentAiModal;
 
       let attachedImageText = null;
 
