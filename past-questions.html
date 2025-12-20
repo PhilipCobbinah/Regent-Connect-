@@ -15,52 +15,139 @@
       min-height:100vh;
     }
     .navbar {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      background:#181c2a;
-      padding:12px 24px;
-      box-shadow:0 2px 12px rgba(139,92,246,0.07);
-      position:sticky;
-      top:0;
-      z-index:100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #181c2a;
+      padding: 12px 24px;
+      box-shadow: 0 2px 12px rgba(139,92,246,0.07);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
     .navbar .logo {
-      display:flex;
-      align-items:center;
-      gap:12px;
-      text-decoration:none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
     }
     .navbar .logo img {
-      height:48px;
-      width:48px;
-      border-radius:12px;
-      background:#fff;
-      box-shadow:0 2px 8px rgba(139,92,246,0.12);
+      height: 48px;
+      width: 48px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(139,92,246,0.12);
     }
     .navbar .logo span {
-      font-size:1.3rem;
-      font-weight:700;
-      color:#fbbf24;
-      letter-spacing:0.5px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fbbf24;
+      letter-spacing: 0.5px;
     }
     .navbar .nav-links {
-      display:flex;
-      gap:22px;
+      display: flex;
+      gap: 22px;
     }
     .navbar .nav-links a {
-      color:#a3aed6;
-      text-decoration:none;
-      font-weight:600;
-      font-size:1rem;
-      transition:color 0.2s;
-      padding:6px 0;
-      border-bottom:2px solid transparent;
+      color: #a3aed6;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: color 0.2s;
+      padding: 6px 0;
+      border-bottom: 2px solid transparent;
     }
     .navbar .nav-links a.active,
     .navbar .nav-links a:hover {
-      color:#fbbf24;
-      border-bottom:2px solid #fbbf24;
+      color: #fbbf24;
+      border-bottom: 2px solid #fbbf24;
+    }
+
+    /* Hamburger styles */
+    .navbar .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-left: 12px;
+      z-index: 101;
+    }
+    .navbar .hamburger span {
+      display: block;
+      width: 26px;
+      height: 3px;
+      background: #fbbf24;
+      margin: 4px 0;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    /* Mobile nav dropdown */
+    .navbar .mobile-nav {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 60px;
+      right: 18px;
+      background: #23263a;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(139,92,246,0.18);
+      min-width: 170px;
+      padding: 10px 0;
+      z-index: 200;
+      animation: fadeInDown 0.25s;
+    }
+    .navbar .mobile-nav a {
+      color: #a3aed6;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 12px 24px;
+      border-bottom: none;
+      border-radius: 0;
+      transition: background 0.15s, color 0.15s;
+      display: block;
+    }
+    .navbar .mobile-nav a.active,
+    .navbar .mobile-nav a:hover {
+      background: #181c2a;
+      color: #fbbf24;
+    }
+
+    @media (max-width: 700px) {
+      .navbar {
+        padding: 10px 8px;
+      }
+      .navbar .logo img {
+        height: 38px;
+        width: 38px;
+      }
+      .navbar .logo span {
+        font-size: 1.05rem;
+      }
+      .navbar .nav-links {
+        display: none;
+      }
+      .navbar .hamburger {
+        display: flex;
+      }
+      .navbar .mobile-nav {
+        display: none;
+      }
+      .navbar .mobile-nav.open {
+        display: flex;
+      }
+    }
+    @media (max-width: 400px) {
+      .navbar .mobile-nav a {
+        padding: 10px 10px;
+        font-size: 0.95rem;
+      }
     }
     .pq-header {
       text-align:center;
@@ -178,6 +265,17 @@
       <span>Regent Connect</span>
     </a>
     <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="chat.html">Chat</a>
+      <a href="past-questions.html" class="active">Past Questions</a>
+      <a href="auth.html">Login</a>
+    </div>
+    <button class="hamburger" id="mobileNavToggle" aria-label="Open navigation" type="button">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="mobile-nav" id="mobileNavMenu" style="display:none;">
       <a href="index.html">Home</a>
       <a href="chat.html">Chat</a>
       <a href="past-questions.html" class="active">Past Questions</a>
