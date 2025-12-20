@@ -61,3 +61,6 @@ const STORAGE_KEYS = {
 // Export
 window.DB = DB;
 window.STORAGE_KEYS = STORAGE_KEYS;
+
+// Add audio message type support to message structure
+// Messages will now have: { id, from, to, text, timestamp, type: 'text'|'audio', audioData, read: false }

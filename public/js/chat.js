@@ -333,5 +333,107 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// Add audio recording functionality
+window.AudioRecorder = {
+  mediaRecorder: null,
+  audioChunks: [],
+  isRecording: false,
+  
+  async startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.mediaRecorder = new MediaRecorder(stream);
+      this.audioChunks = [];
+      
+      this.mediaRecorder.ondataavailable = (event) => {
+        this.audioChunks.push(event.data);
+      };
+      
+      this.mediaRecorder.start();
+      this.isRecording = true;
+      return true;
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      alert('❌ Could not access microphone. Please grant permission.');
+      return false;
+    }
+  },
+  
+  stopRecording() {
+    return new Promise((resolve) => {
+      if (!this.mediaRecorder || !this.isRecording) {
+        resolve(null);
+        return;
+      }
+      
+      this.mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result); // Base64 audio data
+        };
+        reader.readAsDataURL(audioBlob);
+        
+        // Stop all tracks
+        this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        this.isRecording = false;
+      };
+      
+      this.mediaRecorder.stop();
+    });
+  },
+  
+  cancelRecording() {
+    if (this.mediaRecorder && this.isRecording) {
+      this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      this.audioChunks = [];
+      this.isRecording = false;
+    }
+  }
+};
+
+// Enhanced sendMessage to support audio
+function sendMessage(text, type = 'text', audioData = null) {
+  const currentUser = DB.load(KEYS.CURRENT_USER);
+  if (!currentUser || !window.currentChatUser) return;
+  
+  const message = {
+    id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+    from: currentUser.id,
+    to: window.currentChatUser,
+    text: text || '',
+    type: type,
+    audioData: audioData,
+    timestamp: Date.now(),
+    read: false
+  };
+  
+  const messages = DB.load(KEYS.MESSAGES, []);
+  messages.push(message);
+  DB.save(KEYS.MESSAGES, messages);
+  
+  return message;
+}
+
+// Mark messages as read
+function markMessagesAsRead(fromUserId) {
+  const currentUser = DB.load(KEYS.CURRENT_USER);
+  if (!currentUser) return;
+  
+  const messages = DB.load(KEYS.MESSAGES, []);
+  let updated = false;
+  
+  messages.forEach(msg => {
+    if (msg.to === currentUser.id && msg.from === fromUserId && !msg.read) {
+      msg.read = true;
+      updated = true;
+    }
+  });
+  
+  if (updated) {
+    DB.save(KEYS.MESSAGES, messages);
+  }
+}
+
 // Export
 window.chat = chat;

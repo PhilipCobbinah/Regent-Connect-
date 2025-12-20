@@ -430,10 +430,10 @@
       <section class="profile-picture-section">
         <h3>Profile Picture</h3>
         <img id="profile-img-preview" src="assets/icons/default-profile.png" alt="Profile Picture" style="width:120px;height:120px;border-radius:50%;object-fit:cover;">
-        <form id="profile-pic-form" enctype="multipart/form-data" method="POST" action="upload_profile_pic.php">
-            <input type="file" id="profile-pic-input" name="profile_picture" accept="image/*" style="margin-top:10px;">
-            <button type="submit">Upload/Update</button>
-        </form>
+        
+        <!-- WhatsApp-style: Just file input, no submit button -->
+        <input type="file" id="profile-pic-input" accept="image/*" style="margin-top:10px;cursor:pointer;">
+        <small style="color:#a3aed6;margin-top:8px;text-align:center;">Click to select a photo. It will upload automatically.</small>
       </section>
 
       <section class="profile-stats card">
@@ -489,7 +489,7 @@
         loadAndApplyAvatar(currentUser.id);
       }
 
-      // wire file input to read & save avatar
+      // WhatsApp-style automatic upload on file selection
       const picInput = document.getElementById('profile-pic-input');
       const imgPreview = document.getElementById('profile-img-preview');
       const avatarContainer = document.getElementById('profileAvatar');
@@ -499,41 +499,51 @@
           const file = e.target.files && e.target.files[0];
           if (!file) return;
           
-          console.log('File selected:', file.name, file.type); // Debug
+          console.log('File selected:', file.name, file.type);
           
-          // only images
+          // Only images
           if (!file.type.startsWith('image/')) {
-            alert('Please upload an image file.');
+            alert('❌ Please upload an image file (JPG, PNG, GIF, etc.)');
+            picInput.value = ''; // Clear selection
             return;
+          }
+
+          // Show loading indicator
+          if (imgPreview) {
+            imgPreview.style.opacity = '0.5';
           }
 
           try {
             const dataUrl = await fileToDataUrl(file);
-            console.log('Image converted to dataURL, length:', dataUrl.length); // Debug
+            console.log('Image converted to dataURL, length:', dataUrl.length);
             
-            // apply immediately to preview
+            // Apply immediately to preview
             if (imgPreview) {
               imgPreview.src = dataUrl;
+              imgPreview.style.opacity = '1';
               console.log('Preview updated');
             }
             
-            // apply to profile header avatar
+            // Apply to profile header avatar
             if (avatarContainer) {
-              let img = avatarContainer.querySelector('img');
-              if (!img) {
-                img = document.createElement('img');
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.borderRadius = '50%';
-                img.style.objectFit = 'cover';
-                avatarContainer.innerHTML = ''; // Clear existing content
-                avatarContainer.appendChild(img);
-              }
+              // Clear the container completely
+              avatarContainer.innerHTML = '';
+              
+              // Create new image element
+              const img = document.createElement('img');
               img.src = dataUrl;
-              console.log('Header avatar updated');
+              img.style.width = '100%';
+              img.style.height = '100%';
+              img.style.borderRadius = '50%';
+              img.style.objectFit = 'cover';
+              img.alt = 'Profile Picture';
+              
+              // Append to container
+              avatarContainer.appendChild(img);
+              console.log('Header avatar updated with uploaded image');
             }
             
-            // persist to localStorage and database
+            // Persist to localStorage and database
             if (currentUser && currentUser.id) {
               localStorage.setItem('avatar_' + currentUser.id, dataUrl);
               currentUser.avatar = dataUrl;
@@ -541,7 +551,7 @@
               
               console.log('Saved to localStorage and CURRENT_USER');
               
-              // Also update users list if present
+              // Update users list
               const users = DB.load(KEYS.USERS, []);
               const uidx = users.findIndex(u => u.id === currentUser.id);
               if (uidx !== -1) {
@@ -550,31 +560,46 @@
                 console.log('Updated USERS list');
               }
               
-              // Show success message
-              setTimeout(() => {
-                alert('✅ Profile picture updated successfully!');
-              }, 100);
+              // Show success feedback (WhatsApp-style quick notification)
+              showSuccessToast('✅ Profile picture updated!');
             }
           } catch (error) {
             console.error('Error processing image:', error);
-            alert('Error uploading image. Please try again.');
-          }
-        });
-      }
-
-      // prevent actual form POST (optional) and keep client-side behavior
-      const picForm = document.getElementById('profile-pic-form');
-      if (picForm) {
-        picForm.addEventListener('submit', function (ev) {
-          ev.preventDefault();
-          // Trigger file input click if no file selected
-          const picInput = document.getElementById('profile-pic-input');
-          if (picInput && !picInput.files.length) {
-            alert('Please select an image first.');
+            alert('❌ Error uploading image. Please try again.');
+            if (imgPreview) {
+              imgPreview.style.opacity = '1';
+            }
           }
         });
       }
     });
+
+    // WhatsApp-style success toast notification
+    function showSuccessToast(message) {
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.3);animation:slideUp 0.3s ease;';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideDown 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 2000);
+    }
+
+    // Add CSS animations for toast
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideUp {
+        from { bottom: 0; opacity: 0; }
+        to { bottom: 80px; opacity: 1; }
+      }
+      @keyframes slideDown {
+        from { bottom: 80px; opacity: 1; }
+        to { bottom: 0; opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
 
     // helper: file -> dataURL
     function fileToDataUrl(file) {
@@ -588,11 +613,11 @@
 
     // helper: load avatar from storage and apply to DOM
     function loadAndApplyAvatar(userId) {
-      console.log('Loading avatar for user:', userId); // Debug
+      console.log('Loading avatar for user:', userId);
       
       const stored = localStorage.getItem('avatar_' + userId);
       if (stored) {
-        console.log('Found stored avatar, length:', stored.length); // Debug
+        console.log('Found stored avatar, length:', stored.length);
         
         const imgPreview = document.getElementById('profile-img-preview');
         if (imgPreview) {
@@ -602,21 +627,22 @@
         
         const avatarContainer = document.getElementById('profileAvatar');
         if (avatarContainer) {
-          let img = avatarContainer.querySelector('img');
-          if (!img) {
-            img = document.createElement('img');
-            avatarContainer.innerHTML = ''; // Clear logo
-            avatarContainer.appendChild(img);
-          }
+          // Clear container and add uploaded image
+          avatarContainer.innerHTML = '';
+          
+          const img = document.createElement('img');
           img.src = stored;
           img.style.width = '100%';
           img.style.height = '100%';
           img.style.borderRadius = '50%';
           img.style.objectFit = 'cover';
-          console.log('Set header avatar');
+          img.alt = 'Profile Picture';
+          
+          avatarContainer.appendChild(img);
+          console.log('Set header avatar from storage');
         }
       } else {
-        console.log('No stored avatar found'); // Debug
+        console.log('No stored avatar found');
         // if no stored avatar but currentUser has avatar in DB, use it
         const currentUser = DB.load(KEYS.CURRENT_USER);
         if (currentUser && currentUser.avatar) {
